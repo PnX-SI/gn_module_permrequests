@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools_scm>=8.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["backend"]
+
+[project]
+name = "gn_module_permrequests"
+description = "Module GeoNature de demande de permissions."
+requires-python = ">=3.9"
+dependencies = ["geonature >= 2.14"]
+dynamic = ["version"]
+maintainers = [
+  { name = "Conservatoire Botanique National Alpin", email = "geonature@cbn-alpin.fr" },
+  { name = "Parcs nationaux des Écrins et des Cévennes", email = "geonature@ecrins-parcnational.fr" },
+]
+
+[project.urls]
+Repository = "https://github.com/PnX-SI/gn_module_permrequests/"
+
+[project.entry-points.gn_module]
+code = "gn_module_permrequests:MODULE_CODE"
+label = "gn_module_permrequests:MODULE_LABEL"
+blueprint = "gn_module_permrequests.blueprint:blueprint"
+migrations = "gn_module_permrequests:migrations"
+alembic_branch = "gn_module_permrequests:ALEMBIC_BRANCH"
+config_schema = "gn_module_permrequests.config_schema:PermissionsRequestsConfigSchema"
+
+
+[tool.black]
+line-length = 100
+
+[tool.coverage.run]
+source = ["backend/gn_module_permrequests/"]
+omit = ["*/tests/*", "*/migrations/*"]
