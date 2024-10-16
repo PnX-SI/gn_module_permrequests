@@ -1,0 +1,15 @@
+name: pytest
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+  workflow_call:
+
+jobs:
+  build:
+    uses: pnx-si/geonature/.github/workflows/gn-module-pytest.yml@feat/gn-module-pytest
+    with:
+      geonature_ref: "feat/extended-permissions"
