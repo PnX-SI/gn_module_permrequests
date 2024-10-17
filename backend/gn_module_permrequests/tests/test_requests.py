@@ -368,6 +368,39 @@ class TestRequests:
         assert r.status_code == 200, r.data
         assert perm_req.extras == {"field1": "value2"}
 
+    def test_update_request_validated(self, users, modules, requests):
+        perm_req = requests["r1"]
+        with db.session.begin_nested():
+            perm_req.permission.validated = True
+            perm_req.permission.scope_value = 1
+        url = url_for("permissions_requests.update_request", id_permission=perm_req.id_permission)
+
+        set_logged_user(self.client, users["user"])
+        r = self.client.post(
+            url,
+            data={
+                "permission": {
+                    "id_permission": perm_req.id_permission,
+                    "scope_value": 2,
+                },
+            },
+        )
+        assert r.status_code == Forbidden.code, r.data
+        assert perm_req.permission.scope_value == 1
+
+        set_logged_user(self.client, users["admin_user"])
+        r = self.client.post(
+            url,
+            data={
+                "permission": {
+                    "id_permission": perm_req.id_permission,
+                    "scope_value": 2,
+                },
+            },
+        )
+        assert r.status_code == 200, r.data
+        assert perm_req.permission.scope_value == 2
+
     def test_validate_request(self, users, requests):
         url = url_for(
             "permissions_requests.validate_request",

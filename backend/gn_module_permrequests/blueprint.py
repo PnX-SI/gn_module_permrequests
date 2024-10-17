@@ -43,6 +43,7 @@ dump_schema = PermissionRequestSchema(
         "permission.module",
         "permission.object",
         "permission.expire_on",
+        "permission.validated",
         "permission.scope_value",
         "permission.sensitivity_filter",
         "permission.areas_filter",
@@ -133,6 +134,9 @@ def update_request(id_permission, scope):
     if not perm_req:
         raise NotFound
     if not perm_req.has_instance_permission(scope):
+        raise Forbidden
+    # Users can not modify permissions after validation (except admins)
+    if scope < 3 and perm_req.permission.validated is not None:
         raise Forbidden
     schema = PermissionRequestSchema(
         only=[
