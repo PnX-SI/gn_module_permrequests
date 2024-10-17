@@ -134,6 +134,9 @@ def update_request(id_permission, scope):
         raise NotFound
     if not perm_req.has_instance_permission(scope):
         raise Forbidden
+    # Users can not modify permissions after validation (except admins)
+    if scope < 3 and perm_req.permission.validated is not None:
+        raise Forbidden
     schema = PermissionRequestSchema(
         only=[
             "-",  # do not allows any PermissionRequest fields
