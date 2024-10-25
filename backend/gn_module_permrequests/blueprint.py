@@ -24,6 +24,7 @@ blueprint: Blueprint = Blueprint(name="permissions_requests", import_name=__name
 
 
 writable_fields = [
+    "extras",
     "permission.id_role",
     "permission.id_action",
     "permission.id_module",
@@ -71,12 +72,7 @@ def list_requests(scope):
 @blueprint.route(rule="/", methods=["PUT"])
 @check_cruved_scope(action="C", module_code=MODULE_CODE, get_scope=True)
 def create_request(scope):
-    schema = PermissionRequestSchema(
-        only=[
-            "-",  # do not allows any PermissionRequest fields
-        ]
-        + writable_fields
-    )
+    schema = PermissionRequestSchema(only=writable_fields)
     perm_req = schema.load(
         request.json,
         partial=("permission.id_role",),  # facultative, default to g.current_user
@@ -140,7 +136,6 @@ def update_request(id_permission, scope):
         raise Forbidden
     schema = PermissionRequestSchema(
         only=[
-            "-",  # do not allows any PermissionRequest fields
             "permission.id_permission",  # required for load_instance to work
         ]
         + writable_fields

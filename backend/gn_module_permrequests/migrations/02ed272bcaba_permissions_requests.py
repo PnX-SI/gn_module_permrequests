@@ -9,6 +9,7 @@ Create Date: 2024-09-30 17:13:44.650757
 from alembic import op
 from gn_module_permrequests import MODULE_CODE
 import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import JSON
 
 
 # revision identifiers, used by Alembic.
@@ -91,6 +92,7 @@ def upgrade():
         sa.Column("created_on", sa.DateTime, server_default=sa.func.now()),
         sa.Column("validated_on", sa.DateTime),
         sa.Column("validated_by", sa.Integer, sa.ForeignKey("utilisateurs.t_roles.id_role")),
+        sa.Column("extras", JSON, nullable=True),
         schema="gn_permissions",
     )
 

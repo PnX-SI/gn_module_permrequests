@@ -119,6 +119,7 @@ class TestRequests:
                 "areas_filter": [{"id_area": id_area}],
                 "taxons_filter": [{"cd_nom": cd_nom}],
             },
+            "extras": {"field1": "value1"},
         }
 
         r = self.client.put(url, data=data)
@@ -187,6 +188,7 @@ class TestRequests:
         ).scalar_one()
         assert perm_req.permission.validated is None
         assert perm_req.permission.role == users["user"]
+        assert perm_req.extras == {"field1": "value1"}
 
         # Try creating request without expliciting permission role
         _data = deepcopy(data)

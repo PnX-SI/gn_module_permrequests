@@ -6,6 +6,8 @@ from geonature.core.gn_permissions.models import Permission
 
 from pypnusershub.db.models import User
 from sqlalchemy.orm import backref
+from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.ext.mutable import MutableDict
 
 
 class PermissionRequest(db.Model):
@@ -23,6 +25,7 @@ class PermissionRequest(db.Model):
     )
     validated_on = db.Column(sa.DateTime)
     validated_by = db.Column(sa.Integer, sa.ForeignKey(column="utilisateurs.t_roles.id_role"))
+    extras = db.Column(MutableDict.as_mutable(JSON), nullable=True)
 
     permission = db.relationship(
         Permission,
