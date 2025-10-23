@@ -1,3 +1,65 @@
 <div class="AccessRequestList">
-  ETIENNE
+  <ng-template #cellDateTemplate let-date="date">
+    {{ renderDate(date) }}
+  </ng-template>
+
+  <ng-template #cellNumberTemplate let-value="value">
+    {{ value ? value : '-' }}
+  </ng-template>
+
+  <ng-template #cellNameTemplate let-value="value">
+    {{ value | titlecase }}
+  </ng-template>
+
+  <ng-template #cellDefaultTemplate let-value="value">
+    {{ value }}
+  </ng-template>
+
+  <ngx-datatable class="AccessRequestList__table material striped" [rows]="accessRequests" columnMode="force"
+    [draggable]="false" (page)="onChangePage($event)" footerHeight="auto" headerHeight="auto" [externalPaging]="true"
+    [count]="pagination.totalItems" [limit]="pagination.perPage" rowHeight="auto" [externalSorting]="true"
+    (sort)="onSort($event)" [sorts]="[{ prop: sort.sortBy, dir: sort.sortOrder }]">
+    <ngx-datatable-column name="Id" [prop]="PROP_ID_ACCESS_REQUEST">
+      <ng-template ngx-datatable-cell-template let-row="row">
+        <ng-template
+          *ngTemplateOutlet="cellNumberTemplate; context: { value: row[PROP_ID_ACCESS_REQUEST] }"></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column name="Author" [prop]="PROP_AUTHOR">
+      <ng-template ngx-datatable-cell-template let-row="row">
+        <ng-template *ngTemplateOutlet="cellNameTemplate; context: { value: row.author.nom_complet }"></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column name="Date d'expiration" [prop]="PROP_EXPIRATION_DATE">
+      <ng-template ngx-datatable-cell-template let-row="row">
+        <ng-template *ngTemplateOutlet="cellDateTemplate; context: { date: row[PROP_EXPIRATION_DATE] }"></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column name="Groupe(s) Taxonomique(s)" [prop]="PROP_TAXA" [sortable]="false">
+      <ng-template ngx-datatable-cell-template let-row="row">
+        <div class="Taxa">
+          <ul class="TaxaList" [class.TaxaList--single]="row.taxa?.length === 1">
+            <li *ngFor="let taxon of row.taxa || []">
+              {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
+            </li>
+          </ul>
+        </div>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column name="Validator" [prop]="PROP_VALIDATOR">
+      <ng-template ngx-datatable-cell-template let-row="row">
+        <ng-template *ngTemplateOutlet="cellNameTemplate; context: { value: row.validator.nom_complet }"></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column [width]="100" name="Validation Status" [prop]="PROP_VALIDATION_STATUS">
+      <ng-template ngx-datatable-cell-template let-row="row">
+        <div class="BadgeContainer">
+          <gn-badge [text]="row.validation_status.label"
+            [symbology]="{ color: getValidationStatusColor(row.validation_status.code) }">
+          </gn-badge>
+          <div class="BadgeContainer__spacer"></div>
+        </div>
+      </ng-template>
+    </ngx-datatable-column>
+  </ngx-datatable>
 </div>

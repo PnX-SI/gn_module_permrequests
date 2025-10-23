@@ -1,3 +1,40 @@
 .AccessRequestList {
-  border: 2px solid crimson;
+  height: 100%;
+  width: 100%;
+  &__table {
+    height: inherit;
+    box-shadow: none;
+    ::ng-deep .visible {
+      height: inherit;
+      .datatable-body {
+        // height: 80% !important;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+    }
+    .BadgeContainer {
+      width: 100%;
+      display: flex;
+      flex-flow: row nowrap;
+
+      &__spacer {
+        flex-grow: 2;
+      }
+    }
+  }
+}
+
+.Taxa {
+  &List {
+    margin: 0;
+    padding-left: 1.2rem;
+    list-style: disc;
+
+    &--single {
+    list-style: none;
+    li {
+      list-style: none;
+    }
+  }
+  }
 }
