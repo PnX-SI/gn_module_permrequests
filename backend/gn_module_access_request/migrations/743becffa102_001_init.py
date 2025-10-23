@@ -16,7 +16,9 @@ from sqlalchemy.sql import text
 MODULE_CODE = "ACCESS_REQUEST"
 SCHEMA_NAME = f"pr_{MODULE_CODE.lower()}"
 TABLE_NAME = f"t_{MODULE_CODE.lower()}"
-PRIMARY_KEY = f"id_{TABLE_NAME}"
+PRIMARY_KEY = "id_access_request"
+COR_ACCESS_REQUEST_TAXA_TABLE = f"cor_{MODULE_CODE.lower()}_taxa"
+COR_ACCESS_REQUEST_PERMISSIONS_TABLE = f"cor_{MODULE_CODE.lower()}_permissions"
 NOMENCLATURE_TYPE = f"{MODULE_CODE}_VALIDATION"
 ACCESS_REQUEST_VALIDATION_VALUES = [
     {"code": "PENDING", "label": "EN ATTENTE"},
@@ -40,6 +42,68 @@ def upgrade():
     op.create_table(
         TABLE_NAME,
         sa.Column(PRIMARY_KEY, sa.Integer, primary_key=True, autoincrement=True),
+        sa.Column(
+            "id_validation_status",
+            sa.Integer,
+            sa.ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"),
+            nullable=True,
+        ),
+        sa.Column(
+            "id_author",
+            sa.Integer,
+            sa.ForeignKey("utilisateurs.t_roles.id_role"),
+            nullable=False,
+        ),
+        sa.Column(
+            "id_validator",
+            sa.Integer,
+            sa.ForeignKey("utilisateurs.t_roles.id_role"),
+            nullable=True,
+        ),
+        sa.Column(
+            "expiration_date",
+            sa.Date,
+            nullable=False,
+        ),
+        sa.Column("description", sa.Text, nullable=True),
+        schema=SCHEMA_NAME,
+    )
+    op.create_table(
+        COR_ACCESS_REQUEST_TAXA_TABLE,
+        sa.Column(
+            "id_access_request",
+            sa.Integer,
+            sa.ForeignKey(
+                f"{SCHEMA_NAME}.{TABLE_NAME}.{PRIMARY_KEY}",
+                ondelete="CASCADE",
+            ),
+            primary_key=True,
+        ),
+        sa.Column(
+            "cd_nom",
+            sa.Integer,
+            sa.ForeignKey("taxonomie.taxref.cd_nom"),
+            primary_key=True,
+        ),
+        schema=SCHEMA_NAME,
+    )
+    op.create_table(
+        COR_ACCESS_REQUEST_PERMISSIONS_TABLE,
+        sa.Column(
+            "id_access_request",
+            sa.Integer,
+            sa.ForeignKey(
+                f"{SCHEMA_NAME}.{TABLE_NAME}.{PRIMARY_KEY}",
+                ondelete="CASCADE",
+            ),
+            primary_key=True,
+        ),
+        sa.Column(
+            "id_permission",
+            sa.Integer,
+            sa.ForeignKey("gn_permissions.t_permissions.id_permission", ondelete="CASCADE"),
+            primary_key=True,
+        ),
         schema=SCHEMA_NAME,
     )
 
@@ -142,10 +206,10 @@ def upgrade():
       FROM
           (
               VALUES
-                  ('{MODULE_CODE}', 'ALL', 'C', False, 'Créer des exports')
-                  ,('{MODULE_CODE}', 'ALL', 'R', True, 'Voir les exports')
-                  ,('{MODULE_CODE}', 'ALL', 'U', False, 'Modifier les exports')
-                  ,('{MODULE_CODE}', 'ALL', 'D', False, 'Supprimer des exports')
+                  ('{MODULE_CODE}', 'ALL', 'C', False, 'Créer des requêtes d''accès')
+                  ,('{MODULE_CODE}', 'ALL', 'R', True, 'Voir les requêtes d''accès')
+                  ,('{MODULE_CODE}', 'ALL', 'U', False, 'Modifier les requêtes d''accès')
+                  ,('{MODULE_CODE}', 'ALL', 'D', False, 'Supprimer des requêtes d''accès')
           ) AS v (module_code, object_code, action_code, scope_filter, label)
       JOIN
           gn_commons.t_modules m ON m.module_code = v.module_code
@@ -219,5 +283,7 @@ def downgrade():
     ## ########################################################################
     ## SCHEMA ET TABLES
     ## ########################################################################
-    op.drop_table(TABLE_NAME, schema=SCHEMA_NAME)
+    op.drop_table(COR_ACCESS_REQUEST_PERMISSIONS_TABLE, schema=SCHEMA_NAME, if_exists=True)
+    op.drop_table(COR_ACCESS_REQUEST_TAXA_TABLE, schema=SCHEMA_NAME, if_exists=True)
+    op.drop_table(TABLE_NAME, schema=SCHEMA_NAME, if_exists=True)
     op.execute(sa.text(f"DROP SCHEMA IF EXISTS {SCHEMA_NAME} CASCADE"))
