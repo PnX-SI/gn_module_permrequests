@@ -5,6 +5,7 @@ import { DEFAULT_PAGINATION, PaginationItem } from '../../models/paginationItem'
 import { SORT_ORDER, SortItem } from '../../models/sortItem';
 import { AccessRequestSummary } from '../../models/accessRequestSummary';
 import { AccessRequestListResponse, AccessRequestService } from '../../services/accessRequest.service';
+import { AccessRequestToolbarComponent } from '../../components/access-request-toolbar/access-request-toolbar.component';
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { ConfigService } from '@geonature/services/config.service';
 // export interface AccessRequestSummary {
@@ -23,7 +24,7 @@ import { ConfigService } from '@geonature/services/config.service';
   selector: 'access-request-list',
   templateUrl: 'access-request-list.component.html',
   styleUrls: ['./access-request-list.component.scss'],
-  imports: [GN2CommonModule, CommonModule],
+  imports: [GN2CommonModule, CommonModule, AccessRequestToolbarComponent],
 })
 export class AccessRequestListComponent {
   readonly PROP_ID_ACCESS_REQUEST = "id_access_request";

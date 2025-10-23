@@ -51,7 +51,7 @@
         <ng-template *ngTemplateOutlet="cellNameTemplate; context: { value: row.validator.nom_complet }"></ng-template>
       </ng-template>
     </ngx-datatable-column>
-    <ngx-datatable-column [width]="100" name="Validation Status" [prop]="PROP_VALIDATION_STATUS">
+    <ngx-datatable-column name="Validation Status" [prop]="PROP_VALIDATION_STATUS">
       <ng-template ngx-datatable-cell-template let-row="row">
         <div class="BadgeContainer">
           <gn-badge [text]="row.validation_status.label"
@@ -59,6 +59,11 @@
           </gn-badge>
           <div class="BadgeContainer__spacer"></div>
         </div>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column [sortable]="false">
+      <ng-template ngx-datatable-cell-template let-row="row">
+        <access-request-toolbar [accessRequestSummary]="row"></access-request-toolbar>
       </ng-template>
     </ngx-datatable-column>
   </ngx-datatable>
