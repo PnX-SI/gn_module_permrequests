@@ -34,7 +34,7 @@ setuptools.setup(
             "picto = gn_module_access_request:MODULE_PICTO",
             "blueprint = gn_module_access_request.blueprint:blueprint",
             "config_schema = gn_module_access_request.conf_schema_toml:GnModuleSchemaConf",
-            # "migrations = gn_module_access_request:migrations",
+            "migrations = gn_module_access_request:migrations",
         ],
     },
 )
