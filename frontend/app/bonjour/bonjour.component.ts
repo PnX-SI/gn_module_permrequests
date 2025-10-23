@@ -5,5 +5,4 @@ import { Component } from '@angular/core';
   styleUrls: ['./bonjour.component.scss'],
   providers: [],
 })
-export class Bonjour {
-}
+export class Bonjour {}

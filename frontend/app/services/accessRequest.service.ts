@@ -3,7 +3,5 @@ import { ConfigService } from '@geonature/services/config.service';
 
 @Injectable()
 export class AccessRequestService {
-  constructor(
-    public config: ConfigService
-  ) {}
+  constructor(public config: ConfigService) {}
 }
