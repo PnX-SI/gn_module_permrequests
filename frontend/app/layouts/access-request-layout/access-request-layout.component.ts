@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 
+import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { ModuleService } from '@geonature/services/module.service';
 
 import { AccessRequest } from '../../models/accessRequest';
@@ -14,7 +14,13 @@ import { AccessRequestStatusComponent } from '../../components/access-request-st
   selector: 'access-request-layout',
   templateUrl: 'access-request-layout.component.html',
   styleUrls: ['access-request-layout.component.scss'],
-  imports: [GN2CommonModule, RouterModule, CommonModule, ModuleLayoutComponent, AccessRequestStatusComponent],
+  imports: [
+    GN2CommonModule,
+    RouterModule,
+    CommonModule,
+    ModuleLayoutComponent,
+    AccessRequestStatusComponent,
+  ],
 })
 export class AccessRequestLayoutComponent {
   get homeRouterLink(): string {

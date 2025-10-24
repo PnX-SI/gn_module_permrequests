@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ConfigService } from '@geonature/services/config.service';
-import { DEFAULT_PAGINATION, PaginationItem } from '../models/paginationItem';
 import { AccessRequest } from '../models/accessRequest';
 
 export interface AccessRequestListResponse {
@@ -12,7 +11,11 @@ export interface AccessRequestListResponse {
   items: AccessRequest[];
 }
 
-export interface AccessRequestReponse extends AccessRequest {}
+export type AccessRequestReponse = AccessRequest;
+export interface AccessRequestPayload {
+  description: string | null;
+  expiration_date: string;
+}
 
 @Injectable()
 export class AccessRequestService {
@@ -30,6 +33,30 @@ export class AccessRequestService {
   getAccessRequest(id_access_request: number): Observable<AccessRequestReponse> {
     return this._http.get<AccessRequestReponse>(
       `${this._config.API_ENDPOINT}/access_request/${id_access_request}`
+    );
+  }
+
+  private _serializePayload(payload: AccessRequestPayload){
+    console.log(payload);
+    return payload;
+  }
+
+  updateAccessRequest(
+    id_access_request: number,
+    payload: AccessRequestPayload
+  ): Observable<AccessRequestReponse> {
+    payload = this._serializePayload(payload);
+    return this._http.patch<AccessRequestReponse>(
+      `${this._config.API_ENDPOINT}/access_request/${id_access_request}`,
+      payload
+    );
+  }
+
+  createAccessRequest(payload: AccessRequestPayload): Observable<AccessRequestReponse> {
+    payload = this._serializePayload(payload);
+    return this._http.post<AccessRequestReponse>(
+      `${this._config.API_ENDPOINT}/access_request/`,
+      payload
     );
   }
 }

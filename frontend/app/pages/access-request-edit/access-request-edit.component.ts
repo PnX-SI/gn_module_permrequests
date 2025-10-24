@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
@@ -9,15 +10,13 @@ import { AccessRequestLayoutComponent } from '../../layouts/access-request-layou
   standalone: true,
   templateUrl: 'access-request-edit.component.html',
   styleUrls: ['./access-request-edit.component.scss'],
-  imports: [AccessRequestFormComponent, AccessRequestLayoutComponent],
+  imports: [CommonModule, AccessRequestFormComponent, AccessRequestLayoutComponent],
 })
 export class AccessRequestEditPageComponent implements OnInit {
   accessRequest: AccessRequest | null = null;
-
   constructor(private _route: ActivatedRoute) {}
 
   ngOnInit() {
-    this.accessRequest = this._route.snapshot.data.accessRequest;
-    console.log(this.accessRequest);
+    this.accessRequest = this._route.snapshot.data['accessRequest'];
   }
 }

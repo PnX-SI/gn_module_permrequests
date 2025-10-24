@@ -52,7 +52,10 @@
         let-accessRequest="row"
       >
         <ng-template
-          *ngTemplateOutlet="cellNumberTemplate; context: { value: accessRequest[PROP_ID_ACCESS_REQUEST] }"
+          *ngTemplateOutlet="
+            cellNumberTemplate;
+            context: { value: accessRequest[PROP_ID_ACCESS_REQUEST] }
+          "
         ></ng-template>
       </ng-template>
     </ngx-datatable-column>
@@ -78,7 +81,10 @@
         let-accessRequest="row"
       >
         <ng-template
-          *ngTemplateOutlet="cellDateTemplate; context: { date: accessRequest[PROP_EXPIRATION_DATE] }"
+          *ngTemplateOutlet="
+            cellDateTemplate;
+            context: { date: accessRequest[PROP_EXPIRATION_DATE] }
+          "
         ></ng-template>
       </ng-template>
     </ngx-datatable-column>
@@ -96,7 +102,9 @@
             class="TaxaList"
             [class.TaxaList--single]="accessRequest.taxa?.length === 1"
           >
-            <li *ngFor="let taxon of accessRequest.taxa || []">{{ taxon.cd_nom }} : {{ taxon.lb_nom }}</li>
+            <li *ngFor="let taxon of accessRequest.taxa || []">
+              {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
+            </li>
           </ul>
         </div>
       </ng-template>
@@ -110,7 +118,10 @@
         let-accessRequest="row"
       >
         <ng-template
-          *ngTemplateOutlet="cellNameTemplate; context: { value: accessRequest.validator.nom_complet }"
+          *ngTemplateOutlet="
+            cellNameTemplate;
+            context: { value: accessRequest.validator?.nom_complet }
+          "
         ></ng-template>
       </ng-template>
     </ngx-datatable-column>

@@ -1,1 +1,48 @@
-<div class="AccessRequestForm">Form</div>
+<form
+  class="AccessRequestForm"
+  [formGroup]="form"
+  (ngSubmit)="onSubmit()"
+>
+  <div
+    class="AccessRequestForm__field"
+    *ngIf="accessRequest?.author"
+  >
+    <label for="author">Author</label>
+    <div id="author">{{ accessRequest.author.nom_complet }}</div>
+  </div>
+
+  <div class="AccessRequestForm__field">
+    <label for="description">Description</label>
+    <textarea
+      id="description"
+      rows="4"
+      formControlName="description"
+    ></textarea>
+  </div>
+
+  <div class="AccessRequestForm__field">
+    <label for="expiration_date">Date d'expiration</label>
+    <pnx-date
+      id="expiration_date"
+      [defaultToday]="true"
+      [parentFormControl]="expirationDateControl"
+    ></pnx-date>
+    <div
+      class="AccessRequestForm__error"
+      *ngIf="expirationDateControl?.hasError('required') && expirationDateControl?.touched"
+    >
+      La date d'expiration est obligatoire.
+    </div>
+  </div>
+
+  <div class="AccessRequestForm__actions">
+    <button
+      type="submit"
+      mat-flat-button
+      color="primary"
+      [disabled]="form.invalid || isSaving"
+    >
+      Enregistrer
+    </button>
+  </div>
+</form>

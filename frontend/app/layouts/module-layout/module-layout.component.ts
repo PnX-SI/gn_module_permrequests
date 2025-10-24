@@ -8,5 +8,4 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['module-layout.component.scss'],
   imports: [CommonModule],
 })
-export class ModuleLayoutComponent {
-}
+export class ModuleLayoutComponent {}

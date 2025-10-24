@@ -23,9 +23,7 @@ export class AccessRequestStatusComponent {
   @Input()
   accessRequest!: AccessRequest;
 
-  constructor(
-    private _config: ConfigService
-  ) {}
+  constructor(private _config: ConfigService) {}
 
   getValidationStatusColor(cd_nomenclature: string) {
     return this._config.ACCESS_REQUEST.VALIDATION_STATUS_INFO[cd_nomenclature]?.color;

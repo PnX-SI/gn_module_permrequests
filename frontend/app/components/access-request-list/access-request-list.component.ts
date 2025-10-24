@@ -27,7 +27,12 @@ import { GN2CommonModule } from '@geonature_common/GN2Common.module';
   selector: 'access-request-list',
   templateUrl: 'access-request-list.component.html',
   styleUrls: ['./access-request-list.component.scss'],
-  imports: [GN2CommonModule, CommonModule, AccessRequestToolbarComponent, AccessRequestStatusComponent],
+  imports: [
+    GN2CommonModule,
+    CommonModule,
+    AccessRequestToolbarComponent,
+    AccessRequestStatusComponent,
+  ],
 })
 export class AccessRequestListComponent {
   readonly PROP_ID_ACCESS_REQUEST = 'id_access_request';
@@ -46,9 +51,7 @@ export class AccessRequestListComponent {
 
   accessRequests: AccessRequest[] = [];
 
-  constructor(
-    private _ars: AccessRequestService
-  ) {}
+  constructor(private _ars: AccessRequestService) {}
 
   ngOnInit() {
     this._fetchAccessRequests();
