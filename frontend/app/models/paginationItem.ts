@@ -7,5 +7,5 @@ export interface PaginationItem {
 export const DEFAULT_PAGINATION: PaginationItem = {
   totalItems: 0,
   currentPage: 1,
-  perPage: 10,
+  perPage: 5,
 };

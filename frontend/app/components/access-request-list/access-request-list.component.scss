@@ -31,10 +31,10 @@
     list-style: disc;
 
     &--single {
-    list-style: none;
-    li {
       list-style: none;
+      li {
+        list-style: none;
+      }
     }
-  }
   }
 }

@@ -8,5 +8,4 @@ import { AccessRequestListComponent } from '../../components/access-request-list
   providers: [],
   imports: [AccessRequestListComponent],
 })
-export class ListComponent {
-}
+export class ListPageComponent {}

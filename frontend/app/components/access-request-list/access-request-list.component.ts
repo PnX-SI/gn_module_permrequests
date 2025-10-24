@@ -4,7 +4,10 @@ import { HttpParams } from '@angular/common/http';
 import { DEFAULT_PAGINATION, PaginationItem } from '../../models/paginationItem';
 import { SORT_ORDER, SortItem } from '../../models/sortItem';
 import { AccessRequestSummary } from '../../models/accessRequestSummary';
-import { AccessRequestListResponse, AccessRequestService } from '../../services/accessRequest.service';
+import {
+  AccessRequestListResponse,
+  AccessRequestService,
+} from '../../services/accessRequest.service';
 import { AccessRequestToolbarComponent } from '../../components/access-request-toolbar/access-request-toolbar.component';
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { ConfigService } from '@geonature/services/config.service';
@@ -27,24 +30,26 @@ import { ConfigService } from '@geonature/services/config.service';
   imports: [GN2CommonModule, CommonModule, AccessRequestToolbarComponent],
 })
 export class AccessRequestListComponent {
-  readonly PROP_ID_ACCESS_REQUEST = "id_access_request";
-  readonly PROP_AUTHOR = "author.nom_complet";
-  readonly PROP_DESCRIPTION = "description";
-  readonly PROP_EXPIRATION_DATE = "expiration_date";
-  readonly PROP_TAXA = "taxa";
-  readonly PROP_VALIDATION_STATUS = "id_validation_status";
-  readonly PROP_VALIDATOR = "validator.nom_complet";
+  readonly PROP_ID_ACCESS_REQUEST = 'id_access_request';
+  readonly PROP_AUTHOR = 'author.nom_complet';
+  readonly PROP_DESCRIPTION = 'description';
+  readonly PROP_EXPIRATION_DATE = 'expiration_date';
+  readonly PROP_TAXA = 'taxa';
+  readonly PROP_VALIDATION_STATUS = 'id_validation_status';
+  readonly PROP_VALIDATOR = 'validator.nom_complet';
 
   pagination: PaginationItem = DEFAULT_PAGINATION;
   sort: SortItem = {
     sortOrder: SORT_ORDER.DESC,
-    sortBy: "id_access_request",
+    sortBy: 'id_access_request',
   };
 
   accessRequests: AccessRequestSummary[] = [];
 
-
-  constructor(private _ars: AccessRequestService, private _config: ConfigService){}
+  constructor(
+    private _ars: AccessRequestService,
+    private _config: ConfigService
+  ) {}
 
   ngOnInit() {
     this._fetchAccessRequests();
@@ -73,20 +78,17 @@ export class AccessRequestListComponent {
     params = params.set('orderby', this.sort.sortBy);
     params = params.set('page', this.pagination.currentPage.toString());
     params = params.set('per_page', this.pagination.perPage.toString());
-    this._ars
-      .getAccessRequests(params)
-      .subscribe((response: AccessRequestListResponse) => {
-        this.accessRequests = response.items;
-        this.pagination = {
-            totalItems: response.total,
-            currentPage: response.page,
-            perPage: response.per_page,
-        };
+    this._ars.getAccessRequests(params).subscribe((response: AccessRequestListResponse) => {
+      this.accessRequests = response.items;
+      this.pagination = {
+        totalItems: response.total,
+        currentPage: response.page,
+        perPage: response.per_page,
+      };
     });
   }
 
   getValidationStatusColor(cd_nomenclature: string) {
-
     return this._config.ACCESS_REQUEST.VALIDATION_STATUS_INFO[cd_nomenclature]?.color;
   }
 }

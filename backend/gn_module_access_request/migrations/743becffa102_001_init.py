@@ -145,9 +145,7 @@ def upgrade():
     ).scalar()
 
     if type_id is None:
-        raise RuntimeError(
-            f"Le type de nomenclature {NOMENCLATURE_TYPE} est introuvable."
-        )
+        raise RuntimeError(f"Le type de nomenclature {NOMENCLATURE_TYPE} est introuvable.")
 
     for value in ACCESS_REQUEST_VALIDATION_VALUES:
         conn.execute(

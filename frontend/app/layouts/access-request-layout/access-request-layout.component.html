@@ -1,0 +1,18 @@
+<div class="container-fluid">
+  <div class="card">
+    <div class="Header">
+      <div class="Header__left">
+        <button
+          color="primary"
+          mat-raised-button
+          [routerLink]="homeRouterLink"
+        ></button>
+      </div>
+      <div class="Header__center">
+        {{ accessRequestSummary.id_access_request }}
+      </div>
+      <div class="Header__right">STATUS</div>
+    </div>
+    <ng-content />
+  </div>
+</div>
