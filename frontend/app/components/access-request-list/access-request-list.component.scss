@@ -12,15 +12,6 @@
         overflow-x: hidden;
       }
     }
-    .BadgeContainer {
-      width: 100%;
-      display: flex;
-      flex-flow: row nowrap;
-
-      &__spacer {
-        flex-grow: 2;
-      }
-    }
   }
 }
 

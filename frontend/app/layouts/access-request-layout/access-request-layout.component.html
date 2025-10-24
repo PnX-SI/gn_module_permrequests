@@ -1,16 +1,24 @@
 <module-layout>
-  <div class="Header">
+  <div class="Header card-header">
     <div class="Header__left">
       <button
-        color="primary"
-        mat-raised-button
+        mat-flat-button
         [routerLink]="homeRouterLink"
-      ></button>
+      >
+      <mat-icon>
+        chevron_left
+      </mat-icon>
+      Retour
+      </button>
     </div>
     <div class="Header__center">
-      {{ accessRequestSummary.id_access_request }}
+      Access Request #{{ accessRequestSummary.id_access_request }}
     </div>
-    <div class="Header__right">STATUS</div>
+    <div class="Header__right">
+      <access-request-status [accessRequestSummary]="accessRequestSummary"></access-request-status>
+    </div>
   </div>
-  <ng-content />
+  <div class="card-body">
+    <ng-content />
+  </div>
 </module-layout>

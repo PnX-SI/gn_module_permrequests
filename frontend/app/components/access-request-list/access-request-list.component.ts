@@ -9,8 +9,8 @@ import {
   AccessRequestService,
 } from '../../services/accessRequest.service';
 import { AccessRequestToolbarComponent } from '../../components/access-request-toolbar/access-request-toolbar.component';
+import { AccessRequestStatusComponent } from '../../components/access-request-status/access-request-status.component';
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
-import { ConfigService } from '@geonature/services/config.service';
 // export interface AccessRequestSummary {
 //   id_access_request: number;
 //   id_validation_status: number | null;
@@ -27,7 +27,7 @@ import { ConfigService } from '@geonature/services/config.service';
   selector: 'access-request-list',
   templateUrl: 'access-request-list.component.html',
   styleUrls: ['./access-request-list.component.scss'],
-  imports: [GN2CommonModule, CommonModule, AccessRequestToolbarComponent],
+  imports: [GN2CommonModule, CommonModule, AccessRequestToolbarComponent, AccessRequestStatusComponent],
 })
 export class AccessRequestListComponent {
   readonly PROP_ID_ACCESS_REQUEST = 'id_access_request';
@@ -47,8 +47,7 @@ export class AccessRequestListComponent {
   accessRequests: AccessRequestSummary[] = [];
 
   constructor(
-    private _ars: AccessRequestService,
-    private _config: ConfigService
+    private _ars: AccessRequestService
   ) {}
 
   ngOnInit() {
@@ -86,9 +85,5 @@ export class AccessRequestListComponent {
         perPage: response.per_page,
       };
     });
-  }
-
-  getValidationStatusColor(cd_nomenclature: string) {
-    return this._config.ACCESS_REQUEST.VALIDATION_STATUS_INFO[cd_nomenclature]?.color;
   }
 }

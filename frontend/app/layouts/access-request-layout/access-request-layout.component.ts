@@ -1,17 +1,20 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { GN2CommonModule } from '@geonature_common/GN2Common.module';
+
 import { ModuleService } from '@geonature/services/module.service';
 
 import { AccessRequestSummary } from '../../models/accessRequestSummary';
 import { ModuleLayoutComponent } from '../module-layout/module-layout.component';
+import { AccessRequestStatusComponent } from '../../components/access-request-status/access-request-status.component';
 
 @Component({
   standalone: true,
   selector: 'access-request-layout',
   templateUrl: 'access-request-layout.component.html',
   styleUrls: ['access-request-layout.component.scss'],
-  imports: [RouterModule, CommonModule, ModuleLayoutComponent],
+  imports: [GN2CommonModule, RouterModule, CommonModule, ModuleLayoutComponent, AccessRequestStatusComponent],
 })
 export class AccessRequestLayoutComponent {
   get homeRouterLink(): string {

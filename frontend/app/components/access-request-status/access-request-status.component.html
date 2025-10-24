@@ -1,0 +1,7 @@
+<div class="AccessRequestStatus">
+  <gn-badge
+    [text]="accessRequestSummary.validation_status.label"
+    [symbology]="{ color: getValidationStatusColor(accessRequestSummary.validation_status.code) }"
+  ></gn-badge>
+  <div class="AccessRequestStatus__spacer"></div>
+</div>
