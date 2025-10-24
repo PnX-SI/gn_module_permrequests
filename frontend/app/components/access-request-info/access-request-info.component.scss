@@ -1,3 +1,25 @@
 .AccessRequestInfo {
-  border: 2px solid chocolate;
+    display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+    &__field {
+    display: flex;
+    flex-flow: column;
+    justify-content: flex-start;
+
+    label {
+      font-weight: 600;
+      margin-bottom: 0;
+    }
+
+    textarea,
+    input {
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      font: inherit;
+      padding: 0.5rem;
+    }
+  }
+
 }

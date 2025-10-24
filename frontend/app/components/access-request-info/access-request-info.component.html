@@ -1,1 +1,23 @@
-<div class="AccessRequestInfo">Info</div>
+<div class="AccessRequestInfo">
+  <div
+    class="AccessRequestInfo__field"
+  >
+    <label for="author">Author</label>
+    <div id="author">{{ accessRequest.author.nom_complet }}</div>
+  </div>
+
+  <div class="AccessRequestInfo__field">
+    <label for="description">Description</label>
+    <span
+      id="description"
+      rows="4"
+    >{{ accessRequest.description }}</span>
+  </div>
+
+  <div class="AccessRequestInfo__field">
+    <label for="expiration_date">Expiration Date</label>
+    <div
+      id="expiration_date"
+    >{{ accessRequest.expiration_date }}</div>
+  </div>
+</div>

@@ -10,6 +10,7 @@ from werkzeug.exceptions import BadRequest, NotFound, Forbidden
 
 from geonature.core.gn_permissions import decorators as permissions
 from geonature.core.gn_permissions.decorators import login_required
+from geonature.core.gn_permissions.models import Permission
 from geonature.utils.env import db
 from utils_flask_sqla.response import json_resp
 
@@ -218,7 +219,6 @@ def update_access_request(scope, id_access_request):
 @permissions.check_cruved_scope("D", get_scope=True, module_code=MODULE_CODE)
 @json_resp
 def delete_access_request(scope, id_access_request):
-    print("here")
     if scope < 2:
         raise Forbidden("User is not allowed to delete access requests.")
 
@@ -227,6 +227,13 @@ def delete_access_request(scope, id_access_request):
     ).one_or_none()
     if access_request is None:
         raise NotFound(f"Access request {id_access_request} not found")
+
+    # Remove permissions specifically attached to this access request before deletion
+    permissions_to_delete = [permission.id_permission for permission in access_request.permissions]
+    if permissions_to_delete:
+        Permission.query.filter(Permission.id_permission.in_(permissions_to_delete)).delete(
+            synchronize_session=False
+        )
 
     db.session.delete(access_request)
     db.session.commit()
