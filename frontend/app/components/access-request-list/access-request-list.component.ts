@@ -74,6 +74,10 @@ export class AccessRequestListComponent {
     this._fetchAccessRequests();
   }
 
+  onAccessRequestDeleted() {
+    this._fetchAccessRequests();
+  }
+
   private _fetchAccessRequests() {
     let params = new HttpParams();
     params = params.set('sort', this.sort.sortOrder);

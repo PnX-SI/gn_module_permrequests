@@ -90,7 +90,7 @@ export class AccessRequestFormComponent {
 
     if (this.accessRequest) {
       this._accessRequestService
-        .updateAccessRequest(this.accessRequest.id_access_request, payload)
+        .updateAccessRequest(this.accessRequest, payload)
         .pipe(
           finalize(() => {
             this.isSaving = false;

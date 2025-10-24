@@ -42,12 +42,12 @@ export class AccessRequestService {
   }
 
   updateAccessRequest(
-    id_access_request: number,
+    accessRequest: AccessRequest,
     payload: AccessRequestPayload
   ): Observable<AccessRequestReponse> {
     payload = this._serializePayload(payload);
     return this._http.patch<AccessRequestReponse>(
-      `${this._config.API_ENDPOINT}/access_request/${id_access_request}`,
+      `${this._config.API_ENDPOINT}/access_request/${accessRequest.id_access_request}`,
       payload
     );
   }
@@ -57,6 +57,12 @@ export class AccessRequestService {
     return this._http.post<AccessRequestReponse>(
       `${this._config.API_ENDPOINT}/access_request/`,
       payload
+    );
+  }
+
+  deleteAccessRequest(accessRequest: AccessRequest): Observable<void> {
+    return this._http.delete<void>(
+      `${this._config.API_ENDPOINT}/access_request/${accessRequest.id_access_request}`
     );
   }
 }

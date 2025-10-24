@@ -212,3 +212,23 @@ def update_access_request(scope, id_access_request):
     db.session.commit()
 
     return access_request_schema.dump(access_request)
+
+
+@blueprint.route("/<int(signed=True):id_access_request>", methods=["DELETE"])
+@permissions.check_cruved_scope("D", get_scope=True, module_code=MODULE_CODE)
+@json_resp
+def delete_access_request(scope, id_access_request):
+    print("here")
+    if scope < 2:
+        raise Forbidden("User is not allowed to delete access requests.")
+
+    access_request = AccessRequest.query.filter_by(
+        id_access_request=id_access_request
+    ).one_or_none()
+    if access_request is None:
+        raise NotFound(f"Access request {id_access_request} not found")
+
+    db.session.delete(access_request)
+    db.session.commit()
+
+    return None, 204

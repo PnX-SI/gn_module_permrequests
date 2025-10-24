@@ -141,7 +141,10 @@
         ngx-datatable-cell-template
         let-accessRequest="row"
       >
-        <access-request-toolbar [accessRequest]="accessRequest"></access-request-toolbar>
+        <access-request-toolbar
+          [accessRequest]="accessRequest"
+          (deleted)="onAccessRequestDeleted()"
+        ></access-request-toolbar>
       </ng-template>
     </ngx-datatable-column>
   </ngx-datatable>
