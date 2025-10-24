@@ -7,4 +7,16 @@ export interface AccessRequestSummary {
   description: string | null;
   taxa: number[];
   permissions: number[];
+  validation_status: AccessRequestValidationStatus | null;
+  author: AccessRequestRole | null;
+  validator: AccessRequestRole | null;
+}
+
+export interface AccessRequestValidationStatus {
+  code: string | null;
+  label: string | null;
+}
+
+export interface AccessRequestRole {
+  nom_complet: string | null;
 }
