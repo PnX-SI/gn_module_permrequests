@@ -4,13 +4,14 @@ import { RouterModule } from '@angular/router';
 import { ModuleService } from '@geonature/services/module.service';
 
 import { AccessRequestSummary } from '../../models/accessRequestSummary';
+import { ModuleLayoutComponent } from '../module-layout/module-layout.component';
 
 @Component({
   standalone: true,
   selector: 'access-request-layout',
   templateUrl: 'access-request-layout.component.html',
   styleUrls: ['access-request-layout.component.scss'],
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, ModuleLayoutComponent],
 })
 export class AccessRequestLayoutComponent {
   get homeRouterLink(): string {
