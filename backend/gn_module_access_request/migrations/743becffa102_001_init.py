@@ -104,6 +104,7 @@ def upgrade():
             sa.ForeignKey("gn_permissions.t_permissions.id_permission", ondelete="CASCADE"),
             primary_key=True,
         ),
+        sa.UniqueConstraint("id_permission"),
         schema=SCHEMA_NAME,
     )
 
@@ -231,6 +232,19 @@ def downgrade():
           gn_commons.t_modules m
       WHERE
           pa.id_module = m.id_module
+          AND
+          module_code = '{MODULE_CODE}'
+      """
+    )
+
+    op.execute(
+        f"""
+      DELETE FROM
+          gn_permissions.t_permissions p
+      USING
+          gn_commons.t_modules m
+      WHERE
+          p.id_module = m.id_module
           AND
           module_code = '{MODULE_CODE}'
       """

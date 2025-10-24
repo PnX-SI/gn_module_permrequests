@@ -82,37 +82,32 @@ def upgrade():
         """,
         {"mnemonique": NOMENCLATURE_TYPE},
     )
-    module_id_rows = conn.execute(
+    permission_templates = conn.execute(
         sa.text(
             """
-            SELECT id_module
-            FROM gn_commons.t_modules
-            WHERE module_code = :module_code
+            SELECT pa.id_module, pa.id_object, pa.id_action
+            FROM gn_permissions.t_permissions_available pa
+            JOIN gn_commons.t_modules m ON m.id_module = pa.id_module
+            WHERE m.module_code = :module_code
             """
         ),
         {"module_code": MODULE_CODE},
     ).fetchall()
-    permission_ids = []
-    if module_id_rows:
-        module_id = module_id_rows[0][0]
-        permission_ids = _fetch_ids(
-            conn,
-            """
-            SELECT id_permission
-            FROM gn_permissions.t_permissions
-            WHERE id_module = :module_id
-            """,
-            {"module_id": module_id},
-        )
 
-    if not authors or not taxa_ids:
+    if not authors or not taxa_ids or not permission_templates:
         # Not enough data in reference tables to create demo content.
         return
 
-    today = date.today()
     random.seed()
 
+    today = date.today()
+
     for index in range(SAMPLE_REQUEST_COUNT):
+        permission_sample_size = random.randint(
+            MIN_PERMISSIONS_PER_REQUEST,
+            MAX_PERMISSIONS_PER_REQUEST,
+        )
+
         author_id = random.choice(authors)
         validator_id = random.choice(validators) if validators else None
         validation_status_id = random.choice(status_ids) if status_ids else None
@@ -168,27 +163,50 @@ def upgrade():
                 {"id_access_request": inserted_id, "cd_nom": cd_nom},
             )
 
-        if permission_ids:
-            permission_sample_size = random.randint(
-                MIN_PERMISSIONS_PER_REQUEST,
-                min(MAX_PERMISSIONS_PER_REQUEST, len(permission_ids)),
+        for _ in range(permission_sample_size):
+            permission_template = random.choice(permission_templates)
+            permission_role_id = random.choice(authors)
+            permission_id = conn.execute(
+                sa.text(
+                    """
+                    INSERT INTO gn_permissions.t_permissions (
+                        id_role,
+                        id_action,
+                        id_module,
+                        id_object
+                    )
+                    VALUES (
+                        :id_role,
+                        :id_action,
+                        :id_module,
+                        :id_object
+                    )
+                    RETURNING id_permission
+                    """
+                ),
+                {
+                    "id_role": permission_role_id,
+                    "id_action": permission_template.id_action,
+                    "id_module": permission_template.id_module,
+                    "id_object": permission_template.id_object,
+                },
+            ).scalar()
+
+            conn.execute(
+                sa.text(
+                    f"""
+                    INSERT INTO {SCHEMA_NAME}.{COR_ACCESS_REQUEST_PERMISSIONS_TABLE} (
+                        id_access_request,
+                        id_permission
+                    )
+                    VALUES (
+                        :id_access_request,
+                        :id_permission
+                    )
+                    """
+                ),
+                {"id_access_request": inserted_id, "id_permission": permission_id},
             )
-            for permission_id in random.sample(permission_ids, permission_sample_size):
-                conn.execute(
-                    sa.text(
-                        f"""
-                        INSERT INTO {SCHEMA_NAME}.{COR_ACCESS_REQUEST_PERMISSIONS_TABLE} (
-                            id_access_request,
-                            id_permission
-                        )
-                        VALUES (
-                            :id_access_request,
-                            :id_permission
-                        )
-                        """
-                    ),
-                    {"id_access_request": inserted_id, "id_permission": permission_id},
-                )
 
 
 def downgrade():
@@ -208,6 +226,26 @@ def downgrade():
     request_ids = [row[0] for row in request_rows]
 
     for request_id in request_ids:
+        permission_rows = conn.execute(
+            sa.text(
+                f"""
+                SELECT id_permission
+                FROM {SCHEMA_NAME}.{COR_ACCESS_REQUEST_PERMISSIONS_TABLE}
+                WHERE id_access_request = :id_access_request
+                """
+            ),
+            {"id_access_request": request_id},
+        ).fetchall()
+        for row in permission_rows:
+            conn.execute(
+                sa.text(
+                    """
+                    DELETE FROM gn_permissions.t_permissions
+                    WHERE id_permission = :id_permission
+                    """
+                ),
+                {"id_permission": row[0]},
+            )
         conn.execute(
             sa.text(
                 f"""
