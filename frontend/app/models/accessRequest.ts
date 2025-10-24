@@ -1,4 +1,4 @@
-export interface AccessRequestSummary {
+export interface AccessRequest {
   id_access_request: number;
   id_validation_status: number | null;
   id_author: number;

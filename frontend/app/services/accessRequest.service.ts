@@ -3,16 +3,16 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ConfigService } from '@geonature/services/config.service';
 import { DEFAULT_PAGINATION, PaginationItem } from '../models/paginationItem';
-import { AccessRequestSummary } from '../models/accessRequestSummary';
+import { AccessRequest } from '../models/accessRequest';
 
 export interface AccessRequestListResponse {
   total: number;
   page: number;
   per_page: number;
-  items: AccessRequestSummary[];
+  items: AccessRequest[];
 }
 
-export interface AccessRequestReponse extends AccessRequestSummary {}
+export interface AccessRequestReponse extends AccessRequest {}
 
 @Injectable()
 export class AccessRequestService {

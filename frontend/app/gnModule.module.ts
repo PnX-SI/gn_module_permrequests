@@ -25,14 +25,14 @@ const routes: Routes = [
     path: ':id_access_request',
     component: AccessRequestInfoPageComponent,
     resolve: {
-      accessRequestSummary: AccessRequestResolver,
+      accessRequest: AccessRequestResolver,
     },
   },
   {
     path: ':id_access_request/edit',
     component: AccessRequestEditPageComponent,
     resolve: {
-      accessRequestSummary: AccessRequestResolver,
+      accessRequest: AccessRequestResolver,
     },
   },
 ];

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { AccessRequestSummary } from '../../models/accessRequestSummary';
+import { AccessRequest } from '../../models/accessRequest';
 
 @Component({
   standalone: true,
@@ -9,5 +9,5 @@ import { AccessRequestSummary } from '../../models/accessRequestSummary';
 })
 export class AccessRequestInfoComponent {
   @Input()
-  accessRequestSummary: AccessRequestSummary | null = null;
+  accessRequest: AccessRequest | null = null;
 }

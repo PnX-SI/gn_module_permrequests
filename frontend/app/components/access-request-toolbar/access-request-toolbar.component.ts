@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { AccessRequestSummary } from '../../models/accessRequestSummary';
+import { AccessRequest } from '../../models/accessRequest';
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 
 @Component({
@@ -13,13 +13,13 @@ import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 })
 export class AccessRequestToolbarComponent {
   @Input()
-  accessRequestSummary!: AccessRequestSummary;
+  accessRequest!: AccessRequest;
 
   get infoRouterLink(): string {
-    return `${this.accessRequestSummary.id_access_request}`;
+    return `${this.accessRequest.id_access_request}`;
   }
 
   get editRouterLink(): string {
-    return `${this.accessRequestSummary.id_access_request}/edit`;
+    return `${this.accessRequest.id_access_request}/edit`;
   }
 }

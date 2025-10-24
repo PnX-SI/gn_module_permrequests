@@ -49,10 +49,10 @@
     >
       <ng-template
         ngx-datatable-cell-template
-        let-row="row"
+        let-accessRequest="row"
       >
         <ng-template
-          *ngTemplateOutlet="cellNumberTemplate; context: { value: row[PROP_ID_ACCESS_REQUEST] }"
+          *ngTemplateOutlet="cellNumberTemplate; context: { value: accessRequest[PROP_ID_ACCESS_REQUEST] }"
         ></ng-template>
       </ng-template>
     </ngx-datatable-column>
@@ -62,10 +62,10 @@
     >
       <ng-template
         ngx-datatable-cell-template
-        let-row="row"
+        let-accessRequest="row"
       >
         <ng-template
-          *ngTemplateOutlet="cellNameTemplate; context: { value: row.author.nom_complet }"
+          *ngTemplateOutlet="cellNameTemplate; context: { value: accessRequest.author.nom_complet }"
         ></ng-template>
       </ng-template>
     </ngx-datatable-column>
@@ -75,10 +75,10 @@
     >
       <ng-template
         ngx-datatable-cell-template
-        let-row="row"
+        let-accessRequest="row"
       >
         <ng-template
-          *ngTemplateOutlet="cellDateTemplate; context: { date: row[PROP_EXPIRATION_DATE] }"
+          *ngTemplateOutlet="cellDateTemplate; context: { date: accessRequest[PROP_EXPIRATION_DATE] }"
         ></ng-template>
       </ng-template>
     </ngx-datatable-column>
@@ -89,14 +89,14 @@
     >
       <ng-template
         ngx-datatable-cell-template
-        let-row="row"
+        let-accessRequest="row"
       >
         <div class="Taxa">
           <ul
             class="TaxaList"
-            [class.TaxaList--single]="row.taxa?.length === 1"
+            [class.TaxaList--single]="accessRequest.taxa?.length === 1"
           >
-            <li *ngFor="let taxon of row.taxa || []">{{ taxon.cd_nom }} : {{ taxon.lb_nom }}</li>
+            <li *ngFor="let taxon of accessRequest.taxa || []">{{ taxon.cd_nom }} : {{ taxon.lb_nom }}</li>
           </ul>
         </div>
       </ng-template>
@@ -107,10 +107,10 @@
     >
       <ng-template
         ngx-datatable-cell-template
-        let-row="row"
+        let-accessRequest="row"
       >
         <ng-template
-          *ngTemplateOutlet="cellNameTemplate; context: { value: row.validator.nom_complet }"
+          *ngTemplateOutlet="cellNameTemplate; context: { value: accessRequest.validator.nom_complet }"
         ></ng-template>
       </ng-template>
     </ngx-datatable-column>
@@ -120,17 +120,17 @@
     >
       <ng-template
         ngx-datatable-cell-template
-        let-row="row"
+        let-accessRequest="row"
       >
-        <access-request-status [accessRequestSummary]="row"></access-request-status>
+        <access-request-status [accessRequest]="accessRequest"></access-request-status>
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column [sortable]="false">
       <ng-template
         ngx-datatable-cell-template
-        let-row="row"
+        let-accessRequest="row"
       >
-        <access-request-toolbar [accessRequestSummary]="row"></access-request-toolbar>
+        <access-request-toolbar [accessRequest]="accessRequest"></access-request-toolbar>
       </ng-template>
     </ngx-datatable-column>
   </ngx-datatable>

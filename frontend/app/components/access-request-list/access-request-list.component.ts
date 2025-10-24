@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
 import { DEFAULT_PAGINATION, PaginationItem } from '../../models/paginationItem';
 import { SORT_ORDER, SortItem } from '../../models/sortItem';
-import { AccessRequestSummary } from '../../models/accessRequestSummary';
+import { AccessRequest } from '../../models/accessRequest';
 import {
   AccessRequestListResponse,
   AccessRequestService,
@@ -44,7 +44,7 @@ export class AccessRequestListComponent {
     sortBy: 'id_access_request',
   };
 
-  accessRequests: AccessRequestSummary[] = [];
+  accessRequests: AccessRequest[] = [];
 
   constructor(
     private _ars: AccessRequestService

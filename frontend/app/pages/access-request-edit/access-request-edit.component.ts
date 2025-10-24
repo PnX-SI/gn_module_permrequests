@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { AccessRequestFormComponent } from '../../components/access-request-form/access-request-form.component';
-import { AccessRequestSummary } from '../../models/accessRequestSummary';
+import { AccessRequest } from '../../models/accessRequest';
 import { AccessRequestLayoutComponent } from '../../layouts/access-request-layout/access-request-layout.component';
 
 @Component({
@@ -12,12 +12,12 @@ import { AccessRequestLayoutComponent } from '../../layouts/access-request-layou
   imports: [AccessRequestFormComponent, AccessRequestLayoutComponent],
 })
 export class AccessRequestEditPageComponent implements OnInit {
-  accessRequestSummary: AccessRequestSummary | null = null;
+  accessRequest: AccessRequest | null = null;
 
   constructor(private _route: ActivatedRoute) {}
 
   ngOnInit() {
-    this.accessRequestSummary = this._route.snapshot.data.accessRequestSummary;
-    console.log(this.accessRequestSummary);
+    this.accessRequest = this._route.snapshot.data.accessRequest;
+    console.log(this.accessRequest);
   }
 }

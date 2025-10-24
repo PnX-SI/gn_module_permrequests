@@ -5,7 +5,7 @@ import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 
 import { ModuleService } from '@geonature/services/module.service';
 
-import { AccessRequestSummary } from '../../models/accessRequestSummary';
+import { AccessRequest } from '../../models/accessRequest';
 import { ModuleLayoutComponent } from '../module-layout/module-layout.component';
 import { AccessRequestStatusComponent } from '../../components/access-request-status/access-request-status.component';
 
@@ -22,7 +22,7 @@ export class AccessRequestLayoutComponent {
   }
 
   @Input()
-  accessRequestSummary!: AccessRequestSummary;
+  accessRequest!: AccessRequest;
 
   constructor(private _modules: ModuleService) {}
 }
