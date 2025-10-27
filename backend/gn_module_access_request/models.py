@@ -119,20 +119,20 @@ class AccessRequest(DB.Model):
     @qfilter(query=True)
     def filter_by_scope(cls, scope, *, query, user=None):
         if user is None:
-          user = g.current_user
+            user = g.current_user
         if scope == 1:
-          query = query.where(AccessRequest.id_author == user.id_role)
+            query = query.where(AccessRequest.id_author == user.id_role)
         elif scope == 2:
-          query = query.where(
-              sa.or_(
-                  AccessRequest.id_author == user.id_role,
-                  AccessRequest.author.has(User.id_organisme == user.id_organisme),
-              )
-          )
+            query = query.where(
+                sa.or_(
+                    AccessRequest.id_author == user.id_role,
+                    AccessRequest.author.has(User.id_organisme == user.id_organisme),
+                )
+            )
         elif scope == 3:
-          query = query.where(sa.true())
+            query = query.where(sa.true())
         else:
-          query = query.where(sa.false())
+            query = query.where(sa.false())
 
         return query
 

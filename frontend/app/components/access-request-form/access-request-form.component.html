@@ -46,7 +46,10 @@
 
   <div
     class="AccessRequestForm__error"
-    *ngIf="form.errors?.invalidDate && (initializationDateControl?.touched || expirationDateControl?.touched)"
+    *ngIf="
+      form.errors?.invalidDate &&
+      (initializationDateControl?.touched || expirationDateControl?.touched)
+    "
   >
     La date d'initialisation ne peut pas être postérieure à la date d'expiration.
   </div>

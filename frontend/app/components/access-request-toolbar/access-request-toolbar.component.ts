@@ -17,8 +17,10 @@ import { AccessRequestService } from '../../services/accessRequest.service';
   imports: [GN2CommonModule, CommonModule, RouterModule],
 })
 export class AccessRequestToolbarComponent {
-  constructor(private _accessRequestService: AccessRequestService,
-    private _dialog: MatDialog){}
+  constructor(
+    private _accessRequestService: AccessRequestService,
+    private _dialog: MatDialog
+  ) {}
 
   @Input()
   accessRequest!: AccessRequest;
@@ -33,11 +35,13 @@ export class AccessRequestToolbarComponent {
     return `${this.accessRequest.id_access_request}/edit`;
   }
 
-  deleteAccessRequest(){
+  deleteAccessRequest() {
     const message =
-    "Vous vous apprétez à supprimer la requête d'accès #"+this.accessRequest.id_access_request+"\
+      "Vous vous apprétez à supprimer la requête d'accès #" +
+      this.accessRequest.id_access_request +
+      '\
      Voulez-vous continuer ? \
-    ";
+    ';
     const dialogRef = this._dialog.open(ConfirmationDialog, {
       width: 'auto',
       // position: { top: '5%' },

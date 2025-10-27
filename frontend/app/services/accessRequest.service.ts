@@ -38,7 +38,7 @@ export class AccessRequestService {
     );
   }
 
-  private _serializePayload(payload: AccessRequestPayload){
+  private _serializePayload(payload: AccessRequestPayload) {
     return payload;
   }
 
