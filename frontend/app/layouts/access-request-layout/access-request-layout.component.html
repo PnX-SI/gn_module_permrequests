@@ -20,7 +20,12 @@
       ></access-request-status>
     </div>
     <div class="Header__right">
-
+      <access-request-toolbar
+        [accessRequest]="accessRequest"
+        [withInfo]="withInfo"
+        [withEdit]="withEdit"
+        [withDelete]="withDelete"
+      ></access-request-toolbar>
     </div>
   </div>
   <div class="card-body">

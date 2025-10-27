@@ -12,24 +12,31 @@ import { AccessRequestNewPageComponent } from './pages/access-request-new/access
 import { AccessRequestEditPageComponent } from './pages/access-request-edit/access-request-edit.component';
 import { AccessRequestResolver } from './resolvers/access-request.resolver';
 
-const routes: Routes = [
+export const ROUTE_PATHS = {
+  accessRequests: '',
+  accessRequest: (id_access_request: number | string) => `${id_access_request}`,
+  accessRequestEdit: (id_access_request: number | string) => `${id_access_request}/edit`,
+  newAccessRequest: 'new',
+};
+
+export const routes: Routes = [
   {
-    path: '',
+    path: ROUTE_PATHS.accessRequests,
     component: ListPageComponent,
   },
   {
-    path: 'new',
+    path: ROUTE_PATHS.newAccessRequest,
     component: AccessRequestNewPageComponent,
   },
   {
-    path: ':id_access_request',
+    path: ROUTE_PATHS.accessRequest(':id_access_request'),
     component: AccessRequestInfoPageComponent,
     resolve: {
       accessRequest: AccessRequestResolver,
     },
   },
   {
-    path: ':id_access_request/edit',
+    path: ROUTE_PATHS.accessRequestEdit(':id_access_request'),
     component: AccessRequestEditPageComponent,
     resolve: {
       accessRequest: AccessRequestResolver,

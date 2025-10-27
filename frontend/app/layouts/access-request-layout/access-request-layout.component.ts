@@ -8,6 +8,7 @@ import { ModuleService } from '@geonature/services/module.service';
 import { AccessRequest } from '../../models/accessRequest';
 import { ModuleLayoutComponent } from '../module-layout/module-layout.component';
 import { AccessRequestStatusComponent } from '../../components/access-request-status/access-request-status.component';
+import { AccessRequestToolbarComponent } from '../../components/access-request-toolbar/access-request-toolbar.component';
 
 @Component({
   standalone: true,
@@ -20,6 +21,7 @@ import { AccessRequestStatusComponent } from '../../components/access-request-st
     CommonModule,
     ModuleLayoutComponent,
     AccessRequestStatusComponent,
+    AccessRequestToolbarComponent,
   ],
 })
 export class AccessRequestLayoutComponent {
@@ -29,6 +31,13 @@ export class AccessRequestLayoutComponent {
 
   @Input()
   accessRequest!: AccessRequest;
+
+  @Input()
+  withInfo: boolean = true;
+  @Input()
+  withEdit: boolean = true;
+  @Input()
+  withDelete: boolean = true;
 
   constructor(private _modules: ModuleService) {}
 }

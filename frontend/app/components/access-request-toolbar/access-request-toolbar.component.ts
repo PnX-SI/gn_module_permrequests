@@ -5,10 +5,12 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { ConfirmationDialog } from '@geonature_common/others/modal-confirmation/confirmation.dialog';
+import { CruvedStoreService } from '@geonature_common/service/cruved-store.service';
+import { ModuleService } from '@geonature/services/module.service';
 
 import { AccessRequest } from '../../models/accessRequest';
 import { AccessRequestService } from '../../services/accessRequest.service';
-
+import { ROUTE_PATHS } from '../../gnModule.module';
 @Component({
   standalone: true,
   selector: 'access-request-toolbar',
@@ -19,20 +21,32 @@ import { AccessRequestService } from '../../services/accessRequest.service';
 export class AccessRequestToolbarComponent {
   constructor(
     private _accessRequestService: AccessRequestService,
-    private _dialog: MatDialog
-  ) {}
+    private _dialog: MatDialog,
+    private _cruvedStore: CruvedStoreService,
+    private _moduleService: ModuleService
+  ) {
+    console.log(this._cruvedStore.cruved);
+  }
 
   @Input()
   accessRequest!: AccessRequest;
+
+  @Input()
+  withInfo: boolean = true;
+  @Input()
+  withEdit: boolean = true;
+  @Input()
+  withDelete: boolean = true;
+
   @Output()
   deleted = new EventEmitter<number>();
 
   get infoRouterLink(): string {
-    return `${this.accessRequest.id_access_request}`;
+    return `/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.accessRequest(this.accessRequest.id_access_request)}`;
   }
 
   get editRouterLink(): string {
-    return `${this.accessRequest.id_access_request}/edit`;
+    return `/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.accessRequest(this.accessRequest.id_access_request)}/edit`;
   }
 
   deleteAccessRequest() {
@@ -40,7 +54,7 @@ export class AccessRequestToolbarComponent {
       "Vous vous apprétez à supprimer la requête d'accès #" +
       this.accessRequest.id_access_request +
       '\
-     Voulez-vous continuer ? \
+      Voulez-vous continuer ? \
     ';
     const dialogRef = this._dialog.open(ConfirmationDialog, {
       width: 'auto',

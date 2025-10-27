@@ -103,9 +103,7 @@ def list_access_requests(scope):
     if orderby in "author.nom_complet":
         query = query.join(User, AccessRequest.author.of_type(User))
     elif orderby in "validator.nom_complet":
-        query = query.outerjoin(
-            User, AccessRequest.validator.of_type(User)
-        )
+        query = query.outerjoin(User, AccessRequest.validator.of_type(User))
 
     if sort == SortOrder.ASC:
         query = query.order_by(asc(order_column))
@@ -129,9 +127,11 @@ def list_access_requests(scope):
 @json_resp
 def access_request(scope, id_access_request):
     query = AccessRequest.filter_by_scope(scope)
-    access_request = db.session.scalars(
-        query.filter_by(id_access_request=id_access_request)
-    ).unique().one_or_none()
+    access_request = (
+        db.session.scalars(query.filter_by(id_access_request=id_access_request))
+        .unique()
+        .one_or_none()
+    )
     if access_request is None:
         raise NotFound(f"Access request {id_access_request} not found")
     return access_request_schema.dump(access_request)
@@ -230,9 +230,11 @@ def update_access_request(scope, id_access_request):
         raise BadRequest("No updatable fields were provided.")
 
     query = AccessRequest.filter_by_scope(scope)
-    access_request = db.session.scalars(
-        query.filter_by(id_access_request=id_access_request)
-    ).unique().one_or_none()
+    access_request = (
+        db.session.scalars(query.filter_by(id_access_request=id_access_request))
+        .unique()
+        .one_or_none()
+    )
     if access_request is None:
         raise NotFound(f"Access request {id_access_request} not found")
 
@@ -264,8 +266,10 @@ def update_access_request(scope, id_access_request):
         except ValueError as exc:
             raise BadRequest("expiration_date must be a valid date in YYYY-MM-DD format.") from exc
     if (
-        "initialization_date" in payload or "expiration_date" in payload
-    ) and access_request.initialization_date is not None and access_request.expiration_date is not None:
+        ("initialization_date" in payload or "expiration_date" in payload)
+        and access_request.initialization_date is not None
+        and access_request.expiration_date is not None
+    ):
         if access_request.initialization_date > access_request.expiration_date:
             raise BadRequest("initialization_date must be before or equal to expiration_date.")
 
@@ -288,9 +292,11 @@ def delete_access_request(scope, id_access_request):
         raise Forbidden("User is not allowed to delete access requests.")
 
     query = AccessRequest.filter_by_scope(scope)
-    access_request = db.session.scalars(
-        query.filter_by(id_access_request=id_access_request)
-    ).unique().one_or_none()
+    access_request = (
+        db.session.scalars(query.filter_by(id_access_request=id_access_request))
+        .unique()
+        .one_or_none()
+    )
     if access_request is None:
         raise NotFound(f"Access request {id_access_request} not found")
 

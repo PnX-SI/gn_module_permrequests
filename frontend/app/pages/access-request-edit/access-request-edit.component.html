@@ -1,5 +1,8 @@
 <ng-container *ngIf="accessRequest as accessRequestData">
-  <access-request-layout [accessRequest]="accessRequestData">
+  <access-request-layout
+    [accessRequest]="accessRequestData"
+    [withEdit]="false"
+  >
     <access-request-form [accessRequest]="accessRequestData"></access-request-form>
   </access-request-layout>
 </ng-container>

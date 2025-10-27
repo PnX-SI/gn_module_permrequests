@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ConfigService } from '@geonature/services/config.service';
 import { AccessRequest } from '../models/accessRequest';
+import { ModuleService } from '@geonature/services/module.service';
 
 export interface AccessRequestListResponse {
   total: number;
@@ -23,18 +24,19 @@ export interface AccessRequestPayload {
 export class AccessRequestService {
   constructor(
     private _http: HttpClient,
-    private _config: ConfigService
+    private _config: ConfigService,
+    private _moduleService: ModuleService
   ) {}
 
   getAccessRequests(params: HttpParams): Observable<AccessRequestListResponse> {
     return this._http.get<AccessRequestListResponse>(
-      `${this._config.API_ENDPOINT}/access_request/`,
+      `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/`,
       { params: params }
     );
   }
   getAccessRequest(id_access_request: number): Observable<AccessRequestResponse> {
     return this._http.get<AccessRequestResponse>(
-      `${this._config.API_ENDPOINT}/access_request/${id_access_request}`
+      `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/${id_access_request}`
     );
   }
 
@@ -48,7 +50,7 @@ export class AccessRequestService {
   ): Observable<AccessRequestResponse> {
     payload = this._serializePayload(payload);
     return this._http.patch<AccessRequestResponse>(
-      `${this._config.API_ENDPOINT}/access_request/${accessRequest.id_access_request}`,
+      `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/${accessRequest.id_access_request}`,
       payload
     );
   }
@@ -56,14 +58,14 @@ export class AccessRequestService {
   createAccessRequest(payload: AccessRequestPayload): Observable<AccessRequestResponse> {
     payload = this._serializePayload(payload);
     return this._http.post<AccessRequestResponse>(
-      `${this._config.API_ENDPOINT}/access_request/`,
+      `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/`,
       payload
     );
   }
 
   deleteAccessRequest(accessRequest: AccessRequest): Observable<void> {
     return this._http.delete<void>(
-      `${this._config.API_ENDPOINT}/access_request/${accessRequest.id_access_request}`
+      `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/${accessRequest.id_access_request}`
     );
   }
 }

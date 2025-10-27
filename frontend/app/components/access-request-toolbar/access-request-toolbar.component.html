@@ -1,5 +1,6 @@
 <div class="AccessRequestToolbar">
   <button
+    *ngIf="withEdit"
     class="AccessRequestToolbar__button"
     color="primary"
     mat-icon-button
@@ -9,6 +10,7 @@
     <mat-icon>edit</mat-icon>
   </button>
   <button
+    *ngIf="withInfo"
     class="AccessRequestToolbar__button"
     color="primary"
     mat-icon-button
@@ -18,6 +20,7 @@
     <mat-icon>info</mat-icon>
   </button>
   <button
+    *ngIf="withDelete"
     color="warn"
     class="AccessRequestToolbar__button"
     mat-icon-button
