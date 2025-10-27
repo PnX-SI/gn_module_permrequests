@@ -14,12 +14,13 @@
         Access Request #{{ accessRequest.id_access_request }}
       </div>
       <ng-template #newAccessRequest><div>New Access Request</div></ng-template>
-    </div>
-    <div class="Header__right">
       <access-request-status
         *ngIf="accessRequest"
         [accessRequest]="accessRequest"
       ></access-request-status>
+    </div>
+    <div class="Header__right">
+
     </div>
   </div>
   <div class="card-body">

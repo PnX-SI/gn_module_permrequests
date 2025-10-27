@@ -13,6 +13,9 @@
     position: absolute;
     left: 50%;
     translate: -50%;
+    display: flex;
+    flex-flow: row nowrap;
+    column-gap: 0.2rem;
   }
   &__right {
     justify-self: end; // ou end selon besoin
