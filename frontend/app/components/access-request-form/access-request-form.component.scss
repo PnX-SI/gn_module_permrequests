@@ -25,6 +25,7 @@
   &__actions {
     display: flex;
     justify-content: flex-end;
+    column-gap: 0.5rem;
   }
 
   &__error {

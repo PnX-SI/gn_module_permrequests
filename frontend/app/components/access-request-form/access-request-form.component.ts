@@ -15,6 +15,13 @@ import { ModuleService } from '@geonature/services/module.service';
 import { AccessRequest } from '../../models/accessRequest';
 import { AccessRequestPayload, AccessRequestService } from '../../services/accessRequest.service';
 
+type AccessRequestFormValue = {
+  description: string | null;
+  initialization_date: NgbDateStruct | string | null;
+  expiration_date: NgbDateStruct | string | null;
+  id_validator: number | null;
+};
+
 @Component({
   standalone: true,
   selector: 'access-request-form',
@@ -45,24 +52,7 @@ export class AccessRequestFormComponent {
   @Input()
   set accessRequest(accessRequest: AccessRequest | null) {
     this._accessRequest = accessRequest;
-    if (!this.accessRequest) {
-      this.form.reset();
-    } else {
-      const initializationStruct = this.accessRequest.initialization_date
-        ? this._dateParser.parse(this.accessRequest.initialization_date)
-        : null;
-      const expirationStruct = this.accessRequest.expiration_date
-        ? this._dateParser.parse(this.accessRequest.expiration_date)
-        : null;
-      this.form.patchValue({
-        description: this.accessRequest.description,
-        initialization_date: initializationStruct,
-        expiration_date: expirationStruct,
-        id_validator: this.accessRequest.id_validator,
-      });
-    }
-    this.form.markAsPristine();
-    this.form.updateValueAndValidity({ emitEvent: false });
+    this._fillFormFromAccessRequest(accessRequest);
   }
   get accessRequest(): AccessRequest | null {
     return this._accessRequest;
@@ -169,6 +159,73 @@ export class AccessRequestFormComponent {
   // //////////////////////////////////////////////////////////////////////////
   // Form Helpers
   // //////////////////////////////////////////////////////////////////////////
+
+  get isSameAsAccessRequest(): boolean {
+    if (!this.accessRequest) {
+      return false;
+    }
+
+    const { description, expiration_date, id_validator, initialization_date } =
+      this.form.value as AccessRequestFormValue;
+
+    const normalizedDescription = (description ?? '').trim();
+    const accessRequestDescription = (this.accessRequest.description ?? '').trim();
+
+    const normalizedInitialization = this._normalizeDateValue(initialization_date);
+    const accessRequestInitialization = this._normalizeDateValue(
+      this.accessRequest.initialization_date
+    );
+
+    const normalizedExpiration = this._normalizeDateValue(expiration_date);
+    const accessRequestExpiration = this._normalizeDateValue(this.accessRequest.expiration_date);
+
+    const normalizedValidator = id_validator ?? null;
+    const accessRequestValidator = this.accessRequest.id_validator ?? null;
+
+    return (
+      normalizedDescription === accessRequestDescription &&
+      normalizedInitialization === accessRequestInitialization &&
+      normalizedExpiration === accessRequestExpiration &&
+      normalizedValidator === accessRequestValidator
+    );
+  }
+
+  onReset(): void {
+    this._fillFormFromAccessRequest(this.accessRequest);
+  }
+
+  private _normalizeDateValue(
+    value: NgbDateStruct | string | null | undefined
+  ): string | null {
+    if (!value) {
+      return null;
+    }
+    if (typeof value === 'string') {
+      return value || null;
+    }
+    return this._dateParser.format(value) as unknown as string;
+  }
+
+  private _fillFormFromAccessRequest(accessRequest: AccessRequest | null): void {
+    if (!accessRequest) {
+      this.form.reset();
+    } else {
+      const initializationStruct = accessRequest.initialization_date
+        ? this._dateParser.parse(accessRequest.initialization_date)
+        : null;
+      const expirationStruct = accessRequest.expiration_date
+        ? this._dateParser.parse(accessRequest.expiration_date)
+        : null;
+      this.form.patchValue({
+        description: accessRequest.description,
+        initialization_date: initializationStruct,
+        expiration_date: expirationStruct,
+        id_validator: accessRequest.id_validator,
+      });
+    }
+    this.form.markAsPristine();
+    this.form.updateValueAndValidity({ emitEvent: false });
+  }
 
   get expirationDateControl() {
     return this.form.get('expiration_date');

@@ -58,10 +58,19 @@
 
   <div class="AccessRequestForm__actions">
     <button
+      type="button"
+      mat-stroked-button
+      color="primary"
+      (click)="onReset()"
+      [disabled]="form.pristine || isSaving || isSameAsAccessRequest"
+    >
+      Réinitialiser
+    </button>
+    <button
       type="submit"
       mat-flat-button
       color="primary"
-      [disabled]="form.invalid || isSaving"
+      [disabled]="form.invalid || form.pristine || isSaving || isSameAsAccessRequest"
     >
       Enregistrer
     </button>
