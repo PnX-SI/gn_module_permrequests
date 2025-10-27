@@ -67,6 +67,9 @@ def _get_validation_status_id(code: str) -> int:
 #################################################################
 """
 
+## ########################################################################
+## COLLECTION
+## ########################################################################
 
 @blueprint.route("/", methods=["GET"])
 @login_required
@@ -120,6 +123,9 @@ def list_access_requests(scope):
         "per_page": pagination.per_page,
     }
 
+## ########################################################################
+## ENTITY - GET
+## ########################################################################
 
 @blueprint.route("/<int(signed=True):id_access_request>", methods=["GET"])
 @login_required
@@ -136,6 +142,9 @@ def access_request(scope, id_access_request):
         raise NotFound(f"Access request {id_access_request} not found")
     return access_request_schema.dump(access_request)
 
+## ########################################################################
+## ENTITY - POST
+## ########################################################################
 
 @blueprint.route("/", methods=["POST"])
 @login_required
@@ -208,6 +217,9 @@ def create_access_request():
 
     return access_request_schema.dump(access_request), 201
 
+## ########################################################################
+## ENTITY - PATCH
+## ########################################################################7
 
 @blueprint.route("/<int(signed=True):id_access_request>", methods=["PATCH"])
 @login_required
@@ -283,55 +295,9 @@ def update_access_request(scope, id_access_request):
 
     return access_request_schema.dump(access_request)
 
-
-@blueprint.route("/<int(signed=True):id_access_request>/validation-status", methods=["PATCH"])
-@login_required
-@permissions.check_cruved_scope("V", get_scope=True, module_code=MODULE_CODE)
-@json_resp
-def update_validation_status(scope, id_access_request):
-    if scope < 2:
-        raise Forbidden("User is not allowed to validate access requests.")
-
-    payload = request.get_json(silent=True)
-    if not isinstance(payload, dict):
-        raise BadRequest("A JSON object is required.")
-
-    allowed_fields = {"validation_code", "id_validation_status"}
-    unexpected_fields = set(payload.keys()) - allowed_fields
-    if unexpected_fields:
-        raise BadRequest(f"Unsupported fields provided: {', '.join(sorted(unexpected_fields))}.")
-
-    validation_code = payload.get("validation_code")
-    validation_id = payload.get("id_validation_status")
-
-    if validation_code is None and validation_id is None:
-        raise BadRequest("Either validation_code or id_validation_status must be provided.")
-    if validation_code is not None and not isinstance(validation_code, str):
-        raise BadRequest("validation_code must be a string.")
-    if validation_id is not None and not isinstance(validation_id, int):
-        raise BadRequest("id_validation_status must be an integer.")
-
-    if validation_id is None:
-        validation_id = _get_validation_status_id(validation_code)
-
-    query = AccessRequest.filter_by_scope(scope)
-    access_request = db.session.scalars(
-        query.filter_by(id_access_request=id_access_request)
-    ).unique().one_or_none()
-    if access_request is None:
-        raise NotFound(f"Access request {id_access_request} not found")
-
-    current_user = getattr(g, "current_user", None)
-    if current_user is None or not hasattr(current_user, "id_role"):
-        raise Forbidden("Current user context is missing.")
-
-    access_request.id_validation_status = validation_id
-    access_request.id_validator = current_user.id_role
-
-    db.session.commit()
-
-    return access_request_schema.dump(access_request)
-
+## ########################################################################
+## ENTITY - DELETE
+## ########################################################################
 
 @blueprint.route("/<int(signed=True):id_access_request>", methods=["DELETE"])
 @permissions.check_cruved_scope("D", get_scope=True, module_code=MODULE_CODE)
@@ -353,3 +319,48 @@ def delete_access_request(scope, id_access_request):
     db.session.commit()
 
     return None, 204
+
+## ########################################################################
+## VALIDATION
+## ########################################################################
+
+@blueprint.route("/<int(signed=True):id_access_request>/validation-status", methods=["PATCH"])
+@login_required
+@permissions.check_cruved_scope("V", get_scope=True, module_code=MODULE_CODE)
+@json_resp
+def update_validation_status(scope, id_access_request):
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        raise BadRequest("A JSON object is required.")
+
+    allowed_fields = {"validation_code"}
+    unexpected_fields = set(payload.keys()) - allowed_fields
+    if unexpected_fields:
+        raise BadRequest(f"Unsupported fields provided: {', '.join(sorted(unexpected_fields))}.")
+
+    validation_code = payload.get("validation_code")
+
+    if validation_code is None:
+        raise BadRequest("validation_code must be provided.")
+    if validation_code is not None and not isinstance(validation_code, str):
+        raise BadRequest("validation_code must be a string.")
+
+    validation_id = _get_validation_status_id(validation_code)
+
+    query = AccessRequest.filter_by_scope(scope)
+    access_request = db.session.scalars(
+        query.filter_by(id_access_request=id_access_request)
+    ).unique().one_or_none()
+    if access_request is None:
+        raise NotFound(f"Access request {id_access_request} not found")
+
+    current_user = getattr(g, "current_user", None)
+    if current_user is None or not hasattr(current_user, "id_role"):
+        raise Forbidden("Current user context is missing.")
+
+    access_request.id_validation_status = validation_id
+    access_request.id_validator = current_user.id_role
+
+    db.session.commit()
+
+    return access_request_schema.dump(access_request)
