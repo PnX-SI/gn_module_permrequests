@@ -109,6 +109,37 @@ def upgrade():
     )
 
     ## ########################################################################
+    ## TRIGGER DE SUPPRESSION DES PERMISSIONS
+    ## ########################################################################
+    op.execute(
+        sa.text(
+            f"""
+            CREATE OR REPLACE FUNCTION {SCHEMA_NAME}.delete_permissions_after_access_request_delete()
+            RETURNS TRIGGER AS $$
+            BEGIN
+                DELETE FROM gn_permissions.t_permissions p
+                USING {SCHEMA_NAME}.{COR_ACCESS_REQUEST_PERMISSIONS_TABLE} cap
+                WHERE cap.id_permission = p.id_permission
+                  AND cap.id_access_request = OLD.{PRIMARY_KEY};
+                RETURN OLD;
+            END;
+            $$ LANGUAGE plpgsql;
+            """
+        )
+    )
+
+    op.execute(
+        sa.text(
+            f"""
+            CREATE TRIGGER trg_delete_permissions_after_access_request_delete
+            BEFORE DELETE ON {SCHEMA_NAME}.{TABLE_NAME}
+            FOR EACH ROW
+            EXECUTE FUNCTION {SCHEMA_NAME}.delete_permissions_after_access_request_delete();
+            """
+        )
+    )
+
+    ## ########################################################################
     ## NOMENCLATURES
     ## ########################################################################
     conn = op.get_bind()
@@ -207,8 +238,8 @@ def upgrade():
               VALUES
                   ('{MODULE_CODE}', 'ALL', 'C', False, 'Créer des requêtes d''accès')
                   ,('{MODULE_CODE}', 'ALL', 'R', True, 'Voir les requêtes d''accès')
-                  ,('{MODULE_CODE}', 'ALL', 'U', False, 'Modifier les requêtes d''accès')
-                  ,('{MODULE_CODE}', 'ALL', 'D', False, 'Supprimer des requêtes d''accès')
+                  ,('{MODULE_CODE}', 'ALL', 'U', True, 'Modifier les requêtes d''accès')
+                  ,('{MODULE_CODE}', 'ALL', 'D', True, 'Supprimer des requêtes d''accès')
           ) AS v (module_code, object_code, action_code, scope_filter, label)
       JOIN
           gn_commons.t_modules m ON m.module_code = v.module_code
@@ -295,6 +326,21 @@ def downgrade():
     ## ########################################################################
     ## SCHEMA ET TABLES
     ## ########################################################################
+    op.execute(
+        sa.text(
+            f"""
+            DROP TRIGGER IF EXISTS trg_delete_permissions_after_access_request_delete
+            ON {SCHEMA_NAME}.{TABLE_NAME}
+            """
+        )
+    )
+    op.execute(
+        sa.text(
+            f"""
+            DROP FUNCTION IF EXISTS {SCHEMA_NAME}.delete_permissions_after_access_request_delete()
+            """
+        )
+    )
     op.drop_table(COR_ACCESS_REQUEST_PERMISSIONS_TABLE, schema=SCHEMA_NAME, if_exists=True)
     op.drop_table(COR_ACCESS_REQUEST_TAXA_TABLE, schema=SCHEMA_NAME, if_exists=True)
     op.drop_table(TABLE_NAME, schema=SCHEMA_NAME, if_exists=True)

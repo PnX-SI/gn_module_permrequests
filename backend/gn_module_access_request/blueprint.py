@@ -80,9 +80,7 @@ def list_access_requests(scope):
     if per_page <= 0:
         raise BadRequest(f"Invalid per_page {per_page} requested")
 
-    query = AccessRequest.query
-
-    # Sort
+    query = AccessRequest.filter_by_scope(scope)
     if sort == SortOrder.ASC:
         query = query.order_by(asc(orderby))
     query = query.order_by(desc(orderby))
@@ -103,9 +101,10 @@ def list_access_requests(scope):
 @permissions.check_cruved_scope("R", get_scope=True, module_code=MODULE_CODE)
 @json_resp
 def access_request(scope, id_access_request):
-    access_request = AccessRequest.query.filter_by(
+    query = AccessRequest.filter_by_scope(scope)
+    access_request = query.filter_by(
         id_access_request=id_access_request
-    ).one_or_none()
+    )
     if access_request is None:
         raise NotFound(f"Access request {id_access_request} not found")
     return access_request_schema.dump(access_request)
@@ -113,12 +112,9 @@ def access_request(scope, id_access_request):
 
 @blueprint.route("/", methods=["POST"])
 @login_required
-@permissions.check_cruved_scope("C", get_scope=True, module_code=MODULE_CODE)
+@permissions.check_cruved_scope("C", module_code=MODULE_CODE)
 @json_resp
-def create_access_request(scope):
-    if scope < 2:
-        raise Forbidden("User is not allowed to create access requests.")
-
+def create_access_request():
     payload = request.get_json(silent=True)
     if not isinstance(payload, dict):
         raise BadRequest("A JSON object is required.")
@@ -191,9 +187,10 @@ def update_access_request(scope, id_access_request):
     if not allowed_fields.intersection(payload.keys()):
         raise BadRequest("No updatable fields were provided.")
 
-    access_request = AccessRequest.query.filter_by(
+    query = AccessRequest.filter_by_scope(scope)
+    access_request = query.filter_by(
         id_access_request=id_access_request
-    ).one_or_none()
+    )
     if access_request is None:
         raise NotFound(f"Access request {id_access_request} not found")
 
@@ -221,7 +218,8 @@ def delete_access_request(scope, id_access_request):
     if scope < 2:
         raise Forbidden("User is not allowed to delete access requests.")
 
-    access_request = AccessRequest.query.filter_by(
+    query = AccessRequest.filter_by_scope(scope)
+    access_request = query.filter_by(
         id_access_request=id_access_request
     ).one_or_none()
     if access_request is None:
