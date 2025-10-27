@@ -82,18 +82,14 @@ def list_access_requests(scope):
     if per_page <= 0:
         raise BadRequest(f"Invalid per_page {per_page} requested")
 
-    query = AccessRequest.filter_by_scope(scope)
-
-    author_alias = aliased(User)
-    validator_alias = aliased(User)
+    # Order by
     orderable_columns = {
         "id_access_request": AccessRequest.id_access_request,
         "initialization_date": AccessRequest.initialization_date,
         "expiration_date": AccessRequest.expiration_date,
-        "author_nom_complet": author_alias.nom_complet,
-        "validator_nom_complet": validator_alias.nom_complet,
+        "author.nom_complet": User.nom_complet,
+        "validator.nom_complet": User.nom_complet,
     }
-
     order_column = orderable_columns.get(orderby)
     if order_column is None:
         column = getattr(AccessRequest, orderby, None)
@@ -101,11 +97,14 @@ def list_access_requests(scope):
             raise BadRequest(f"Invalid orderby value '{orderby}'.")
         order_column = column
 
-    if orderby == "author_nom_complet":
-        query = query.outerjoin(author_alias, AccessRequest.author.of_type(author_alias))
-    elif orderby == "validator_nom_complet":
+    # The query
+    query = AccessRequest.filter_by_scope(scope)
+
+    if orderby in "author.nom_complet":
+        query = query.join(User, AccessRequest.author.of_type(User))
+    elif orderby in "validator.nom_complet":
         query = query.outerjoin(
-            validator_alias, AccessRequest.validator.of_type(validator_alias)
+            User, AccessRequest.validator.of_type(User)
         )
 
     if sort == SortOrder.ASC:
