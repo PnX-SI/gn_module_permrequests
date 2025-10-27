@@ -1,19 +1,20 @@
 .Header {
-  display: grid;
-  grid-template-columns: auto auto auto; // gauche | centre | droite
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
   align-items: center;
+  position: relative;
 
   &__left {
-    // border: 2px solid coral;
-    border: 2px solid red;
     justify-self: start; // ou end selon besoin
   }
   &__center {
-    border: 2px solid green;
     justify-self: center; // centré horizontalement dans la colonne centrale
+    position: absolute;
+    left: 50%;
+    translate: -50%;
   }
   &__right {
-    border: 2px solid brown;
     justify-self: end; // ou end selon besoin
   }
 
