@@ -3,6 +3,7 @@ Définition des routes du module export
 """
 
 from datetime import datetime
+from typing import Sequence
 
 from flask import Blueprint, request, g
 from sqlalchemy import desc, asc
@@ -61,6 +62,42 @@ def _get_validation_status_id(code: str) -> int:
     return nomenclature
 
 
+def _get_validation_status_ids(codes: Sequence[str]) -> list[int]:
+    normalized_codes = list(
+        dict.fromkeys(
+            code.strip() for code in codes if isinstance(code, str) and code.strip()
+        )
+    )
+    if not normalized_codes:
+        return []
+
+    type_id = (
+        BibNomenclaturesTypes.query.with_entities(BibNomenclaturesTypes.id_type)
+        .filter(BibNomenclaturesTypes.mnemonique == NOMENCLATURE_TYPE)
+        .scalar()
+    )
+    if type_id is None:
+        raise NotFound(f"Le type de nomenclature {NOMENCLATURE_TYPE} est introuvable.")
+
+    query = (
+        Nomenclature.query.with_entities(Nomenclature.cd_nomenclature, Nomenclature.id_nomenclature)
+        .filter(
+            Nomenclature.id_type == type_id,
+            Nomenclature.cd_nomenclature.in_(normalized_codes),
+        )
+    )
+
+    rows = query.all()
+    results = {code: identifier for code, identifier in rows}
+    missing_codes = sorted({code for code in normalized_codes if code not in results})
+    if missing_codes:
+        raise NotFound(
+            f"Les codes de validation suivants sont introuvables pour {NOMENCLATURE_TYPE}: {', '.join(missing_codes)}."
+        )
+
+    return [results[code] for code in normalized_codes]
+
+
 """
 #################################################################
     Commandes
@@ -102,6 +139,18 @@ def list_access_requests(scope):
 
     # The query
     query = AccessRequest.filter_by_scope(scope)
+
+    validation_codes_params = request.args.getlist("validation_codes")
+    validation_codes: list[str] = []
+    for raw_value in validation_codes_params:
+        if not raw_value:
+            continue
+        validation_codes.extend([code.strip() for code in raw_value.split(",") if code.strip()])
+
+    if validation_codes:
+        validation_status_ids = _get_validation_status_ids(validation_codes)
+        if validation_status_ids:
+            query = query.where(AccessRequest.id_validation_status.in_(validation_status_ids))
 
     if orderby in "author.nom_complet":
         query = query.join(User, AccessRequest.author.of_type(User))

@@ -14,7 +14,17 @@
     align-items: center;
     flex: 1;
     min-height: 2.5rem;
+    Filter {
+      width: 100%;
+      max-width: 320px;
+      pnx-nomenclature {
+        display: block;
+        width: 100%;
+      }
+    }
   }
+
+
 
   &__actions {
     display: flex;

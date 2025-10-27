@@ -1,7 +1,15 @@
 <div class="AccessRequestList">
   <div class="AccessRequestList__toolbar card-header">
     <div class="AccessRequestList__filters">
-      <span class="AccessRequestList__filtersPlaceholder">Filtres (à venir)</span>
+      <div class="Filter">
+        <pnx-nomenclature
+          label="Statuts de validation"
+          [multiSelect]="true"
+          [keyValue]="'cd_nomenclature'"
+          [parentFormControl]="validationStatusControl"
+          [codeNomenclatureType]="VALIDATION_NOMENCLATURE_TYPE"
+        ></pnx-nomenclature>
+      </div>
     </div>
     <div class="AccessRequestList__actions">
       <button
