@@ -11,7 +11,7 @@ export interface AccessRequestListResponse {
   items: AccessRequest[];
 }
 
-export type AccessRequestReponse = AccessRequest;
+export type AccessRequestResponse = AccessRequest;
 export interface AccessRequestPayload {
   description: string | null;
   initialization_date: string | null;
@@ -32,8 +32,8 @@ export class AccessRequestService {
       { params: params }
     );
   }
-  getAccessRequest(id_access_request: number): Observable<AccessRequestReponse> {
-    return this._http.get<AccessRequestReponse>(
+  getAccessRequest(id_access_request: number): Observable<AccessRequestResponse> {
+    return this._http.get<AccessRequestResponse>(
       `${this._config.API_ENDPOINT}/access_request/${id_access_request}`
     );
   }
@@ -45,17 +45,17 @@ export class AccessRequestService {
   updateAccessRequest(
     accessRequest: AccessRequest,
     payload: AccessRequestPayload
-  ): Observable<AccessRequestReponse> {
+  ): Observable<AccessRequestResponse> {
     payload = this._serializePayload(payload);
-    return this._http.patch<AccessRequestReponse>(
+    return this._http.patch<AccessRequestResponse>(
       `${this._config.API_ENDPOINT}/access_request/${accessRequest.id_access_request}`,
       payload
     );
   }
 
-  createAccessRequest(payload: AccessRequestPayload): Observable<AccessRequestReponse> {
+  createAccessRequest(payload: AccessRequestPayload): Observable<AccessRequestResponse> {
     payload = this._serializePayload(payload);
-    return this._http.post<AccessRequestReponse>(
+    return this._http.post<AccessRequestResponse>(
       `${this._config.API_ENDPOINT}/access_request/`,
       payload
     );

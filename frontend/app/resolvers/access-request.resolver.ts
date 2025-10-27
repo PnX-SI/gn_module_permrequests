@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { Resolve, ActivatedRouteSnapshot } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 
-import { AccessRequestReponse, AccessRequestService } from '../services/accessRequest.service';
+import { AccessRequestResponse, AccessRequestService } from '../services/accessRequest.service';
 
 @Injectable()
-export class AccessRequestResolver implements Resolve<AccessRequestReponse> {
+export class AccessRequestResolver implements Resolve<AccessRequestResponse> {
   constructor(private _accessRequestService: AccessRequestService) {}
 
-  resolve(route: ActivatedRouteSnapshot): Observable<AccessRequestReponse> {
+  resolve(route: ActivatedRouteSnapshot): Observable<AccessRequestResponse> {
     const idAccessRequest = Number(route.paramMap.get('id_access_request'));
 
     if (Number.isNaN(idAccessRequest)) {
