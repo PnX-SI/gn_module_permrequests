@@ -244,6 +244,7 @@ def upgrade():
                   ('{MODULE_CODE}', 'ALL', 'C', False, 'Créer des requêtes d''accès')
                   ,('{MODULE_CODE}', 'ALL', 'R', True, 'Voir les requêtes d''accès')
                   ,('{MODULE_CODE}', 'ALL', 'U', True, 'Modifier les requêtes d''accès')
+                  ,('{MODULE_CODE}', 'ALL', 'V', True, 'Valider les requêtes d''accès')
                   ,('{MODULE_CODE}', 'ALL', 'D', True, 'Supprimer des requêtes d''accès')
           ) AS v (module_code, object_code, action_code, scope_filter, label)
       JOIN
