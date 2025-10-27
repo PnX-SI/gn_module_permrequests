@@ -1,6 +1,7 @@
 <div class="AccessRequestToolbar">
   <button
     *ngIf="withEdit"
+    [disabled]="accessRequest.cruved.U"
     class="AccessRequestToolbar__button"
     color="primary"
     mat-icon-button
@@ -11,6 +12,7 @@
   </button>
   <button
     *ngIf="withInfo"
+    [disabled]="accessRequest.cruved.R"
     class="AccessRequestToolbar__button"
     color="primary"
     mat-icon-button
@@ -21,6 +23,7 @@
   </button>
   <button
     *ngIf="withDelete"
+    [disabled]="accessRequest.cruved.D"
     color="warn"
     class="AccessRequestToolbar__button"
     mat-icon-button

@@ -22,10 +22,8 @@ export class AccessRequestToolbarComponent {
   constructor(
     private _accessRequestService: AccessRequestService,
     private _dialog: MatDialog,
-    private _cruvedStore: CruvedStoreService,
     private _moduleService: ModuleService
   ) {
-    console.log(this._cruvedStore.cruved);
   }
 
   @Input()

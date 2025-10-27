@@ -136,6 +136,41 @@ class AccessRequest(DB.Model):
 
         return query
 
+    def has_instance_permission(self, scope, user=None):
+        """
+        Return True if the provided scope value grants access to this access request.
+        Scope mapping follows the same logic as filter_by_scope:
+            0 => no access
+            1 => author only
+            2 => author or same organism (if any)
+            3+ => full access
+        """
+        if scope is None or scope <= 0:
+            return False
+
+        if scope >= 3:
+            return True
+
+        if user is None:
+            user = getattr(g, "current_user", None)
+        if user is None:
+            return False
+
+        if scope == 1:
+            return self.id_author == getattr(user, "id_role", None)
+
+        if scope == 2:
+            if self.id_author == getattr(user, "id_role", None):
+                return True
+
+            user_org = getattr(user, "id_organisme", None)
+            if user_org is None:
+                return False
+
+            author_org = getattr(self.author, "id_organisme", None) if self.author else None
+            return author_org == user_org
+
+        return False
 
 ## ########################################################################
 ## Association AccessRequest - Permission

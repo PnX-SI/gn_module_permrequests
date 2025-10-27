@@ -4,7 +4,10 @@ from pypnusershub.db.models import User
 from pypnnomenclature.models import TNomenclatures as Nomenclature
 from apptax.taxonomie.models import Taxref
 
+from geonature.utils.schema import CruvedSchemaMixin
+
 from .models import AccessRequest
+from . import MODULE_CODE
 
 
 class AccessRequestUserSchema(SQLAlchemySchema):
@@ -34,12 +37,14 @@ class AccessRequestTaxonSchema(SQLAlchemySchema):
     lb_nom = auto_field()
 
 
-class AccessRequestSchema(SQLAlchemySchema):
+class AccessRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     class Meta:
         model = AccessRequest
         load_instance = False
         include_relationships = True
         include_fk = True
+
+    __module_code__ = MODULE_CODE
 
     id_access_request = auto_field()
     id_validation_status = auto_field()
@@ -52,6 +57,13 @@ class AccessRequestSchema(SQLAlchemySchema):
     author = fields.Nested(AccessRequestUserSchema, dump_only=True)
     validator = fields.Nested(AccessRequestUserSchema, dump_only=True)
     validation_status = fields.Nested(AccessRequestValidationSchema, dump_only=True)
+    cruved = fields.Method("get_cruved", dump_only=True)
 
     def get_permissions(self, obj):
         return [permission.id_permission for permission in getattr(obj, "permissions", [])]
+
+    def get_cruved(self, obj):
+        base = CruvedSchemaMixin.get_cruved(self, obj)
+        if not base:
+            return {action: False for action in ["C", "R", "U", "V", "D"]}
+        return {action: base.get(action, False) for action in ["C", "R", "U", "V", "D"]}

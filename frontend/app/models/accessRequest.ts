@@ -11,6 +11,7 @@ export interface AccessRequest {
   validation_status: AccessRequestValidationStatus | null;
   author: AccessRequestRole | null;
   validator: AccessRequestRole | null;
+  cruved: Cruved  | null
 }
 
 export interface AccessRequestValidationStatus {
@@ -20,4 +21,12 @@ export interface AccessRequestValidationStatus {
 
 export interface AccessRequestRole {
   nom_complet: string | null;
+}
+
+export interface Cruved {
+  C: boolean;
+  R: boolean;
+  U: boolean;
+  V: boolean;
+  D: boolean;
 }
