@@ -45,6 +45,7 @@ class AccessRequestSchema(SQLAlchemySchema):
     id_validation_status = auto_field()
     id_author = auto_field()
     id_validator = auto_field()
+    initialization_date = fields.Date(attribute="initialization_date", dump_only=True)
     expiration_date = fields.Date(attribute="expiration_date", dump_only=True)
     description = auto_field()
     taxa = fields.Nested(AccessRequestTaxonSchema, many=True, dump_only=True)

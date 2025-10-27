@@ -6,6 +6,7 @@ from datetime import datetime
 
 from flask import Blueprint, request, g
 from sqlalchemy import desc, asc
+from sqlalchemy.orm import aliased
 from werkzeug.exceptions import BadRequest, NotFound, Forbidden
 
 from geonature.core.gn_permissions import decorators as permissions
@@ -16,6 +17,7 @@ from utils_flask_sqla.response import json_resp
 from . import MODULE_CODE
 from .models import AccessRequest
 from .schemas import AccessRequestSchema
+from pypnusershub.db.models import User
 from pypnnomenclature.models import (
     BibNomenclaturesTypes,
     TNomenclatures as Nomenclature,
@@ -81,9 +83,35 @@ def list_access_requests(scope):
         raise BadRequest(f"Invalid per_page {per_page} requested")
 
     query = AccessRequest.filter_by_scope(scope)
+
+    author_alias = aliased(User)
+    validator_alias = aliased(User)
+    orderable_columns = {
+        "id_access_request": AccessRequest.id_access_request,
+        "initialization_date": AccessRequest.initialization_date,
+        "expiration_date": AccessRequest.expiration_date,
+        "author_nom_complet": author_alias.nom_complet,
+        "validator_nom_complet": validator_alias.nom_complet,
+    }
+
+    order_column = orderable_columns.get(orderby)
+    if order_column is None:
+        column = getattr(AccessRequest, orderby, None)
+        if column is None:
+            raise BadRequest(f"Invalid orderby value '{orderby}'.")
+        order_column = column
+
+    if orderby == "author_nom_complet":
+        query = query.outerjoin(author_alias, AccessRequest.author.of_type(author_alias))
+    elif orderby == "validator_nom_complet":
+        query = query.outerjoin(
+            validator_alias, AccessRequest.validator.of_type(validator_alias)
+        )
+
     if sort == SortOrder.ASC:
-        query = query.order_by(asc(orderby))
-    query = query.order_by(desc(orderby))
+        query = query.order_by(asc(order_column))
+    else:
+        query = query.order_by(desc(order_column))
 
     # Paginate
     pagination = db.paginate(query, page=page, per_page=per_page, error_out=False)
@@ -102,8 +130,8 @@ def list_access_requests(scope):
 @json_resp
 def access_request(scope, id_access_request):
     query = AccessRequest.filter_by_scope(scope)
-    access_request = query.filter_by(
-        id_access_request=id_access_request
+    access_request = db.session.scalar(
+        query.filter_by(id_access_request=id_access_request)
     )
     if access_request is None:
         raise NotFound(f"Access request {id_access_request} not found")
@@ -133,10 +161,22 @@ def create_access_request():
             "id_author and author are not allowed during creation."
         )
 
-    allowed_fields = {"description", "expiration_date"}
+    allowed_fields = {"description", "expiration_date", "initialization_date"}
     unexpected_fields = set(payload.keys()) - allowed_fields
     if unexpected_fields:
         raise BadRequest(f"Unsupported fields provided: {', '.join(sorted(unexpected_fields))}.")
+    initialization_date = None
+    if "initialization_date" in payload:
+        initialization_value = payload.get("initialization_date")
+        if initialization_value is None:
+            initialization_date = None
+        elif not isinstance(initialization_value, str):
+            raise BadRequest("initialization_date must be a string in YYYY-MM-DD format or null.")
+        else:
+            try:
+                initialization_date = datetime.strptime(initialization_value, "%Y-%m-%d").date()
+            except ValueError as exc:
+                raise BadRequest("initialization_date must follow the YYYY-MM-DD format.") from exc
     expiration_value = payload.get("expiration_date")
     if not isinstance(expiration_value, str):
         raise BadRequest("expiration_date is required and must be a string (YYYY-MM-DD).")
@@ -144,6 +184,8 @@ def create_access_request():
         expiration_date = datetime.strptime(expiration_value, "%Y-%m-%d").date()
     except ValueError as exc:
         raise BadRequest("expiration_date must follow the YYYY-MM-DD format.") from exc
+    if initialization_date and initialization_date >= expiration_date:
+        raise BadRequest("initialization_date must be strictly before expiration_date.")
 
     description_value = payload.get("description")
     if description_value is not None and not isinstance(description_value, str):
@@ -156,6 +198,7 @@ def create_access_request():
     access_request = AccessRequest(
         id_author=current_user.id_role,
         id_validator=None,
+        initialization_date=initialization_date,
         expiration_date=expiration_date,
         description=description_value,
         id_validation_status=_get_validation_status_id(PENDING_STATUS_CODE),
@@ -183,19 +226,35 @@ def update_access_request(scope, id_access_request):
     if forbidden_fields.intersection(payload.keys()):
         raise BadRequest("Field 'validation_status' cannot be updated.")
 
-    allowed_fields = {"description", "expiration_date", "id_validator"}
+    allowed_fields = {"description", "expiration_date", "initialization_date", "id_validator"}
     if not allowed_fields.intersection(payload.keys()):
         raise BadRequest("No updatable fields were provided.")
 
     query = AccessRequest.filter_by_scope(scope)
-    access_request = query.filter_by(
-        id_access_request=id_access_request
+    access_request = db.session.scalar(
+        query.filter_by(id_access_request=id_access_request)
     )
     if access_request is None:
         raise NotFound(f"Access request {id_access_request} not found")
 
     if "description" in payload:
         access_request.description = payload.get("description")
+
+    if "initialization_date" in payload:
+        initialization_value = payload.get("initialization_date")
+        if initialization_value is None:
+            access_request.initialization_date = None
+        elif not isinstance(initialization_value, str):
+            raise BadRequest("initialization_date must be a string in YYYY-MM-DD format or null.")
+        else:
+            try:
+                access_request.initialization_date = datetime.strptime(
+                    initialization_value, "%Y-%m-%d"
+                ).date()
+            except ValueError as exc:
+                raise BadRequest(
+                    "initialization_date must be a valid date in YYYY-MM-DD format."
+                ) from exc
 
     if "expiration_date" in payload:
         expiration_value = payload.get("expiration_date")
@@ -205,6 +264,17 @@ def update_access_request(scope, id_access_request):
             access_request.expiration_date = datetime.strptime(expiration_value, "%Y-%m-%d").date()
         except ValueError as exc:
             raise BadRequest("expiration_date must be a valid date in YYYY-MM-DD format.") from exc
+    if (
+        "initialization_date" in payload or "expiration_date" in payload
+    ) and access_request.initialization_date is not None and access_request.expiration_date is not None:
+        if access_request.initialization_date >= access_request.expiration_date:
+            raise BadRequest("initialization_date must be strictly before expiration_date.")
+
+    if "id_validator" in payload:
+        id_validator_value = payload.get("id_validator")
+        if id_validator_value is not None and not isinstance(id_validator_value, int):
+            raise BadRequest("id_validator must be an integer or null.")
+        access_request.id_validator = id_validator_value
 
     db.session.commit()
 
@@ -219,9 +289,9 @@ def delete_access_request(scope, id_access_request):
         raise Forbidden("User is not allowed to delete access requests.")
 
     query = AccessRequest.filter_by_scope(scope)
-    access_request = query.filter_by(
-        id_access_request=id_access_request
-    ).one_or_none()
+    access_request = db.session.scalar(
+        query.filter_by(id_access_request=id_access_request)
+    )
     if access_request is None:
         raise NotFound(f"Access request {id_access_request} not found")
 

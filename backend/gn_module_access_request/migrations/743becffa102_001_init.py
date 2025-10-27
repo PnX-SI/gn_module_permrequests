@@ -55,6 +55,11 @@ def upgrade():
             nullable=False,
         ),
         sa.Column(
+            "initialization_date",
+            sa.Date,
+            nullable=True,
+        ),
+        sa.Column(
             "id_validator",
             sa.Integer,
             sa.ForeignKey("utilisateurs.t_roles.id_role"),

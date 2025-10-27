@@ -67,6 +67,10 @@ class AccessRequest(DB.Model):
         DB.ForeignKey("utilisateurs.t_roles.id_role"),
         nullable=False,
     )
+    initialization_date = DB.Column(
+        DB.Date,
+        nullable=True,
+    )
     id_validator = DB.Column(
         "id_validator",
         DB.Integer,

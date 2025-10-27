@@ -111,7 +111,8 @@ def upgrade():
         author_id = random.choice(authors)
         validator_id = random.choice(validators) if validators else None
         validation_status_id = random.choice(status_ids) if status_ids else None
-        expiration_date = today + timedelta(days=random.randint(30, 365))
+        initialization_date = today - timedelta(days=random.randint(0, 30))
+        expiration_date = initialization_date + timedelta(days=random.randint(30, 365))
         description = f"{DEMO_DESCRIPTION_PREFIX} {index + 1}"
 
         inserted_id = conn.execute(
@@ -121,6 +122,7 @@ def upgrade():
                     id_validation_status,
                     id_author,
                     id_validator,
+                    initialization_date,
                     expiration_date,
                     description
                 )
@@ -128,6 +130,7 @@ def upgrade():
                     :id_validation_status,
                     :id_author,
                     :id_validator,
+                    :initialization_date,
                     :expiration_date,
                     :description
                 )
@@ -138,6 +141,7 @@ def upgrade():
                 "id_validation_status": validation_status_id,
                 "id_author": author_id,
                 "id_validator": validator_id,
+                "initialization_date": initialization_date,
                 "expiration_date": expiration_date,
                 "description": description,
             },

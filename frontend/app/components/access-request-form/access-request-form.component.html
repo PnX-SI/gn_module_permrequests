@@ -21,6 +21,15 @@
   </div>
 
   <div class="AccessRequestForm__field">
+    <label for="initialization_date">Date d'initialisation</label>
+    <pnx-date
+      id="initialization_date"
+      [defaultToday]="false"
+      [parentFormControl]="initializationDateControl"
+    ></pnx-date>
+  </div>
+
+  <div class="AccessRequestForm__field">
     <label for="expiration_date">Date d'expiration</label>
     <pnx-date
       id="expiration_date"
@@ -33,6 +42,13 @@
     >
       La date d'expiration est obligatoire.
     </div>
+  </div>
+
+  <div
+    class="AccessRequestForm__error"
+    *ngIf="form.errors?.invalidDate && (initializationDateControl?.touched || expirationDateControl?.touched)"
+  >
+    La date d'initialisation ne peut pas être postérieure à la date d'expiration.
   </div>
 
   <div class="AccessRequestForm__actions">

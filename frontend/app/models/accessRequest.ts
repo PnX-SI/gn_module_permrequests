@@ -3,6 +3,7 @@ export interface AccessRequest {
   id_validation_status: number | null;
   id_author: number;
   id_validator: number | null;
+  initialization_date: string | null;
   expiration_date: string | null;
   description: string | null;
   taxa: number[];

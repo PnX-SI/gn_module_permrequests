@@ -38,6 +38,7 @@ export class AccessRequestListComponent {
   readonly PROP_ID_ACCESS_REQUEST = 'id_access_request';
   readonly PROP_AUTHOR = 'author.nom_complet';
   readonly PROP_DESCRIPTION = 'description';
+  readonly PROP_INITIALIZATION_DATE = 'initialization_date';
   readonly PROP_EXPIRATION_DATE = 'expiration_date';
   readonly PROP_TAXA = 'taxa';
   readonly PROP_VALIDATION_STATUS = 'id_validation_status';
@@ -57,7 +58,10 @@ export class AccessRequestListComponent {
     this._fetchAccessRequests();
   }
 
-  renderDate(date: string): string {
+  renderDate(date: string | null): string {
+    if (!date) {
+      return '-';
+    }
     return new Date(date).toLocaleDateString();
   }
 

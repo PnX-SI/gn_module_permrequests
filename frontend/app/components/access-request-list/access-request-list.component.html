@@ -73,6 +73,22 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
+      name="Date d'initialisation"
+      [prop]="PROP_INITIALIZATION_DATE"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-accessRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="
+            cellDateTemplate;
+            context: { date: accessRequest[PROP_INITIALIZATION_DATE] }
+          "
+        ></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
       name="Date d'expiration"
       [prop]="PROP_EXPIRATION_DATE"
     >

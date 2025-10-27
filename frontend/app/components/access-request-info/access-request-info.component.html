@@ -1,9 +1,10 @@
-<div class="AccessRequestInfo">
-  <div
-    class="AccessRequestInfo__field"
-  >
+<div
+  class="AccessRequestInfo"
+  *ngIf="accessRequest as request"
+>
+  <div class="AccessRequestInfo__field">
     <label for="author">Author</label>
-    <div id="author">{{ accessRequest.author.nom_complet }}</div>
+    <div id="author">{{ request.author?.nom_complet }}</div>
   </div>
 
   <div class="AccessRequestInfo__field">
@@ -11,13 +12,16 @@
     <span
       id="description"
       rows="4"
-    >{{ accessRequest.description }}</span>
+    >{{ request.description }}</span>
+  </div>
+
+  <div class="AccessRequestInfo__field">
+    <label for="initialization_date">Date d'initialisation</label>
+    <div id="initialization_date">{{ request.initialization_date }}</div>
   </div>
 
   <div class="AccessRequestInfo__field">
     <label for="expiration_date">Expiration Date</label>
-    <div
-      id="expiration_date"
-    >{{ accessRequest.expiration_date }}</div>
+    <div id="expiration_date">{{ request.expiration_date }}</div>
   </div>
 </div>

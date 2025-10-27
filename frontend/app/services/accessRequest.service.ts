@@ -14,7 +14,9 @@ export interface AccessRequestListResponse {
 export type AccessRequestReponse = AccessRequest;
 export interface AccessRequestPayload {
   description: string | null;
+  initialization_date: string | null;
   expiration_date: string;
+  id_validator?: number | null;
 }
 
 @Injectable()
@@ -37,7 +39,6 @@ export class AccessRequestService {
   }
 
   private _serializePayload(payload: AccessRequestPayload){
-    console.log(payload);
     return payload;
   }
 
