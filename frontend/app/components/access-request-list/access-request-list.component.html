@@ -1,4 +1,18 @@
 <div class="AccessRequestList">
+  <div class="AccessRequestList__toolbar card-header">
+    <div class="AccessRequestList__filters">
+      <span class="AccessRequestList__filtersPlaceholder">Filtres (à venir)</span>
+    </div>
+    <div class="AccessRequestList__actions">
+      <button
+        mat-flat-button
+        color="primary"
+        [routerLink]="newAccessRequestLink"
+      >
+        Nouvelle demande
+      </button>
+    </div>
+  </div>
   <ng-template
     #cellDateTemplate
     let-date="date"

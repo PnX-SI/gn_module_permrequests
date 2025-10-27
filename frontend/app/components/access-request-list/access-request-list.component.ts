@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
 import { DEFAULT_PAGINATION, PaginationItem } from '../../models/paginationItem';
 import { SORT_ORDER, SortItem } from '../../models/sortItem';
 import { AccessRequest } from '../../models/accessRequest';
@@ -11,16 +12,9 @@ import {
 import { AccessRequestToolbarComponent } from '../../components/access-request-toolbar/access-request-toolbar.component';
 import { AccessRequestStatusComponent } from '../../components/access-request-status/access-request-status.component';
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
-// export interface AccessRequestSummary {
-//   id_access_request: number;
-//   id_validation_status: number | null;
-//   id_author: number;
-//   id_validator: number | null;
-//   expiration_date: string | null;
-//   description: string | null;
-//   taxa: number[];
-//   permissions: number[];
-// }
+import { MatButtonModule } from '@angular/material/button';
+import { ModuleService } from '@geonature/services/module.service';
+import { ROUTE_PATHS } from '../../gnModule.module';
 
 @Component({
   standalone: true,
@@ -30,8 +24,10 @@ import { GN2CommonModule } from '@geonature_common/GN2Common.module';
   imports: [
     GN2CommonModule,
     CommonModule,
+    RouterModule,
     AccessRequestToolbarComponent,
     AccessRequestStatusComponent,
+    MatButtonModule,
   ],
 })
 export class AccessRequestListComponent {
@@ -52,7 +48,7 @@ export class AccessRequestListComponent {
 
   accessRequests: AccessRequest[] = [];
 
-  constructor(private _ars: AccessRequestService) {}
+  constructor(private _ars: AccessRequestService, private _moduleService: ModuleService) {}
 
   ngOnInit() {
     this._fetchAccessRequests();
@@ -80,6 +76,10 @@ export class AccessRequestListComponent {
 
   onAccessRequestDeleted() {
     this._fetchAccessRequests();
+  }
+
+  get newAccessRequestLink(): string {
+    return `/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.newAccessRequest}`;
   }
 
   private _fetchAccessRequests() {
