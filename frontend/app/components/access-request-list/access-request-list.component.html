@@ -11,7 +11,10 @@
         ></pnx-nomenclature>
       </div>
     </div>
-    <div class="AccessRequestList__actions">
+    <div
+      class="AccessRequestList__actions"
+      *ngIf="canCreateAccessRequest"
+    >
       <button
         mat-flat-button
         color="primary"

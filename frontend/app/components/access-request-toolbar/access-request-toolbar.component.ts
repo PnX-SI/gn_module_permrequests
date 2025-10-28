@@ -5,7 +5,6 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { ConfirmationDialog } from '@geonature_common/others/modal-confirmation/confirmation.dialog';
-import { CruvedStoreService } from '@geonature_common/service/cruved-store.service';
 import { ModuleService } from '@geonature/services/module.service';
 
 import { AccessRequest } from '../../models/accessRequest';
@@ -27,7 +26,7 @@ export class AccessRequestToolbarComponent {
   }
 
   @Input()
-  accessRequest!: AccessRequest;
+  accessRequest: AccessRequest | null = null;
 
   @Input()
   withInfo: boolean = true;
@@ -40,14 +39,23 @@ export class AccessRequestToolbarComponent {
   deleted = new EventEmitter<number>();
 
   get infoRouterLink(): string {
+    if (!this.accessRequest) {
+      return '';
+    }
     return `/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.accessRequest(this.accessRequest.id_access_request)}`;
   }
 
   get editRouterLink(): string {
+    if (!this.accessRequest) {
+      return '';
+    }
     return `/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.accessRequest(this.accessRequest.id_access_request)}/edit`;
   }
 
   deleteAccessRequest() {
+    if (!this.accessRequest) {
+      return;
+    }
     const message =
       "Vous vous apprétez à supprimer la requête d'accès #" +
       this.accessRequest.id_access_request +

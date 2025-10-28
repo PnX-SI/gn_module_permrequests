@@ -1,4 +1,22 @@
 .AccessRequestToolbar {
   display: flex;
   flex-flow: row nowrap;
+  align-items: center;
+  gap: 0.25rem;
+
+  &__status {
+    min-width: 180px;
+    max-width: 260px;
+    flex: 0 1 240px;
+    display: flex;
+    align-items: center;
+  }
+
+  &__status pnx-nomenclature {
+    width: 100%;
+  }
+
+  &__button {
+    margin-left: 0.25rem;
+  }
 }

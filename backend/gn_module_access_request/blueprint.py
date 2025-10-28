@@ -340,6 +340,9 @@ def update_access_request(scope, id_access_request):
             raise BadRequest("id_validator must be an integer or null.")
         access_request.id_validator = id_validator_value
 
+    # Reset validation status to "en attente" after any update
+    access_request.id_validation_status = _get_validation_status_id(PENDING_STATUS_CODE)
+
     db.session.commit()
 
     return access_request_schema.dump(access_request)

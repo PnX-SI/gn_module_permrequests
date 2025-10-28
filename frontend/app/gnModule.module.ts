@@ -11,6 +11,9 @@ import { AccessRequestInfoPageComponent } from './pages/access-request-info/acce
 import { AccessRequestNewPageComponent } from './pages/access-request-new/access-request-new.component';
 import { AccessRequestEditPageComponent } from './pages/access-request-edit/access-request-edit.component';
 import { AccessRequestResolver } from './resolvers/access-request.resolver';
+import { canEditAccessRequestGuard } from './guards/can-edit-access-request.guard';
+import { canCreateAccessRequestGuard } from './guards/can-create-access-request.guard';
+import { canViewAccessRequestGuard } from './guards/can-view-access-request.guard';
 
 export const ROUTE_PATHS = {
   accessRequests: '',
@@ -27,6 +30,7 @@ export const routes: Routes = [
   {
     path: ROUTE_PATHS.newAccessRequest,
     component: AccessRequestNewPageComponent,
+    canActivate: [canCreateAccessRequestGuard],
   },
   {
     path: ROUTE_PATHS.accessRequest(':id_access_request'),
@@ -34,6 +38,7 @@ export const routes: Routes = [
     resolve: {
       accessRequest: AccessRequestResolver,
     },
+    canActivate: [canViewAccessRequestGuard],
   },
   {
     path: ROUTE_PATHS.accessRequestEdit(':id_access_request'),
@@ -41,6 +46,7 @@ export const routes: Routes = [
     resolve: {
       accessRequest: AccessRequestResolver,
     },
+    canActivate: [canEditAccessRequestGuard],
   },
 ];
 

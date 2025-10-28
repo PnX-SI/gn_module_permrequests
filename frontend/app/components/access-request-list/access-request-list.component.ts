@@ -15,9 +15,11 @@ import { AccessRequestStatusComponent } from '../../components/access-request-st
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { MatButtonModule } from '@angular/material/button';
 import { ModuleService } from '@geonature/services/module.service';
+import { CruvedStoreService } from '@geonature_common/service/cruved-store.service';
 import { ROUTE_PATHS } from '../../gnModule.module';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { canCreateAccess } from '../../guards/can-create-access-request.guard';
 
 @Component({
   standalone: true,
@@ -53,12 +55,14 @@ export class AccessRequestListComponent implements OnInit, OnDestroy {
   accessRequests: AccessRequest[] = [];
   validationStatusControl = new FormControl<string[] | null>([]);
   readonly VALIDATION_NOMENCLATURE_TYPE = 'ACCESS_REQUEST_VALIDATION';
+  canCreateAccessRequest = false;
 
   private _destroy$ = new Subject<void>();
 
   constructor(
     private _ars: AccessRequestService,
-    private _moduleService: ModuleService
+    private _moduleService: ModuleService,
+    private _cruvedStore: CruvedStoreService
   ) {}
 
   ngOnInit() {
@@ -68,6 +72,8 @@ export class AccessRequestListComponent implements OnInit, OnDestroy {
         this.pagination.currentPage = 1;
         this._fetchAccessRequests();
       });
+
+    this.canCreateAccessRequest = canCreateAccess(this._cruvedStore.cruved?.[this._moduleService.currentModule.module_code])
 
     this._fetchAccessRequests();
   }
@@ -101,8 +107,8 @@ export class AccessRequestListComponent implements OnInit, OnDestroy {
     this._fetchAccessRequests();
   }
 
-  get newAccessRequestLink(): string {
-    return `/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.newAccessRequest}`;
+  get newAccessRequestLink(): string[] {
+    return [`/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.newAccessRequest}`];
   }
 
   private _fetchAccessRequests() {

@@ -14,6 +14,7 @@ import { ModuleService } from '@geonature/services/module.service';
 
 import { AccessRequest } from '../../models/accessRequest';
 import { AccessRequestPayload, AccessRequestService } from '../../services/accessRequest.service';
+import { ROUTE_PATHS } from '../../gnModule.module';
 
 type AccessRequestFormValue = {
   description: string | null;
@@ -127,7 +128,9 @@ export class AccessRequestFormComponent {
         )
         .subscribe({
           next: (updatedAccessRequest: AccessRequest) => {
-            this.accessRequest = updatedAccessRequest;
+            this._router.navigate([
+              `/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.accessRequest(updatedAccessRequest.id_access_request)}`,
+            ]);
           },
           error: (error: any) => {
             // TODO: throw notifications
@@ -146,7 +149,7 @@ export class AccessRequestFormComponent {
         .subscribe({
           next: (createdAccessRequest: AccessRequest) => {
             this._router.navigate([
-              `/${this._moduleService.currentModule.module_url}/${createdAccessRequest.id_access_request}`,
+              `/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.accessRequest(createdAccessRequest.id_access_request)}`,
             ]);
           },
           error: (error: any) => {
