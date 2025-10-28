@@ -56,6 +56,25 @@
     La date d'initialisation doit être antérieure à la date d'expiration.
   </div>
 
+  <div
+    class="AccessRequestForm__field AccessRequestForm__field--acknowledge"
+    *ngIf="shouldDisplayAcknowledgement"
+  >
+    <label>
+      <input
+        type="checkbox"
+        formControlName="acknowledgeTerms"
+      />
+      {{ termsAcknowledgementText }}
+    </label>
+    <div
+      class="AccessRequestForm__error"
+      *ngIf="acknowledgeTermsControl?.hasError('required') && acknowledgeTermsControl?.touched"
+    >
+      Vous devez accepter les conditions pour poursuivre.
+    </div>
+  </div>
+
   <div class="AccessRequestForm__actions">
     <button
       type="button"

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +11,7 @@ import { finalize } from 'rxjs/operators';
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { FormService } from '@geonature_common/form/form.service';
 import { ModuleService } from '@geonature/services/module.service';
+import { ConfigService } from '@geonature/services/config.service';
 
 import { AccessRequest } from '../../models/accessRequest';
 import { AccessRequestPayload, AccessRequestService } from '../../services/accessRequest.service';
@@ -21,6 +22,7 @@ type AccessRequestFormValue = {
   initialization_date: NgbDateStruct | string | null;
   expiration_date: NgbDateStruct | string | null;
   id_validator: number | null;
+  acknowledgeTerms: boolean;
 };
 
 @Component({
@@ -32,6 +34,8 @@ type AccessRequestFormValue = {
 })
 export class AccessRequestFormComponent {
   isSaving = false;
+  readonly shouldDisplayAcknowledgement: boolean;
+  readonly termsAcknowledgementText: string;
 
   constructor(
     private _accessRequestService: AccessRequestService,
@@ -39,9 +43,14 @@ export class AccessRequestFormComponent {
     private _formBuilder: FormBuilder,
     private _formService: FormService,
     private _moduleService: ModuleService,
+    private _configService: ConfigService,
     private _router: Router
   ) {
+    const moduleConfig = this._configService.ACCESS_REQUEST ?? {};
+    this.shouldDisplayAcknowledgement = !!moduleConfig.REQUIRE_TERMS_ACKNOWLEDGEMENT;
+    this.termsAcknowledgementText = moduleConfig.TERMS_ACKNOWLEDGMENT.TEXT.trim();
     this._setupValidators();
+    this._setupAcknowledgementControl();
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -71,6 +80,7 @@ export class AccessRequestFormComponent {
       initialization_date: [null],
       expiration_date: [null, [Validators.required]],
       id_validator: [null],
+      acknowledgeTerms: [false, Validators.requiredTrue],
     });
     return group;
   }
@@ -85,17 +95,31 @@ export class AccessRequestFormComponent {
     }
   }
 
+  private _setupAcknowledgementControl(): void {
+    const control = this.acknowledgeTermsControl;
+    if (!control) {
+      return;
+    }
+    if (this.shouldDisplayAcknowledgement) {
+      control.setValidators(Validators.requiredTrue);
+      control.setValue(false, { emitEvent: false });
+    } else {
+      control.clearValidators();
+      control.setValue(true, { emitEvent: false });
+    }
+    control.updateValueAndValidity({ emitEvent: false });
+  }
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const rawValue = this.form.value as {
-      description: string;
-      initialization_date: NgbDateStruct | string | null;
+    this.isSaving = true;
+
+    const rawValue = this.form.value as AccessRequestFormValue & {
       expiration_date: NgbDateStruct;
-      id_validator: number | null;
     };
 
     let initializationValue: string | null = null;
@@ -168,8 +192,8 @@ export class AccessRequestFormComponent {
       return false;
     }
 
-    const { description, expiration_date, id_validator, initialization_date } =
-      this.form.value as AccessRequestFormValue;
+    const { description, expiration_date, id_validator, initialization_date } = this.form
+      .value as AccessRequestFormValue;
 
     const normalizedDescription = (description ?? '').trim();
     const accessRequestDescription = (this.accessRequest.description ?? '').trim();
@@ -197,9 +221,7 @@ export class AccessRequestFormComponent {
     this._fillFormFromAccessRequest(this.accessRequest);
   }
 
-  private _normalizeDateValue(
-    value: NgbDateStruct | string | null | undefined
-  ): string | null {
+  private _normalizeDateValue(value: NgbDateStruct | string | null | undefined): string | null {
     if (!value) {
       return null;
     }
@@ -211,7 +233,13 @@ export class AccessRequestFormComponent {
 
   private _fillFormFromAccessRequest(accessRequest: AccessRequest | null): void {
     if (!accessRequest) {
-      this.form.reset();
+      this.form.reset({
+        description: '',
+        initialization_date: null,
+        expiration_date: null,
+        id_validator: null,
+        acknowledgeTerms: this.shouldDisplayAcknowledgement ? false : true,
+      });
     } else {
       const initializationStruct = accessRequest.initialization_date
         ? this._dateParser.parse(accessRequest.initialization_date)
@@ -224,6 +252,7 @@ export class AccessRequestFormComponent {
         initialization_date: initializationStruct,
         expiration_date: expirationStruct,
         id_validator: accessRequest.id_validator,
+        acknowledgeTerms: true,
       });
     }
     this.form.markAsPristine();
@@ -236,5 +265,9 @@ export class AccessRequestFormComponent {
 
   get initializationDateControl() {
     return this.form.get('initialization_date');
+  }
+
+  get acknowledgeTermsControl() {
+    return this.form.get('acknowledgeTerms');
   }
 }

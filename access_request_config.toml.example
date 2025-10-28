@@ -1,0 +1,9 @@
+REQUIRE_TERMS_ACKNOWLEDGEMENT = True
+[TERMS_ACKNOWLEDGMENT]
+TEXT = "J'ai lu et j'accepte les conditions d'utilisation des données."
+
+VALIDATION_STATUS_INFO = {
+    "VALIDATED" = {"color" = "#8BC34A"},
+    "REFUSED" = {"color" = "#FF5722"},
+    "PENDING" = {"color" = "#0ed8ff"},
+}

@@ -11,9 +11,18 @@ DEFAULT_VALIDATION_STATUS_INFO = {
     "PENDING": {"color": "#0ed8ff"},  # en attent
 }
 
+DEFAULT_TERMS_ACKNOWLEDGMENT = {"TEXT": "J'ai lu et j'accepte les conditions."}
+
+
+class TermsAcknowledgmentSchema(Schema):
+    TEXT = fields.String(load_default=DEFAULT_TERMS_ACKNOWLEDGMENT["TEXT"])
+
 
 class GnModuleSchemaConf(Schema):
-    MODULE_URL = fields.String(load_default="/access_request")
+    REQUIRE_TERMS_ACKNOWLEDGEMENT = fields.Boolean(load_default=True)
+    TERMS_ACKNOWLEDGMENT = fields.Nested(
+        TermsAcknowledgmentSchema, load_default=DEFAULT_TERMS_ACKNOWLEDGMENT
+    )
     VALIDATION_STATUS_INFO = fields.Dict(
         fields.Dict(), load_default=DEFAULT_VALIDATION_STATUS_INFO
     )
