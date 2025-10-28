@@ -412,6 +412,8 @@ def update_validation_status(scope, id_access_request):
 
     access_request.id_validation_status = validation_id
     access_request.id_validator = current_user.id_role
+    # Clearing permission links ensures downstream consumers re-evaluate granted permissions.
+    access_request.permission_links.clear()
 
     db.session.commit()
 
