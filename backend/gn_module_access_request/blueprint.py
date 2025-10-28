@@ -305,3 +305,51 @@ def delete_access_request(scope, id_access_request):
     db.session.commit()
 
     return None, 204
+
+
+## ########################################################################
+## VALIDATION FLAG
+## ########################################################################
+
+
+@blueprint.route("/<int(signed=True):id_access_request>/validated", methods=["PATCH"])
+@login_required
+@permissions.check_cruved_scope("V", get_scope=True, module_code=MODULE_CODE)
+@json_resp
+def update_validated(scope, id_access_request):
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        raise BadRequest("A JSON object is required.")
+
+    allowed_fields = {"validated"}
+    unexpected_fields = set(payload.keys()) - allowed_fields
+    if unexpected_fields:
+        raise BadRequest(f"Unsupported fields provided: {', '.join(sorted(unexpected_fields))}.")
+
+    if "validated" not in payload:
+        raise BadRequest("Field 'validated' must be provided.")
+
+    validated_value = payload.get("validated")
+    if validated_value not in (True, False, None):
+        raise BadRequest("validated must be true, false or null.")
+
+    query = AccessRequest.filter_by_scope(scope)
+    access_request = (
+        db.session.scalars(query.filter_by(id_access_request=id_access_request))
+        .unique()
+        .one_or_none()
+    )
+    if access_request is None:
+        raise NotFound(f"Access request {id_access_request} not found")
+
+    current_user = getattr(g, "current_user", None)
+    if current_user is None or not hasattr(current_user, "id_role"):
+        raise Forbidden("Current user context is missing.")
+
+    access_request.validated = validated_value
+    access_request.id_validator = current_user.id_role
+    access_request.permission_links.clear()
+
+    db.session.commit()
+
+    return access_request_schema.dump(access_request)
