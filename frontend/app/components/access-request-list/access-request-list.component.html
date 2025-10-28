@@ -1,15 +1,7 @@
 <div class="AccessRequestList">
   <div class="AccessRequestList__toolbar card-header">
     <div class="AccessRequestList__filters">
-      <div class="Filter">
-        <pnx-nomenclature
-          label="Statuts de validation"
-          [multiSelect]="true"
-          [keyValue]="'cd_nomenclature'"
-          [parentFormControl]="validationStatusControl"
-          [codeNomenclatureType]="VALIDATION_NOMENCLATURE_TYPE"
-        ></pnx-nomenclature>
-      </div>
+      <div class="Filter"></div>
     </div>
     <div
       class="AccessRequestList__actions"
@@ -167,14 +159,16 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
-      name="Validation Status"
-      [prop]="PROP_VALIDATION_STATUS"
+      name="Status"
+      [prop]="PROP_STATUS"
     >
       <ng-template
         ngx-datatable-cell-template
         let-accessRequest="row"
       >
-        <access-request-status [accessRequest]="accessRequest"></access-request-status>
+        <ng-template
+          *ngTemplateOutlet="cellNameTemplate; context: { value: accessRequest.status }"
+        ></ng-template>
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column [sortable]="false">

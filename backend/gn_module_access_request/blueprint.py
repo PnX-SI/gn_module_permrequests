@@ -3,8 +3,6 @@ Définition des routes du module export
 """
 
 from datetime import datetime
-from typing import Sequence
-
 from flask import Blueprint, request, g
 from sqlalchemy import desc, asc
 from sqlalchemy.orm import aliased
@@ -19,18 +17,11 @@ from . import MODULE_CODE
 from .models import AccessRequest
 from .schemas import AccessRequestSchema
 from pypnusershub.db.models import User
-from pypnnomenclature.models import (
-    BibNomenclaturesTypes,
-    TNomenclatures as Nomenclature,
-)
 
 
 blueprint = Blueprint("access_request", __name__, cli_group="access_request")
 access_requests_schema = AccessRequestSchema(many=True)
 access_request_schema = AccessRequestSchema()
-
-NOMENCLATURE_TYPE = f"{MODULE_CODE}_VALIDATION"
-PENDING_STATUS_CODE = "PENDING"
 
 from enum import Enum
 
@@ -38,64 +29,6 @@ from enum import Enum
 class SortOrder(Enum):
     ASC = "asc"
     DESC = "desc"
-
-
-def _get_validation_status_id(code: str) -> int:
-    type_id = (
-        BibNomenclaturesTypes.query.with_entities(BibNomenclaturesTypes.id_type)
-        .filter(BibNomenclaturesTypes.mnemonique == NOMENCLATURE_TYPE)
-        .scalar()
-    )
-    if type_id is None:
-        raise NotFound(f"Le type de nomenclature {NOMENCLATURE_TYPE} est introuvable.")
-
-    nomenclature = (
-        Nomenclature.query.with_entities(Nomenclature.id_nomenclature)
-        .filter(
-            Nomenclature.id_type == type_id,
-            Nomenclature.cd_nomenclature == code,
-        )
-        .scalar()
-    )
-    if nomenclature is None:
-        raise NotFound(f"La nomenclature {code} n'est pas disponible pour {NOMENCLATURE_TYPE}.")
-    return nomenclature
-
-
-def _get_validation_status_ids(codes: Sequence[str]) -> list[int]:
-    normalized_codes = list(
-        dict.fromkeys(
-            code.strip() for code in codes if isinstance(code, str) and code.strip()
-        )
-    )
-    if not normalized_codes:
-        return []
-
-    type_id = (
-        BibNomenclaturesTypes.query.with_entities(BibNomenclaturesTypes.id_type)
-        .filter(BibNomenclaturesTypes.mnemonique == NOMENCLATURE_TYPE)
-        .scalar()
-    )
-    if type_id is None:
-        raise NotFound(f"Le type de nomenclature {NOMENCLATURE_TYPE} est introuvable.")
-
-    query = (
-        Nomenclature.query.with_entities(Nomenclature.cd_nomenclature, Nomenclature.id_nomenclature)
-        .filter(
-            Nomenclature.id_type == type_id,
-            Nomenclature.cd_nomenclature.in_(normalized_codes),
-        )
-    )
-
-    rows = query.all()
-    results = {code: identifier for code, identifier in rows}
-    missing_codes = sorted({code for code in normalized_codes if code not in results})
-    if missing_codes:
-        raise NotFound(
-            f"Les codes de validation suivants sont introuvables pour {NOMENCLATURE_TYPE}: {', '.join(missing_codes)}."
-        )
-
-    return [results[code] for code in normalized_codes]
 
 
 """
@@ -107,6 +40,7 @@ def _get_validation_status_ids(codes: Sequence[str]) -> list[int]:
 ## ########################################################################
 ## COLLECTION
 ## ########################################################################
+
 
 @blueprint.route("/", methods=["GET"])
 @login_required
@@ -140,18 +74,6 @@ def list_access_requests(scope):
     # The query
     query = AccessRequest.filter_by_scope(scope)
 
-    validation_codes_params = request.args.getlist("validation_codes")
-    validation_codes: list[str] = []
-    for raw_value in validation_codes_params:
-        if not raw_value:
-            continue
-        validation_codes.extend([code.strip() for code in raw_value.split(",") if code.strip()])
-
-    if validation_codes:
-        validation_status_ids = _get_validation_status_ids(validation_codes)
-        if validation_status_ids:
-            query = query.where(AccessRequest.id_validation_status.in_(validation_status_ids))
-
     if orderby in "author.nom_complet":
         query = query.join(User, AccessRequest.author.of_type(User))
     elif orderby in "validator.nom_complet":
@@ -172,9 +94,11 @@ def list_access_requests(scope):
         "per_page": pagination.per_page,
     }
 
+
 ## ########################################################################
 ## ENTITY - GET
 ## ########################################################################
+
 
 @blueprint.route("/<int(signed=True):id_access_request>", methods=["GET"])
 @login_required
@@ -191,9 +115,11 @@ def access_request(scope, id_access_request):
         raise NotFound(f"Access request {id_access_request} not found")
     return access_request_schema.dump(access_request)
 
+
 ## ########################################################################
 ## ENTITY - POST
 ## ########################################################################
+
 
 @blueprint.route("/", methods=["POST"])
 @login_required
@@ -204,18 +130,10 @@ def create_access_request():
     if not isinstance(payload, dict):
         raise BadRequest("A JSON object is required.")
 
-    forbidden_fields = {
-        "validation_status",
-        "id_validation_status",
-        "id_validator",
-        "id_author",
-        "author",
-        "validator",
-    }
+    forbidden_fields = {"status", "id_validator", "id_author", "author", "validator"}
     if forbidden_fields.intersection(payload.keys()):
         raise BadRequest(
-            "Fields validation_status, id_validation_status, id_validator, "
-            "id_author and author are not allowed during creation."
+            "Fields status, id_validator, " "id_author and author are not allowed during creation."
         )
 
     allowed_fields = {"description", "expiration_date", "initialization_date"}
@@ -258,7 +176,6 @@ def create_access_request():
         initialization_date=initialization_date,
         expiration_date=expiration_date,
         description=description_value,
-        id_validation_status=_get_validation_status_id(PENDING_STATUS_CODE),
     )
 
     db.session.add(access_request)
@@ -266,9 +183,11 @@ def create_access_request():
 
     return access_request_schema.dump(access_request), 201
 
+
 ## ########################################################################
 ## ENTITY - PATCH
 ## ########################################################################7
+
 
 @blueprint.route("/<int(signed=True):id_access_request>", methods=["PATCH"])
 @login_required
@@ -282,9 +201,9 @@ def update_access_request(scope, id_access_request):
     if not isinstance(payload, dict):
         raise BadRequest("A JSON object is required.")
 
-    forbidden_fields = {"validation_status", "id_validation_status"}
+    forbidden_fields = {"status"}
     if forbidden_fields.intersection(payload.keys()):
-        raise BadRequest("Field 'validation_status' cannot be updated.")
+        raise BadRequest("Field 'status' cannot be updated.")
 
     allowed_fields = {"description", "expiration_date", "initialization_date", "id_validator"}
     if not allowed_fields.intersection(payload.keys()):
@@ -340,16 +259,15 @@ def update_access_request(scope, id_access_request):
             raise BadRequest("id_validator must be an integer or null.")
         access_request.id_validator = id_validator_value
 
-    # Reset validation status to "en attente" after any update
-    access_request.id_validation_status = _get_validation_status_id(PENDING_STATUS_CODE)
-
     db.session.commit()
 
     return access_request_schema.dump(access_request)
 
+
 ## ########################################################################
 ## ENTITY - DELETE
 ## ########################################################################
+
 
 @blueprint.route("/<int(signed=True):id_access_request>", methods=["DELETE"])
 @permissions.check_cruved_scope("D", get_scope=True, module_code=MODULE_CODE)
@@ -371,50 +289,3 @@ def delete_access_request(scope, id_access_request):
     db.session.commit()
 
     return None, 204
-
-## ########################################################################
-## VALIDATION
-## ########################################################################
-
-@blueprint.route("/<int(signed=True):id_access_request>/validation-status", methods=["PATCH"])
-@login_required
-@permissions.check_cruved_scope("V", get_scope=True, module_code=MODULE_CODE)
-@json_resp
-def update_validation_status(scope, id_access_request):
-    payload = request.get_json(silent=True)
-    if not isinstance(payload, dict):
-        raise BadRequest("A JSON object is required.")
-
-    allowed_fields = {"validation_code"}
-    unexpected_fields = set(payload.keys()) - allowed_fields
-    if unexpected_fields:
-        raise BadRequest(f"Unsupported fields provided: {', '.join(sorted(unexpected_fields))}.")
-
-    validation_code = payload.get("validation_code")
-
-    if validation_code is None:
-        raise BadRequest("validation_code must be provided.")
-    if validation_code is not None and not isinstance(validation_code, str):
-        raise BadRequest("validation_code must be a string.")
-
-    validation_id = _get_validation_status_id(validation_code)
-
-    query = AccessRequest.filter_by_scope(scope)
-    access_request = db.session.scalars(
-        query.filter_by(id_access_request=id_access_request)
-    ).unique().one_or_none()
-    if access_request is None:
-        raise NotFound(f"Access request {id_access_request} not found")
-
-    current_user = getattr(g, "current_user", None)
-    if current_user is None or not hasattr(current_user, "id_role"):
-        raise Forbidden("Current user context is missing.")
-
-    access_request.id_validation_status = validation_id
-    access_request.id_validator = current_user.id_role
-    # Clearing permission links ensures downstream consumers re-evaluate granted permissions.
-    access_request.permission_links.clear()
-
-    db.session.commit()
-
-    return access_request_schema.dump(access_request)

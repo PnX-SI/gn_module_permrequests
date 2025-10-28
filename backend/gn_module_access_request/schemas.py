@@ -1,7 +1,8 @@
+from datetime import date
+
 from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
 from pypnusershub.db.models import User
-from pypnnomenclature.models import TNomenclatures as Nomenclature
 from apptax.taxonomie.models import Taxref
 
 from geonature.utils.schema import CruvedSchemaMixin
@@ -17,15 +18,6 @@ class AccessRequestUserSchema(SQLAlchemySchema):
         include_fk = True
 
     nom_complet = fields.Function(lambda obj: getattr(obj, "nom_complet", None))
-
-
-class AccessRequestValidationSchema(SQLAlchemySchema):
-    class Meta:
-        model = Nomenclature
-        load_instance = False
-
-    code = fields.Function(lambda obj: getattr(obj, "cd_nomenclature", None))
-    label = fields.Function(lambda obj: getattr(obj, "label_default", None))
 
 
 class AccessRequestTaxonSchema(SQLAlchemySchema):
@@ -47,7 +39,6 @@ class AccessRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     __module_code__ = MODULE_CODE
 
     id_access_request = auto_field()
-    id_validation_status = auto_field()
     id_author = auto_field()
     id_validator = auto_field()
     initialization_date = fields.Date(attribute="initialization_date", dump_only=True)
@@ -56,8 +47,17 @@ class AccessRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     taxa = fields.Nested(AccessRequestTaxonSchema, many=True, dump_only=True)
     author = fields.Nested(AccessRequestUserSchema, dump_only=True)
     validator = fields.Nested(AccessRequestUserSchema, dump_only=True)
-    validation_status = fields.Nested(AccessRequestValidationSchema, dump_only=True)
+    status = fields.Method("get_status", dump_only=True)
     cruved = fields.Method("get_cruved", dump_only=True)
+
+    def get_status(self, obj):
+        expiration = getattr(obj, "expiration_date", None)
+        if expiration is None:
+            return "demande expirée"
+        today = date.today()
+        if expiration < today:
+            return "demande active"
+        return "demande expirée"
 
     def get_permissions(self, obj):
         return [permission.id_permission for permission in getattr(obj, "permissions", [])]

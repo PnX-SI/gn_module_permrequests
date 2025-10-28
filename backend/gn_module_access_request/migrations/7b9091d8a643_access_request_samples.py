@@ -18,7 +18,6 @@ TABLE_NAME = f"t_{MODULE_CODE.lower()}"
 PRIMARY_KEY = "id_access_request"
 COR_ACCESS_REQUEST_TAXA_TABLE = f"cor_{MODULE_CODE.lower()}_taxa"
 COR_ACCESS_REQUEST_PERMISSIONS_TABLE = f"cor_{MODULE_CODE.lower()}_permissions"
-NOMENCLATURE_TYPE = f"{MODULE_CODE}_VALIDATION"
 DEMO_DESCRIPTION_PREFIX = "Demande d'accès de démonstration"
 SAMPLE_REQUEST_COUNT = 30
 MIN_TAXA_PER_REQUEST = 1
@@ -72,16 +71,6 @@ def upgrade():
         LIMIT 200
         """,
     )
-    status_ids = _fetch_ids(
-        conn,
-        """
-        SELECT n.id_nomenclature
-        FROM ref_nomenclatures.t_nomenclatures n
-        JOIN ref_nomenclatures.bib_nomenclatures_types t ON t.id_type = n.id_type
-        WHERE t.mnemonique = :mnemonique
-        """,
-        {"mnemonique": NOMENCLATURE_TYPE},
-    )
     permission_templates = conn.execute(
         sa.text(
             """
@@ -110,7 +99,6 @@ def upgrade():
 
         author_id = random.choice(authors)
         validator_id = random.choice(validators) if validators else None
-        validation_status_id = random.choice(status_ids) if status_ids else None
         initialization_date = today - timedelta(days=random.randint(0, 30))
         expiration_date = initialization_date + timedelta(days=random.randint(30, 365))
         description = f"{DEMO_DESCRIPTION_PREFIX} {index + 1}"
@@ -119,7 +107,6 @@ def upgrade():
             sa.text(
                 f"""
                 INSERT INTO {SCHEMA_NAME}.{TABLE_NAME} (
-                    id_validation_status,
                     id_author,
                     id_validator,
                     initialization_date,
@@ -127,7 +114,6 @@ def upgrade():
                     description
                 )
                 VALUES (
-                    :id_validation_status,
                     :id_author,
                     :id_validator,
                     :initialization_date,
@@ -138,7 +124,6 @@ def upgrade():
                 """
             ),
             {
-                "id_validation_status": validation_status_id,
                 "id_author": author_id,
                 "id_validator": validator_id,
                 "initialization_date": initialization_date,

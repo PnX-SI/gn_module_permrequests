@@ -14,10 +14,6 @@
         Access Request #{{ accessRequest.id_access_request }}
       </div>
       <ng-template #newAccessRequest><div>New Access Request</div></ng-template>
-      <access-request-status
-        *ngIf="accessRequest"
-        [accessRequest]="accessRequest"
-      ></access-request-status>
     </div>
     <div class="Header__right">
       <access-request-toolbar

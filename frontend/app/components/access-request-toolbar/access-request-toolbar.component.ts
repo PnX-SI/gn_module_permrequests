@@ -22,8 +22,7 @@ export class AccessRequestToolbarComponent {
     private _accessRequestService: AccessRequestService,
     private _dialog: MatDialog,
     private _moduleService: ModuleService
-  ) {
-  }
+  ) {}
 
   @Input()
   accessRequest: AccessRequest | null = null;

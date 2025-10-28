@@ -7,7 +7,6 @@ import { ModuleService } from '@geonature/services/module.service';
 
 import { AccessRequest } from '../../models/accessRequest';
 import { ModuleLayoutComponent } from '../module-layout/module-layout.component';
-import { AccessRequestStatusComponent } from '../../components/access-request-status/access-request-status.component';
 import { AccessRequestToolbarComponent } from '../../components/access-request-toolbar/access-request-toolbar.component';
 
 @Component({
@@ -20,7 +19,6 @@ import { AccessRequestToolbarComponent } from '../../components/access-request-t
     RouterModule,
     CommonModule,
     ModuleLayoutComponent,
-    AccessRequestStatusComponent,
     AccessRequestToolbarComponent,
   ],
 })

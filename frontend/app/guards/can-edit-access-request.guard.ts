@@ -16,7 +16,9 @@ export const canEditAccessRequestGuard: CanActivateFn = (route) => {
 
   // Fallback to the module home page.
   const redirectToAccessRequest = (): UrlTree => {
-    return router.createUrlTree([`/${moduleService.currentModule?.module_url}/${ROUTE_PATHS.accessRequests}`])
+    return router.createUrlTree([
+      `/${moduleService.currentModule?.module_url}/${ROUTE_PATHS.accessRequests}`,
+    ]);
   };
 
   return accessRequestResolver.resolve(route).pipe(

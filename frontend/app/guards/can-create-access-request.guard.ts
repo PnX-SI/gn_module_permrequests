@@ -9,7 +9,7 @@ export const canCreateAccessRequestGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   const currentModule = moduleService.currentModule;
-  const canCreate = canCreateAccess(cruvedStore.cruved?.[currentModule.module_code])
+  const canCreate = canCreateAccess(cruvedStore.cruved?.[currentModule.module_code]);
   if (canCreate) {
     return true;
   }

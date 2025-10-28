@@ -1,6 +1,5 @@
 from geonature.utils.env import DB
 from geonature.core.gn_permissions.models import Permission
-from pypnnomenclature.models import TNomenclatures as Nomenclature
 from pypnusershub.db.models import User
 from apptax.taxonomie.models import Taxref
 
@@ -56,11 +55,6 @@ class AccessRequest(DB.Model):
         primary_key=True,
         autoincrement=True,
     )
-    id_validation_status = DB.Column(
-        DB.Integer,
-        DB.ForeignKey(Nomenclature.id_nomenclature),
-        nullable=True,
-    )
     id_author = DB.Column(
         "id_author",
         DB.Integer,
@@ -83,11 +77,6 @@ class AccessRequest(DB.Model):
     )
     description = DB.Column(DB.Text, nullable=True)
 
-    validation_status = DB.relationship(
-        Nomenclature,
-        foreign_keys=[id_validation_status],
-        lazy="joined",
-    )
     author = DB.relationship(
         User,
         foreign_keys=[id_author],
@@ -171,6 +160,7 @@ class AccessRequest(DB.Model):
             return author_org == user_org
 
         return False
+
 
 ## ########################################################################
 ## Association AccessRequest - Permission

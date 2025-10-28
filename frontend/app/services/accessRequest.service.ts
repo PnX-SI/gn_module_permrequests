@@ -20,11 +20,6 @@ export interface AccessRequestPayload {
   id_validator?: number | null;
 }
 
-export interface ValidationStatusPayload {
-  validation_code?: string;
-  id_validation_status?: number;
-}
-
 @Injectable()
 export class AccessRequestService {
   constructor(
@@ -71,16 +66,6 @@ export class AccessRequestService {
   deleteAccessRequest(accessRequest: AccessRequest): Observable<void> {
     return this._http.delete<void>(
       `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/${accessRequest.id_access_request}`
-    );
-  }
-
-  updateValidationStatus(
-    id_access_request: number,
-    payload: ValidationStatusPayload
-  ): Observable<AccessRequestResponse> {
-    return this._http.patch<AccessRequestResponse>(
-      `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/${id_access_request}/validation-status`,
-      payload
     );
   }
 }

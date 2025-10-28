@@ -6,12 +6,8 @@ Create Date: 2023-03-27 11:54:34.602380
 
 """
 
-import importlib
-
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy import func
-from sqlalchemy.sql import text
 
 MODULE_CODE = "ACCESS_REQUEST"
 SCHEMA_NAME = f"pr_{MODULE_CODE.lower()}"
@@ -19,12 +15,6 @@ TABLE_NAME = f"t_{MODULE_CODE.lower()}"
 PRIMARY_KEY = "id_access_request"
 COR_ACCESS_REQUEST_TAXA_TABLE = f"cor_{MODULE_CODE.lower()}_taxa"
 COR_ACCESS_REQUEST_PERMISSIONS_TABLE = f"cor_{MODULE_CODE.lower()}_permissions"
-NOMENCLATURE_TYPE = f"{MODULE_CODE}_VALIDATION"
-ACCESS_REQUEST_VALIDATION_VALUES = [
-    {"code": "PENDING", "label": "EN ATTENTE"},
-    {"code": "VALIDATED", "label": "VALIDE"},
-    {"code": "REFUSED", "label": "REFUSE"},
-]
 
 
 # revision identifiers, used by Alembic.
@@ -42,12 +32,6 @@ def upgrade():
     op.create_table(
         TABLE_NAME,
         sa.Column(PRIMARY_KEY, sa.Integer, primary_key=True, autoincrement=True),
-        sa.Column(
-            "id_validation_status",
-            sa.Integer,
-            sa.ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"),
-            nullable=True,
-        ),
         sa.Column(
             "id_author",
             sa.Integer,
@@ -145,81 +129,6 @@ def upgrade():
     )
 
     ## ########################################################################
-    ## NOMENCLATURES
-    ## ########################################################################
-    conn = op.get_bind()
-    conn.execute(
-        sa.text(
-            """
-            INSERT INTO ref_nomenclatures.bib_nomenclatures_types (
-                mnemonique,
-                label_default,
-                label_fr
-            )
-            SELECT :mnemonique, :label, :label
-            WHERE NOT EXISTS (
-                SELECT 1
-                FROM ref_nomenclatures.bib_nomenclatures_types
-                WHERE mnemonique = :mnemonique
-            )
-            """
-        ),
-        {
-            "mnemonique": NOMENCLATURE_TYPE,
-            "label": "Statuts de validation des demandes d'accès",
-        },
-    )
-
-    type_id = conn.execute(
-        sa.text(
-            """
-            SELECT id_type
-            FROM ref_nomenclatures.bib_nomenclatures_types
-            WHERE mnemonique = :mnemonique
-            """
-        ),
-        {"mnemonique": NOMENCLATURE_TYPE},
-    ).scalar()
-
-    if type_id is None:
-        raise RuntimeError(f"Le type de nomenclature {NOMENCLATURE_TYPE} est introuvable.")
-
-    for value in ACCESS_REQUEST_VALIDATION_VALUES:
-        conn.execute(
-            sa.text(
-                """
-                INSERT INTO ref_nomenclatures.t_nomenclatures (
-                    id_type,
-                    cd_nomenclature,
-                    mnemonique,
-                    label_default,
-                    label_fr,
-                    active
-                )
-                SELECT
-                    :id_type,
-                    :code,
-                    :mnemonique,
-                    :label,
-                    :label,
-                    true
-                WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM ref_nomenclatures.t_nomenclatures
-                    WHERE id_type = :id_type
-                      AND cd_nomenclature = :code
-                )
-                """
-            ),
-            {
-                "id_type": type_id,
-                "code": value["code"],
-                "mnemonique": value["code"],
-                "label": value["label"],
-            },
-        )
-
-    ## ########################################################################
     ## PERMISSIONS
     ## ########################################################################
     op.execute(
@@ -286,48 +195,6 @@ def downgrade():
           module_code = '{MODULE_CODE}'
       """
     )
-
-    ## ########################################################################
-    ## NOMENCLATURES
-    ## ########################################################################
-    conn = op.get_bind()
-    type_id = conn.execute(
-        sa.text(
-            """
-            SELECT id_type
-            FROM ref_nomenclatures.bib_nomenclatures_types
-            WHERE mnemonique = :mnemonique
-            """
-        ),
-        {"mnemonique": NOMENCLATURE_TYPE},
-    ).scalar()
-
-    if type_id is not None:
-        for value in ACCESS_REQUEST_VALIDATION_VALUES:
-            conn.execute(
-                sa.text(
-                    """
-                    DELETE FROM ref_nomenclatures.t_nomenclatures
-                    WHERE id_type = :id_type
-                      AND cd_nomenclature = :code
-                    """
-                ),
-                {"id_type": type_id, "code": value["code"]},
-            )
-        conn.execute(
-            sa.text(
-                """
-                DELETE FROM ref_nomenclatures.bib_nomenclatures_types t
-                WHERE t.mnemonique = :mnemonique
-                  AND NOT EXISTS (
-                      SELECT 1
-                      FROM ref_nomenclatures.t_nomenclatures n
-                      WHERE n.id_type = t.id_type
-                  )
-                """
-            ),
-            {"mnemonique": NOMENCLATURE_TYPE},
-        )
 
     ## ########################################################################
     ## SCHEMA ET TABLES
