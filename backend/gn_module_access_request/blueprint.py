@@ -16,6 +16,7 @@ from utils_flask_sqla.response import json_resp
 from . import MODULE_CODE
 from .models import AccessRequest
 from .schemas import AccessRequestSchema
+from .status_utils import status_order_case
 from pypnusershub.db.models import User
 
 
@@ -56,6 +57,12 @@ def list_access_requests(scope):
     if per_page <= 0:
         raise BadRequest(f"Invalid per_page {per_page} requested")
 
+    status_order_column = status_order_case(
+        AccessRequest.validated,
+        AccessRequest.initialization_date,
+        AccessRequest.expiration_date,
+    ).label("status_order")
+
     # Order by
     orderable_columns = {
         "id_access_request": AccessRequest.id_access_request,
@@ -63,6 +70,7 @@ def list_access_requests(scope):
         "expiration_date": AccessRequest.expiration_date,
         "author.nom_complet": User.nom_complet,
         "validator.nom_complet": User.nom_complet,
+        "status": status_order_column,
     }
     order_column = orderable_columns.get(orderby)
     if order_column is None:
@@ -80,9 +88,17 @@ def list_access_requests(scope):
         query = query.outerjoin(User, AccessRequest.validator.of_type(User))
 
     if sort == SortOrder.ASC:
-        query = query.order_by(asc(order_column))
+        order_by_clauses = [asc(order_column)]
     else:
-        query = query.order_by(desc(order_column))
+        order_by_clauses = [desc(order_column)]
+
+    if orderby == "status":
+        secondary = asc(AccessRequest.expiration_date) if sort == SortOrder.ASC else desc(
+            AccessRequest.expiration_date
+        )
+        order_by_clauses.append(secondary)
+
+    query = query.order_by(*order_by_clauses)
 
     # Paginate
     pagination = db.paginate(query, page=page, per_page=per_page, error_out=False)
@@ -130,7 +146,7 @@ def create_access_request():
     if not isinstance(payload, dict):
         raise BadRequest("A JSON object is required.")
 
-    forbidden_fields = {"status", "id_validator", "id_author", "author", "validator"}
+    forbidden_fields = {"status", "validated", "id_validator", "id_author", "author", "validator"}
     if forbidden_fields.intersection(payload.keys()):
         raise BadRequest(
             "Fields status, id_validator, " "id_author and author are not allowed during creation."
@@ -201,7 +217,7 @@ def update_access_request(scope, id_access_request):
     if not isinstance(payload, dict):
         raise BadRequest("A JSON object is required.")
 
-    forbidden_fields = {"status"}
+    forbidden_fields = {"status", "validated"}
     if forbidden_fields.intersection(payload.keys()):
         raise BadRequest("Field 'status' cannot be updated.")
 

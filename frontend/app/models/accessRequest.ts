@@ -4,6 +4,7 @@ export interface AccessRequest {
   id_validator: number | null;
   initialization_date: string | null;
   expiration_date: string | null;
+  validated: boolean | null;
   description: string | null;
   taxa: number[];
   permissions: number[];

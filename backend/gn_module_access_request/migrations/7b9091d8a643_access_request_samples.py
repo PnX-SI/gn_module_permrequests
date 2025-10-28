@@ -90,6 +90,7 @@ def upgrade():
     random.seed()
 
     today = date.today()
+    preferred_validator = 3 if 3 in validators else (validators[0] if validators else None)
 
     for index in range(SAMPLE_REQUEST_COUNT):
         permission_sample_size = random.randint(
@@ -99,6 +100,14 @@ def upgrade():
 
         author_id = random.choice(authors)
         validator_id = random.choice(validators) if validators else None
+        validated_value = None
+        if preferred_validator is not None:
+            if index % 10 == 0:
+                validated_value = True
+                validator_id = preferred_validator
+            elif index % 10 == 1:
+                validated_value = False
+                validator_id = preferred_validator
         initialization_date = today - timedelta(days=random.randint(0, 30))
         expiration_date = initialization_date + timedelta(days=random.randint(30, 365))
         description = f"{DEMO_DESCRIPTION_PREFIX} {index + 1}"
@@ -111,14 +120,16 @@ def upgrade():
                     id_validator,
                     initialization_date,
                     expiration_date,
-                    description
+                    description,
+                    validated
                 )
                 VALUES (
                     :id_author,
                     :id_validator,
                     :initialization_date,
                     :expiration_date,
-                    :description
+                    :description,
+                    :validated
                 )
                 RETURNING {PRIMARY_KEY}
                 """
@@ -129,6 +140,7 @@ def upgrade():
                 "initialization_date": initialization_date,
                 "expiration_date": expiration_date,
                 "description": description,
+                "validated": validated_value,
             },
         ).scalar()
 

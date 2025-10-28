@@ -1,5 +1,3 @@
-from datetime import date
-
 from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
 from pypnusershub.db.models import User
@@ -8,6 +6,7 @@ from apptax.taxonomie.models import Taxref
 from geonature.utils.schema import CruvedSchemaMixin
 
 from .models import AccessRequest
+from .status_utils import compute_status_label
 from . import MODULE_CODE
 
 
@@ -43,6 +42,7 @@ class AccessRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     id_validator = auto_field()
     initialization_date = fields.Date(attribute="initialization_date", dump_only=True)
     expiration_date = fields.Date(attribute="expiration_date", dump_only=True)
+    validated = auto_field()
     description = auto_field()
     taxa = fields.Nested(AccessRequestTaxonSchema, many=True, dump_only=True)
     author = fields.Nested(AccessRequestUserSchema, dump_only=True)
@@ -51,13 +51,11 @@ class AccessRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     cruved = fields.Method("get_cruved", dump_only=True)
 
     def get_status(self, obj):
-        expiration = getattr(obj, "expiration_date", None)
-        if expiration is None:
-            return "demande expirée"
-        today = date.today()
-        if expiration < today:
-            return "demande active"
-        return "demande expirée"
+        return compute_status_label(
+            getattr(obj, "validated", None),
+            getattr(obj, "initialization_date", None),
+            getattr(obj, "expiration_date", None),
+        )
 
     def get_permissions(self, obj):
         return [permission.id_permission for permission in getattr(obj, "permissions", [])]

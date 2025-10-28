@@ -75,6 +75,7 @@ class AccessRequest(DB.Model):
         DB.Date,
         nullable=False,
     )
+    validated = DB.Column(DB.Boolean, nullable=True)
     description = DB.Column(DB.Text, nullable=True)
 
     author = DB.relationship(

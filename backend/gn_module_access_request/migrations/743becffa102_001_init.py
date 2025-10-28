@@ -54,6 +54,7 @@ def upgrade():
             sa.Date,
             nullable=False,
         ),
+        sa.Column("validated", sa.Boolean, nullable=True),
         sa.Column("description", sa.Text, nullable=True),
         schema=SCHEMA_NAME,
     )
