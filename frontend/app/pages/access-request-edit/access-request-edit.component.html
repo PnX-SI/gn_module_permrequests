@@ -1,8 +1,10 @@
-<ng-container *ngIf="accessRequest as accessRequestData">
+<ng-container *ngIf="accessRequest">
   <access-request-layout
-    [accessRequest]="accessRequestData"
+    [accessRequest]="accessRequest"
     [withEdit]="false"
+    [withValidate]="false"
+    (updated)="onAccessRequestUpdated($event)"
   >
-    <access-request-form [accessRequest]="accessRequestData"></access-request-form>
+    <access-request-form [accessRequest]="accessRequest"></access-request-form>
   </access-request-layout>
 </ng-container>

@@ -21,6 +21,9 @@
         [withInfo]="withInfo"
         [withEdit]="withEdit"
         [withDelete]="withDelete"
+        [withValidate]="withValidate"
+        (deleted)="onAccessRequestDeleted($event)"
+        (updated)="onAccessRequestUpdated($event)"
       ></access-request-toolbar>
     </div>
   </div>

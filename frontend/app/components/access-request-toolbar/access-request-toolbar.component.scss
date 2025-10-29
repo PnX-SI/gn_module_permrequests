@@ -4,16 +4,28 @@
   align-items: center;
   gap: 0.25rem;
 
-  &__status {
-    min-width: 180px;
-    max-width: 260px;
-    flex: 0 1 240px;
-    display: flex;
-    align-items: center;
-  }
+  .ValidationButtons {
+    display: inline-flex;
+    gap: 0.5rem;
 
-  &__status pnx-nomenclature {
-    width: 100%;
+    .ValidationButton {
+      &--primary {
+        color: #fff;
+        border-color: green;
+        background-color: green;
+        opacity: 0.5;
+      }
+      &--warn {
+        color: #fff;
+        border-color: red;
+        background-color: red;
+        opacity: 0.5;
+      }
+      &--active {
+        border-width: 2px;
+        opacity: 1;
+      }
+    }
   }
 
   &__button {

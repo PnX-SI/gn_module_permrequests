@@ -1,4 +1,31 @@
 <div class="AccessRequestToolbar">
+  <div
+    class="ValidationButtons"
+    *ngIf="false && withValidate && accessRequest?.cruved?.V"
+  >
+    <button
+      mat-stroked-button
+      color="primary"
+      type="button"
+      class="ValidationButton ValidationButton--primary"
+      [class.ValidationButton--active]="currentValidationState === 'true'"
+      [disabled]="validationRequestPending"
+      (click)="onValidationButtonClick('true')"
+    >
+      Valider
+    </button>
+    <button
+      mat-stroked-button
+      color="warn"
+      type="button"
+      class="ValidationButton ValidationButton--warn"
+      [class.ValidationButton--active]="currentValidationState === 'false'"
+      [disabled]="validationRequestPending"
+      (click)="onValidationButtonClick('false')"
+    >
+      Refuser
+    </button>
+  </div>
   <button
     *ngIf="accessRequest && withEdit"
     [disabled]="!accessRequest.cruved.U"

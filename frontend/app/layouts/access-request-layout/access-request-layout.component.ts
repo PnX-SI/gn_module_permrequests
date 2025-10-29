@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { ModuleService } from '@geonature/services/module.service';
@@ -28,7 +28,7 @@ export class AccessRequestLayoutComponent {
   }
 
   @Input()
-  accessRequest!: AccessRequest;
+  accessRequest: AccessRequest | null = null;
 
   @Input()
   withInfo: boolean = true;
@@ -36,6 +36,20 @@ export class AccessRequestLayoutComponent {
   withEdit: boolean = true;
   @Input()
   withDelete: boolean = true;
+  @Input()
+  withValidate: boolean = true;
 
-  constructor(private _modules: ModuleService) {}
+  @Output()
+  updated = new EventEmitter<number>();
+
+  onAccessRequestUpdated(accesRequestId: number){
+    console.log("-- called");
+    this.updated.emit(accesRequestId);
+  }
+
+  onAccessRequestDeleted(accesRequestId: number){
+    this._router.navigate([this.homeRouterLink]);
+  }
+
+  constructor(private _modules: ModuleService, private _router: Router) {}
 }

@@ -178,7 +178,8 @@
       >
         <access-request-toolbar
           [accessRequest]="accessRequest"
-          (deleted)="onAccessRequestDeleted()"
+          (deleted)="onAccessRequestDeleted($event)"
+          (updated)="onAccessRequestUpdated($event)"
         ></access-request-toolbar>
       </ng-template>
     </ngx-datatable-column>

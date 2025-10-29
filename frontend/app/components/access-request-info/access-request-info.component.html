@@ -1,4 +1,11 @@
-<div class="AccessRequestInfo">
+<div
+  class="AccessRequestInfo"
+  *ngIf="accessRequest"
+>
+  <div class="AccessRequestInfo__field">
+    <label for="status">Status</label>
+    <div id="status">{{ accessRequest.status }}</div>
+  </div>
   <div class="AccessRequestInfo__field">
     <label for="author">Author</label>
     <div id="author">{{ accessRequest.author?.nom_complet }}</div>

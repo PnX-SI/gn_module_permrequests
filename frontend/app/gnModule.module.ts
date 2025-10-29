@@ -39,6 +39,7 @@ export const routes: Routes = [
       accessRequest: AccessRequestResolver,
     },
     canActivate: [canViewAccessRequestGuard],
+    runGuardsAndResolvers: 'paramsOrQueryParamsChange',
   },
   {
     path: ROUTE_PATHS.accessRequestEdit(':id_access_request'),
@@ -47,6 +48,7 @@ export const routes: Routes = [
       accessRequest: AccessRequestResolver,
     },
     canActivate: [canEditAccessRequestGuard],
+    runGuardsAndResolvers: 'paramsOrQueryParamsChange',
   },
 ];
 

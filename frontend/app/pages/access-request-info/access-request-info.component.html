@@ -1,6 +1,7 @@
 <access-request-layout
   [accessRequest]="accessRequest"
   [withInfo]="false"
+  (updated)="onAccessRequestUpdated($event)"
 >
   <access-request-info [accessRequest]="accessRequest"></access-request-info>
 </access-request-layout>
