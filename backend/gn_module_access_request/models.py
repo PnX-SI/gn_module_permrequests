@@ -1,13 +1,13 @@
-from geonature.utils.env import DB
-from geonature.core.gn_permissions.models import Permission
-from pypnusershub.db.models import User
-from apptax.taxonomie.models import Taxref
+from datetime import datetime
 
 from flask import g
 
 import sqlalchemy as sa
-from sqlalchemy import UniqueConstraint
-from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.ext.hybrid import hybrid_property
+
+from geonature.utils.env import DB
+from geonature.core.gn_permissions.models import Permission
+from pypnusershub.db.models import User
 
 from utils_flask_sqla.models import qfilter
 
@@ -18,33 +18,10 @@ SCHEMA_NAME = f"pr_{MODULE_CODE.lower()}"
 TABLE_NAME = f"t_{MODULE_CODE.lower()}"
 PRIMARY_KEY = "id_access_request"
 
-## ########################################################################
-## Table de correspondance - cor_access_request_taxa
-## ########################################################################
-COR_ACCESS_REQUEST_TAXA_TABLE = DB.Table(
-    f"cor_{MODULE_CODE.lower()}_taxa",
-    DB.metadata,
-    DB.Column(
-        "id_access_request",
-        DB.Integer,
-        DB.ForeignKey(f"{SCHEMA_NAME}.{TABLE_NAME}.{PRIMARY_KEY}", ondelete="CASCADE"),
-        primary_key=True,
-    ),
-    DB.Column(
-        "cd_nom",
-        DB.Integer,
-        DB.ForeignKey("taxonomie.taxref.cd_nom"),
-        primary_key=True,
-    ),
-    schema=SCHEMA_NAME,
-)
-
-COR_ACCESS_REQUEST_PERMISSIONS_TABLE_NAME = f"cor_{MODULE_CODE.lower()}_permissions"
+SCOPE_USER = "USER"
+SCOPE_ORGANISM = "ORGANISM"
 
 
-## ########################################################################
-## Model Access Request
-## ########################################################################
 class AccessRequest(DB.Model):
     __tablename__ = TABLE_NAME
     __table_args__ = {"schema": SCHEMA_NAME}
@@ -61,22 +38,19 @@ class AccessRequest(DB.Model):
         DB.ForeignKey("utilisateurs.t_roles.id_role"),
         nullable=False,
     )
-    initialization_date = DB.Column(
-        DB.Date,
-        nullable=True,
-    )
     id_validator = DB.Column(
         "id_validator",
         DB.Integer,
         DB.ForeignKey("utilisateurs.t_roles.id_role"),
         nullable=True,
     )
-    expiration_date = DB.Column(
-        DB.Date,
-        nullable=False,
-    )
-    validated = DB.Column(DB.Boolean, nullable=True)
     description = DB.Column(DB.Text, nullable=True)
+    id_permission = DB.Column(
+        DB.Integer,
+        DB.ForeignKey("gn_permissions.t_permissions.id_permission", ondelete="SET NULL"),
+        nullable=True,
+        unique=True,
+    )
 
     author = DB.relationship(
         User,
@@ -88,22 +62,12 @@ class AccessRequest(DB.Model):
         foreign_keys=[id_validator],
         lazy="joined",
     )
-    taxa = DB.relationship(
-        Taxref,
-        secondary=COR_ACCESS_REQUEST_TAXA_TABLE,
-        lazy="joined",
-        backref="access_requests",
-    )
-    permission_links = DB.relationship(
-        "AccessRequestPermission",
+    permission = DB.relationship(
+        Permission,
         cascade="all, delete-orphan",
-        back_populates="access_request",
+        single_parent=True,
         lazy="joined",
-    )
-    permissions = association_proxy(
-        "permission_links",
-        "permission",
-        creator=lambda permission: AccessRequestPermission(permission=permission),
+        backref=DB.backref("access_request", uselist=False),
     )
 
     @qfilter(query=True)
@@ -162,33 +126,135 @@ class AccessRequest(DB.Model):
 
         return False
 
+    @hybrid_property
+    def initialization_date(self):
+        permission = getattr(self, "permission", None)
+        if permission is None or permission.created_on is None:
+            return None
+        return permission.created_on.date()
 
-## ########################################################################
-## Association AccessRequest - Permission
-## ########################################################################
-class AccessRequestPermission(DB.Model):
-    __tablename__ = COR_ACCESS_REQUEST_PERMISSIONS_TABLE_NAME
-    __table_args__ = (UniqueConstraint("id_permission"), {"schema": SCHEMA_NAME})
+    @initialization_date.setter
+    def initialization_date(self, value):
+        if self.permission is None:
+            raise AttributeError("No permission is linked to this access request.")
+        if value is None:
+            self.permission.created_on = None
+        elif isinstance(value, datetime):
+            self.permission.created_on = value
+        else:
+            self.permission.created_on = datetime.combine(value, datetime.min.time())
 
-    id_access_request = DB.Column(
-        DB.Integer,
-        DB.ForeignKey(f"{SCHEMA_NAME}.{TABLE_NAME}.{PRIMARY_KEY}", ondelete="CASCADE"),
-        primary_key=True,
-    )
-    id_permission = DB.Column(
-        DB.Integer,
-        DB.ForeignKey("gn_permissions.t_permissions.id_permission", ondelete="CASCADE"),
-        primary_key=True,
-    )
+    @initialization_date.expression
+    def initialization_date(cls):
+        return (
+            sa.select(sa.func.date(Permission.created_on))
+            .where(Permission.id_permission == cls.id_permission)
+            .scalar_subquery()
+        )
 
-    access_request = DB.relationship(
-        "AccessRequest",
-        back_populates="permission_links",
-    )
-    permission = DB.relationship(
-        Permission,
-        cascade="all, delete-orphan",
-        single_parent=True,
-        uselist=False,
-        backref=DB.backref("access_request_permission_link", uselist=False),
-    )
+    @hybrid_property
+    def expiration_date(self):
+        permission = getattr(self, "permission", None)
+        if permission is None or permission.expire_on is None:
+            return None
+        expire_on = permission.expire_on
+        return expire_on.date() if hasattr(expire_on, "date") else expire_on
+
+    @expiration_date.setter
+    def expiration_date(self, value):
+        if self.permission is None:
+            raise AttributeError("No permission is linked to this access request.")
+        if value is None:
+            self.permission.expire_on = None
+        elif isinstance(value, datetime):
+            self.permission.expire_on = value
+        else:
+            self.permission.expire_on = datetime.combine(value, datetime.min.time())
+
+    @expiration_date.expression
+    def expiration_date(cls):
+        return (
+            sa.select(sa.func.date(Permission.expire_on))
+            .where(Permission.id_permission == cls.id_permission)
+            .scalar_subquery()
+        )
+
+    @hybrid_property
+    def validated(self):
+        permission = getattr(self, "permission", None)
+        if permission is None:
+            return None
+        return permission.validated
+
+    @validated.setter
+    def validated(self, value):
+        if self.permission is None:
+            raise AttributeError("No permission is linked to this access request.")
+        self.permission.validated = value
+
+    @validated.expression
+    def validated(cls):
+        return (
+            sa.select(Permission.validated)
+            .where(Permission.id_permission == cls.id_permission)
+            .scalar_subquery()
+        )
+
+    @property
+    def scope(self):
+        permission = getattr(self, "permission", None)
+        author_id = getattr(self, "id_author", None)
+        if permission is None or permission.id_role is None or author_id is None:
+            return None
+
+        if permission.id_role == author_id:
+            return SCOPE_USER
+
+        role = getattr(permission, "role", None)
+        author = getattr(self, "author", None)
+        if (
+            role is not None
+            and getattr(role, "groupe", False)
+            and author is not None
+            and getattr(author, "id_organisme", None) is not None
+            and getattr(role, "id_organisme", None) == getattr(author, "id_organisme", None)
+        ):
+            return SCOPE_ORGANISM
+
+        return None
+
+    @hybrid_property
+    def sensitivity_filter(self):
+        permission = getattr(self, "permission", None)
+        if permission is None:
+            return None
+        return permission.sensitivity_filter
+
+    @sensitivity_filter.setter
+    def sensitivity_filter(self, value):
+        if self.permission is None:
+            raise AttributeError("No permission is linked to this access request.")
+        if value is None:
+            raise ValueError("sensitivity_filter cannot be null.")
+        self.permission.sensitivity_filter = bool(value)
+
+    @sensitivity_filter.expression
+    def sensitivity_filter(cls):
+        return (
+            sa.select(Permission.sensitivity_filter)
+            .where(Permission.id_permission == cls.id_permission)
+            .scalar_subquery()
+        )
+
+    @property
+    def taxa(self):
+        permission = getattr(self, "permission", None)
+        if permission is None:
+            return []
+        return permission.taxons_filter
+
+    @taxa.setter
+    def taxa(self, value):
+        if self.permission is None:
+            raise AttributeError("No permission is linked to this access request.")
+        self.permission.taxons_filter = value

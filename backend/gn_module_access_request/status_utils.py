@@ -2,17 +2,17 @@ from datetime import date
 
 from enum import Enum
 
-from sqlalchemy import and_, case
+from sqlalchemy import and_, or_, case, true
 
 from geonature.utils.env import db
 
 
 class StatusKey(str, Enum):
-    REFUSED = "refused"
-    PENDING = "pending"
-    EXPIRED = "expired"
-    UPCOMING = "upcoming"
-    ACTIVE = "active"
+    REFUSED = "REFUSED"
+    PENDING = "PENDING"
+    EXPIRED = "EXPIRED"
+    UPCOMING = "UPCOMING"
+    ACTIVE = "ACTIVE"
 
 
 STATUS_KEYS = {
@@ -70,3 +70,22 @@ def status_order_case(validated_column, initialization_column, expiration_column
         ),
         else_=STATUS_ORDER_INDEX[StatusKey.ACTIVE],
     )
+
+
+def status_filter_expression(status_key, *, validated_column, initialization_column, expiration_column):
+    current_date = db.func.current_date()
+    if status_key == StatusKey.REFUSED:
+        return validated_column.is_(False)
+    if status_key == StatusKey.PENDING:
+        return validated_column.is_(None)
+    if status_key == StatusKey.EXPIRED:
+        return and_(validated_column.is_(True), expiration_column < current_date)
+    if status_key == StatusKey.UPCOMING:
+        return and_(validated_column.is_(True), initialization_column > current_date)
+    if status_key == StatusKey.ACTIVE:
+        return and_(
+            validated_column.is_(True),
+            or_(expiration_column.is_(None), expiration_column >= current_date),
+            or_(initialization_column.is_(None), initialization_column <= current_date),
+        )
+    return true()

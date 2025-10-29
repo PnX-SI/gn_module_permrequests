@@ -14,12 +14,14 @@
     align-items: center;
     flex: 1;
     min-height: 2.5rem;
-    Filter {
-      width: 100%;
-      max-width: 320px;
-      pnx-nomenclature {
-        display: block;
-        width: 100%;
+    .FiltersForm {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: flex-start;
+      column-gap: 0.5rem;
+
+      &__Filter {
+        width: 200px;
       }
     }
   }
@@ -41,7 +43,15 @@
         overflow-x: hidden;
       }
     }
+    &--nowrap {
+      ::ng-deep .datatable-header-cell,
+      ::ng-deep .datatable-body-cell,
+      ::ng-deep .datatable-row-center .datatable-body-cell {
+        white-space: nowrap;
+      }
+    }
   }
+
 }
 
 .Taxa {

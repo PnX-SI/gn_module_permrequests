@@ -58,6 +58,16 @@
     </div>
   </div>
 
+  <div class="AccessRequestForm__field AccessRequestForm__field--sensitivity">
+    <label>
+      <input
+        type="checkbox"
+        formControlName="sensitivity_filter"
+      />
+      Inclure les données sensibles
+    </label>
+  </div>
+
   <div class="AccessRequestForm__field">
     <label for="initialization_date">Date d'initialisation</label>
     <pnx-date
@@ -92,6 +102,34 @@
     "
   >
     La date d'initialisation doit être antérieure à la date d'expiration.
+  </div>
+
+  <div class="AccessRequestForm__field">
+    <label for="scope">Portée</label>
+    <div class="AccessRequestForm__scopeOptions">
+      <label>
+        <input
+          type="radio"
+          formControlName="scope"
+          [value]="AccessRequestScope.USER"
+        />
+        Moi uniquement
+      </label>
+      <label>
+        <input
+          type="radio"
+          formControlName="scope"
+          [value]="AccessRequestScope.ORGANISM"
+        />
+        Mon organisme
+      </label>
+    </div>
+    <div
+      class="AccessRequestForm__error"
+      *ngIf="scopeControl?.hasError('required') && scopeControl?.touched"
+    >
+      La portée est obligatoire.
+    </div>
   </div>
 
   <div

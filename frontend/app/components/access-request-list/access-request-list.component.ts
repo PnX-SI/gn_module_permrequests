@@ -2,10 +2,11 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { DEFAULT_PAGINATION, PaginationItem } from '../../models/paginationItem';
 import { SORT_ORDER, SortItem } from '../../models/sortItem';
-import { AccessRequest } from '../../models/accessRequest';
+import { AccessRequest, AccessRequestScope, DEFAULT_SCOPE } from '../../models/accessRequest';
 import {
   AccessRequestListResponse,
   AccessRequestService,
@@ -20,6 +21,13 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { canCreateAccess } from '../../guards/can-create-access-request.guard';
 
+type FiltersFormValue = {
+  status: string[] | null;
+  scope: AccessRequestScope[] | null;
+  validated: string[] | null;
+  sensitivity_filter: string[] | null;
+};
+
 @Component({
   standalone: true,
   selector: 'access-request-list',
@@ -30,6 +38,7 @@ import { canCreateAccess } from '../../guards/can-create-access-request.guard';
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
+    NgSelectModule,
     AccessRequestToolbarComponent,
     MatButtonModule,
   ],
@@ -40,9 +49,12 @@ export class AccessRequestListComponent implements OnInit, OnDestroy {
   readonly PROP_DESCRIPTION = 'description';
   readonly PROP_INITIALIZATION_DATE = 'initialization_date';
   readonly PROP_EXPIRATION_DATE = 'expiration_date';
+  readonly PROP_SCOPE = 'scope';
+  readonly PROP_SENSITIVITY_FILTER = 'sensitivity_filter';
   readonly PROP_TAXA = 'taxa';
   readonly PROP_STATUS = 'status';
   readonly PROP_VALIDATOR = 'validator.nom_complet';
+  readonly AccessRequestScope = AccessRequestScope;
 
   pagination: PaginationItem = DEFAULT_PAGINATION;
   sort: SortItem = {
@@ -55,6 +67,42 @@ export class AccessRequestListComponent implements OnInit, OnDestroy {
 
   private _destroy$ = new Subject<void>();
 
+  readonly scopeLabels: Record<AccessRequestScope, string> = {
+    [AccessRequestScope.USER]: 'Utilisateur',
+    [AccessRequestScope.ORGANISM]: 'Organisme',
+  };
+
+  statusOptions = [
+    { value: 'ACTIVE', label: 'Active' },
+    { value: 'UPCOMING', label: 'À venir' },
+    { value: 'EXPIRED', label: 'Expirée' },
+    { value: 'PENDING', label: 'Non traitée' },
+    { value: 'REFUSED', label: 'Refusée' },
+  ];
+
+  scopeOptions = [
+    { value: AccessRequestScope.USER, label: 'Utilisateur' },
+    { value: AccessRequestScope.ORGANISM, label: 'Organisme' },
+  ];
+
+  validatedOptions = [
+    { value: 'true', label: 'Validée' },
+    { value: 'false', label: 'Refusée' },
+    { value: 'none', label: 'Non traitée' },
+  ];
+
+  sensitivityOptions = [
+    { value: 'true', label: 'Oui' },
+    { value: 'false', label: 'Non' },
+  ];
+
+  filtersForm = new FormGroup({
+    status: new FormControl<string[] | null>([]),
+    scope: new FormControl<AccessRequestScope[] | null>([]),
+    validated: new FormControl<string[] | null>([]),
+    sensitivity_filter: new FormControl<string[] | null>([]),
+  });
+
   constructor(
     private _ars: AccessRequestService,
     private _moduleService: ModuleService,
@@ -65,6 +113,11 @@ export class AccessRequestListComponent implements OnInit, OnDestroy {
     this.canCreateAccessRequest = canCreateAccess(
       this._cruvedStore.cruved?.[this._moduleService.currentModule.module_code]
     );
+
+    this.filtersForm.valueChanges.pipe(takeUntil(this._destroy$)).subscribe(() => {
+      this.pagination.currentPage = 1;
+      this._fetchAccessRequests();
+    });
 
     this._fetchAccessRequests();
   }
@@ -79,6 +132,13 @@ export class AccessRequestListComponent implements OnInit, OnDestroy {
       return '-';
     }
     return new Date(date).toLocaleDateString();
+  }
+
+  renderScope(scope: AccessRequestScope | null): string {
+    if (!scope) {
+      return this.scopeLabels[DEFAULT_SCOPE];
+    }
+    return this.scopeLabels[scope] ?? scope;
   }
 
   onChangePage(event: any) {
@@ -114,6 +174,27 @@ export class AccessRequestListComponent implements OnInit, OnDestroy {
     params = params.set('orderby', this.sort.sortBy);
     params = params.set('page', this.pagination.currentPage.toString());
     params = params.set('per_page', this.pagination.perPage.toString());
+    const filters = this.filtersForm.value as FiltersFormValue;
+    const statusFilters = new Set(filters.status ?? []);
+    statusFilters.forEach((value) => {
+      params = params.append('status', value);
+    });
+
+    const scopeFilters = new Set(filters.scope ?? []);
+    scopeFilters.forEach((value) => {
+      params = params.append('scope', value);
+    });
+
+    const validatedFilters = new Set(filters.validated ?? []);
+    validatedFilters.forEach((value) => {
+      params = params.append('validated', value);
+    });
+
+    const sensitivityFilters = new Set(filters.sensitivity_filter ?? []);
+    sensitivityFilters.forEach((value) => {
+      params = params.append('sensitivity_filter', value);
+    });
+
     this._ars.getAccessRequests(params).subscribe((response: AccessRequestListResponse) => {
       this.accessRequests = response.items;
       this.pagination = {

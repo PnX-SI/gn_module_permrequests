@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ConfigService } from '@geonature/services/config.service';
-import { AccessRequest } from '../models/accessRequest';
+import { AccessRequest, AccessRequestScope } from '../models/accessRequest';
 import { ModuleService } from '@geonature/services/module.service';
 
 export interface AccessRequestListResponse {
@@ -18,6 +18,8 @@ export interface AccessRequestPayload {
   initialization_date: string | null;
   expiration_date: string;
   id_validator?: number | null;
+  scope: AccessRequestScope;
+  sensitivity_filter?: boolean;
   taxa: number[];
 }
 

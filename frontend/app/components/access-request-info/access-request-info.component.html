@@ -31,6 +31,11 @@
     <div id="expiration_date">{{ accessRequest.expiration_date }}</div>
   </div>
 
+  <div class="AccessRequestInfo__field">
+    <label for="scope">Portée</label>
+    <div id="scope">{{ getScopeLabel(accessRequest.scope) }}</div>
+  </div>
+
   <div
     class="AccessRequestInfo__field"
     *ngIf="accessRequest.taxa?.length"
@@ -44,5 +49,10 @@
         {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
       </li>
     </ul>
+  </div>
+
+  <div class="AccessRequestInfo__field">
+    <label for="sensitivity_filter">Données sensibles visibles</label>
+    <div id="sensitivity_filter">{{ accessRequest.sensitivity_filter ? 'Oui' : 'Non' }}</div>
   </div>
 </div>

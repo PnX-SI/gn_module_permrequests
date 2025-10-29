@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { AccessRequest } from '../../models/accessRequest';
+import { AccessRequest, AccessRequestScope, DEFAULT_SCOPE } from '../../models/accessRequest';
 
 @Component({
   standalone: true,
@@ -17,4 +17,19 @@ export class AccessRequestInfoComponent {
 
   @Input()
   public accessRequest: AccessRequest | null = null;
+
+  readonly scopeLabels: Record<AccessRequestScope, string> = {
+    [AccessRequestScope.USER]: 'Utilisateur',
+    [AccessRequestScope.ORGANISM]: "Organisme",
+  };
+
+  getScopeLabel(scope: AccessRequestScope | null): string {
+    if (!scope) {
+      return this.scopeLabels[DEFAULT_SCOPE];
+    }
+    if (scope in this.scopeLabels) {
+      return this.scopeLabels[scope as AccessRequestScope];
+    }
+    return scope;
+  }
 }

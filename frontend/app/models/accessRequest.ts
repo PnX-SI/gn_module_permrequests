@@ -5,6 +5,8 @@ export interface AccessRequest {
   initialization_date: string | null;
   expiration_date: string | null;
   validated: boolean | null;
+  sensitivity_filter: boolean;
+  scope: AccessRequestScope | null;
   description: string | null;
   taxa: AccessRequestTaxon[];
   permissions: number[];
@@ -23,6 +25,12 @@ export interface AccessRequestTaxon {
   lb_nom: string;
 }
 
+export enum AccessRequestScope {
+  USER = "USER",
+  ORGANISM = "ORGANISM"
+}
+
+export const DEFAULT_SCOPE = AccessRequestScope.USER;
 export interface Cruved {
   C: boolean;
   R: boolean;

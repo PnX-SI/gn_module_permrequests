@@ -17,16 +17,19 @@ import { FormService } from '@geonature_common/form/form.service';
 import { ModuleService } from '@geonature/services/module.service';
 import { ConfigService } from '@geonature/services/config.service';
 
-import { AccessRequest } from '../../models/accessRequest';
+import { AccessRequest, AccessRequestScope, DEFAULT_SCOPE } from '../../models/accessRequest';
 import { AccessRequestPayload, AccessRequestService } from '../../services/accessRequest.service';
 import { ROUTE_PATHS } from '../../gnModule.module';
 import { Taxon } from '@geonature_common/form/taxonomy/taxonomy.component';
+
 
 type AccessRequestFormValue = {
   description: string | null;
   initialization_date: NgbDateStruct | string | null;
   expiration_date: NgbDateStruct | string | null;
   id_validator: number | null;
+  sensitivity_filter: boolean;
+  scope: AccessRequestScope;
   acknowledgeTerms: boolean;
   taxa: any[];
   taxon_search: string | null;
@@ -43,6 +46,7 @@ export class AccessRequestFormComponent {
   isSaving = false;
   readonly shouldDisplayAcknowledgement: boolean;
   readonly termsAcknowledgementText: string;
+  readonly AccessRequestScope = AccessRequestScope;
 
   constructor(
     private _accessRequestService: AccessRequestService,
@@ -87,6 +91,8 @@ export class AccessRequestFormComponent {
       initialization_date: [null],
       expiration_date: [null, [Validators.required]],
       id_validator: [null],
+      scope: [DEFAULT_SCOPE, [Validators.required]],
+      sensitivity_filter: [true],
       acknowledgeTerms: [false, Validators.requiredTrue],
       taxa: [[], Validators.required],
       taxon_search: [''],
@@ -147,6 +153,8 @@ export class AccessRequestFormComponent {
       initialization_date: initializationValue,
       expiration_date: this._dateParser.format(rawValue.expiration_date) as unknown as string,
       taxa: this._extractTaxaIdentifiers(rawValue.taxa),
+      scope: rawValue.scope,
+      sensitivity_filter: !!rawValue.sensitivity_filter,
     };
     if (rawValue.id_validator !== undefined) {
       payload.id_validator = rawValue.id_validator;
@@ -202,7 +210,15 @@ export class AccessRequestFormComponent {
       return false;
     }
 
-    const { description, expiration_date, id_validator, initialization_date, taxa } = this.form
+    const {
+      description,
+      expiration_date,
+      id_validator,
+      initialization_date,
+      sensitivity_filter,
+      scope,
+      taxa,
+    } = this.form
       .value as AccessRequestFormValue;
     const selectedTaxa = this._extractTaxaIdentifiers(taxa);
     const accessRequestTaxa = (this.accessRequest.taxa || []).map((taxon) => taxon.cd_nom);
@@ -222,12 +238,18 @@ export class AccessRequestFormComponent {
 
     const normalizedValidator = id_validator ?? null;
     const accessRequestValidator = this.accessRequest.id_validator ?? null;
+    const normalizedSensitivity = !!sensitivity_filter;
+    const accessRequestSensitivity = !!this.accessRequest.sensitivity_filter;
+    const normalizedScope = scope ?? DEFAULT_SCOPE;
+    const accessRequestScope = this.accessRequest.scope ?? DEFAULT_SCOPE;
 
     return (
       normalizedDescription === accessRequestDescription &&
       normalizedInitialization === accessRequestInitialization &&
       normalizedExpiration === accessRequestExpiration &&
       normalizedValidator === accessRequestValidator &&
+      normalizedSensitivity === accessRequestSensitivity &&
+      normalizedScope === accessRequestScope &&
       normalizedSelectedTaxa.length === normalizedAccessRequestTaxa.length &&
       normalizedSelectedTaxa.every((taxonId, index) => taxonId === normalizedAccessRequestTaxa[index])
     );
@@ -254,6 +276,8 @@ export class AccessRequestFormComponent {
         initialization_date: null,
         expiration_date: null,
         id_validator: null,
+        scope: DEFAULT_SCOPE,
+        sensitivity_filter: true,
         acknowledgeTerms: this.shouldDisplayAcknowledgement ? false : true,
         taxa: [],
         taxon_search: '',
@@ -270,6 +294,8 @@ export class AccessRequestFormComponent {
         initialization_date: initializationStruct,
         expiration_date: expirationStruct,
         id_validator: accessRequest.id_validator,
+        scope: accessRequest.scope ?? DEFAULT_SCOPE,
+        sensitivity_filter: !!accessRequest.sensitivity_filter,
         acknowledgeTerms: true,
         taxa: (accessRequest.taxa || []).map((taxon) => ({
           cd_nom: taxon.cd_nom,
@@ -293,6 +319,14 @@ export class AccessRequestFormComponent {
 
   get acknowledgeTermsControl() {
     return this.form.get('acknowledgeTerms');
+  }
+
+  get scopeControl() {
+    return this.form.get('scope');
+  }
+
+  get sensitivityFilterControl() {
+    return this.form.get('sensitivity_filter');
   }
 
   get taxaControl() {

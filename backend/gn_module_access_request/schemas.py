@@ -42,7 +42,9 @@ class AccessRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     id_validator = auto_field()
     initialization_date = fields.Date(attribute="initialization_date", dump_only=True)
     expiration_date = fields.Date(attribute="expiration_date", dump_only=True)
-    validated = auto_field()
+    validated = fields.Boolean(attribute="validated", allow_none=True, dump_only=True)
+    sensitivity_filter = fields.Boolean(attribute="sensitivity_filter", dump_only=True)
+    scope = fields.Method("get_scope", dump_only=True)
     description = auto_field()
     taxa = fields.Nested(AccessRequestTaxonSchema, many=True, dump_only=True)
     author = fields.Nested(AccessRequestUserSchema, dump_only=True)
@@ -57,8 +59,8 @@ class AccessRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
             getattr(obj, "expiration_date", None),
         )
 
-    def get_permissions(self, obj):
-        return [permission.id_permission for permission in getattr(obj, "permissions", [])]
+    def get_scope(self, obj):
+        return getattr(obj, "scope", None)
 
     def get_cruved(self, obj):
         base = CruvedSchemaMixin.get_cruved(self, obj)
