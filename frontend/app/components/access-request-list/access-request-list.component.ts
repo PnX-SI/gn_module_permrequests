@@ -20,6 +20,7 @@ import { ROUTE_PATHS } from '../../gnModule.module';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { canCreateAccess } from '../../guards/can-create-access-request.guard';
+import { STATUS_COLORS } from '../../models/status';
 
 type FiltersFormValue = {
   status: string[] | null;
@@ -55,6 +56,7 @@ export class AccessRequestListComponent implements OnInit, OnDestroy {
   readonly PROP_STATUS = 'status';
   readonly PROP_VALIDATOR = 'validator.nom_complet';
   readonly AccessRequestScope = AccessRequestScope;
+  readonly STATUS_COLORS = STATUS_COLORS;
 
   pagination: PaginationItem = DEFAULT_PAGINATION;
   sort: SortItem = {

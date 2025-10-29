@@ -8,12 +8,12 @@
       class="Field"
       *ngIf="accessRequest?.author"
     >
-      <label for="author">Author</label>
+      <label class="Field__label" for="author">Auteur</label>
       <div id="author">{{ accessRequest.author.nom_complet }}</div>
     </div>
 
     <div class="Field">
-      <label for="description">Description</label>
+      <label class="Field__label" for="description">Description</label>
       <textarea
         id="description"
         rows="4"
@@ -22,7 +22,7 @@
     </div>
 
     <div class="Field">
-      <label for="taxa">Taxons</label>
+      <label class="Field__label" for="taxa">Taxons</label>
       <pnx-taxonomy
         id="taxa"
         [parentFormControl]="taxonSearchControl"
@@ -60,7 +60,7 @@
     </div>
 
     <div class="Field">
-      <label>
+      <label class="Field__label">
         <input
           type="checkbox"
           formControlName="sensitivity_filter"
@@ -70,7 +70,7 @@
     </div>
 
     <div class="Field">
-      <label for="initialization_date">Date d'initialisation</label>
+      <label class="Field__label" for="initialization_date">Date d'initialisation</label>
       <pnx-date
         id="initialization_date"
         [defaultToday]="false"
@@ -80,7 +80,7 @@
     </div>
 
     <div class="Field">
-      <label for="expiration_date">Date d'expiration</label>
+      <label class="Field__label" for="expiration_date">Date d'expiration</label>
       <pnx-date
         id="expiration_date"
         [defaultToday]="true"
@@ -106,7 +106,7 @@
     </div>
 
     <div class="Field">
-      <label for="scope">Portée</label>
+      <label class="Field__label" for="scope">Portée</label>
       <div class="Field__scopeOptions">
         <label>
           <input
@@ -137,7 +137,7 @@
       class="Field Field--acknowledge"
       *ngIf="shouldDisplayAcknowledgement"
     >
-      <label>
+      <label class="Field__label">
         <input
           type="checkbox"
           formControlName="acknowledgeTerms"

@@ -59,13 +59,13 @@
 
 
   &__table {
-    height: inherit;
+    height: calc(100vh - 155px); // TODO Magicnumber
     box-shadow: none;
     ::ng-deep .visible {
       height: inherit;
       .datatable-body {
-        // height: 80% !important;
-        overflow-y: auto;
+        height: 87% !important;
+        overflow-y: scroll;
         overflow-x: hidden;
       }
     }

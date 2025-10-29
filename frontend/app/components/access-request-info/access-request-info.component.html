@@ -3,11 +3,11 @@
   *ngIf="accessRequest"
 >
   <div class="AccessRequestInfo__field">
-    <label for="status">Status</label>
+    <label for="status">Statut</label>
     <div id="status">{{ accessRequest.status }}</div>
   </div>
   <div class="AccessRequestInfo__field">
-    <label for="author">Author</label>
+    <label for="author">Auteur</label>
     <div id="author">{{ accessRequest.author?.nom_complet }}</div>
   </div>
 
@@ -27,7 +27,7 @@
   </div>
 
   <div class="AccessRequestInfo__field">
-    <label for="expiration_date">Expiration Date</label>
+    <label for="expiration_date">Date d'expiration</label>
     <div id="expiration_date">{{ accessRequest.expiration_date }}</div>
   </div>
 

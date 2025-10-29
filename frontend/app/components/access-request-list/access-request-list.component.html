@@ -97,6 +97,17 @@
     {{ value ? 'Oui' : 'Non' }}
   </ng-template>
 
+
+  <ng-template
+    #cellStatusTemplate
+    let-value="value"
+  >
+    <gn-badge
+        [text]="value"
+        [symbology]="{ color: STATUS_COLORS[value] }"
+      ></gn-badge>
+  </ng-template>
+
   <ng-template
     #cellScopeTemplate
     let-value="value"
@@ -265,14 +276,14 @@
     <ngx-datatable-column
       name="Status"
       [prop]="PROP_STATUS"
-      [maxWidth]="100"
+      [maxWidth]="120"
     >
       <ng-template
         ngx-datatable-cell-template
         let-accessRequest="row"
       >
         <ng-template
-          *ngTemplateOutlet="cellNameTemplate; context: { value: accessRequest.status }"
+          *ngTemplateOutlet="cellStatusTemplate; context: { value: accessRequest.status }"
         ></ng-template>
       </ng-template>
     </ngx-datatable-column>

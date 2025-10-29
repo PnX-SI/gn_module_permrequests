@@ -5,7 +5,7 @@ export enum SORT_ORDER {
 
 export interface SortItem {
   sortBy: string;
-  sortOrder: string;
+  sortOrder: SORT_ORDER;
 }
 
 export const DEFAULT_SORT: SortItem = {
