@@ -7,7 +7,9 @@
     display: flex;
     flex-flow: column;
     justify-content: flex-start;
-
+    gn-badge{
+      max-width: 150px;
+    }
     label {
       font-weight: 600;
       margin-bottom: 0;

@@ -8,11 +8,12 @@
       color="primary"
       type="button"
       class="ValidationButton ValidationButton--primary"
+      [width]="50"
       [class.ValidationButton--active]="currentValidationState === 'true'"
       [disabled]="validationRequestPending"
       (click)="onValidationButtonClick('true')"
     >
-      Valider
+      <mat-icon>check-circle</mat-icon>
     </button>
     <button
       mat-stroked-button
@@ -23,7 +24,7 @@
       [disabled]="validationRequestPending"
       (click)="onValidationButtonClick('false')"
     >
-      Refuser
+      <mat-icon>cancel</mat-icon>
     </button>
   </div>
   <button

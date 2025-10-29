@@ -1,19 +1,21 @@
 import { Component, Input, OnDestroy, OnInit, Optional } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 
 import { AccessRequest, AccessRequestScope, DEFAULT_SCOPE } from '../../models/accessRequest';
+
+import { STATUS_COLORS } from '../../models/status'
 
 @Component({
   standalone: true,
   selector: 'access-request-info',
   templateUrl: 'access-request-info.component.html',
   styleUrls: ['./access-request-info.component.scss'],
-  imports: [CommonModule],
+  imports: [CommonModule, GN2CommonModule],
 })
 export class AccessRequestInfoComponent {
+  readonly STATUS_COLORS = STATUS_COLORS;
   @Input()
   public accessRequest: AccessRequest | null = null;
 
