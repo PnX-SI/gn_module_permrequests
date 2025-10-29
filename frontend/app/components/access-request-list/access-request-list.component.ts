@@ -158,11 +158,9 @@ export class AccessRequestListComponent implements OnInit, OnDestroy {
     this._fetchAccessRequests();
   }
 
-
   onAccessRequestUpdated() {
     this._fetchAccessRequests();
   }
-
 
   get newAccessRequestLink(): string[] {
     return [`/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.newAccessRequest}`];

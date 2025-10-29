@@ -21,7 +21,7 @@ export class AccessRequestInfoPageComponent implements OnInit, OnDestroy {
 
   constructor(
     private _route: ActivatedRoute,
-    private _router: Router,
+    private _router: Router
   ) {}
 
   ngOnInit(): void {
@@ -38,7 +38,6 @@ export class AccessRequestInfoPageComponent implements OnInit, OnDestroy {
   }
 
   onAccessRequestUpdated(id: number): void {
-    console.log("-- hop hop hop");
     this._router.navigate([], {
       relativeTo: this._route,
       queryParams: { refresh: Date.now() },

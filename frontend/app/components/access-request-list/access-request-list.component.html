@@ -1,59 +1,63 @@
 <div class="AccessRequestList">
-  <div class="AccessRequestList__toolbar card-header">
-    <div class="AccessRequestList__filters">
-      <form [formGroup]="filtersForm" class="FiltersForm FiltersForm--horizontal">
-          <ng-select
-            class="FiltersForm__Filter"
-            id="filter-status"
-            [items]="statusOptions"
-            bindLabel="label"
-            bindValue="value"
-            [clearable]="true"
-            placeholder="Statut"
-            formControlName="status"
-            [multiple]="true"
-            [closeOnSelect]="false"
-          ></ng-select>
-          <ng-select
-            class="FiltersForm__Filter"
-            id="filter-scope"
-            [items]="scopeOptions"
-            bindLabel="label"
-            bindValue="value"
-            [clearable]="true"
-            placeholder="Portée"
-            formControlName="scope"
-            [multiple]="true"
-            [closeOnSelect]="false"
-          ></ng-select>
-          <ng-select
-            class="FiltersForm__Filter"
-            id="filter-validated"
-            [items]="validatedOptions"
-            bindLabel="label"
-            bindValue="value"
-            [clearable]="true"
-            placeholder="Validée"
-            formControlName="validated"
-            [multiple]="true"
-            [closeOnSelect]="false"
-          ></ng-select>
-          <ng-select
-            class="FiltersForm__Filter"
-            id="filter-sensitive"
-            [items]="sensitivityOptions"
-            bindLabel="label"
-            bindValue="value"
-            [clearable]="true"
-            placeholder="Données sensibles"
-            formControlName="sensitivity_filter"
-            [multiple]="true"
-            [closeOnSelect]="false"
-          ></ng-select>
+  <div class="Toolbar card-header">
+    <div class="Toolbar__filters">
+      <form
+        [formGroup]="filtersForm"
+        class="FiltersForm FiltersForm--horizontal"
+      >
+        <ng-select
+          class="FiltersForm__Filter"
+          id="filter-status"
+          [items]="statusOptions"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="true"
+          placeholder="Statut"
+          formControlName="status"
+          [multiple]="true"
+          [closeOnSelect]="false"
+        ></ng-select>
+        <ng-select
+          class="FiltersForm__Filter"
+          id="filter-scope"
+          [items]="scopeOptions"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="true"
+          placeholder="Portée"
+          formControlName="scope"
+          [multiple]="true"
+          [closeOnSelect]="false"
+        ></ng-select>
+        <ng-select
+          class="FiltersForm__Filter"
+          id="filter-validated"
+          [items]="validatedOptions"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="true"
+          placeholder="Validée"
+          formControlName="validated"
+          [multiple]="true"
+          [closeOnSelect]="false"
+        ></ng-select>
+        <ng-select
+          class="FiltersForm__Filter"
+          id="filter-sensitive"
+          [items]="sensitivityOptions"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="true"
+          placeholder="Données sensibles"
+          formControlName="sensitivity_filter"
+          [multiple]="true"
+          [closeOnSelect]="false"
+        ></ng-select>
       </form>
     </div>
+    <div class="Toolbar__spacer"></div>
     <div
-      class="AccessRequestList__actions"
+      class="Toolbar__actions"
       *ngIf="canCreateAccessRequest"
     >
       <button
@@ -212,7 +216,10 @@
         let-accessRequest="row"
       >
         <ng-template
-          *ngTemplateOutlet="cellBooleanTemplate; context: { value: accessRequest[PROP_SENSITIVITY_FILTER] }"
+          *ngTemplateOutlet="
+            cellBooleanTemplate;
+            context: { value: accessRequest[PROP_SENSITIVITY_FILTER] }
+          "
         ></ng-template>
       </ng-template>
     </ngx-datatable-column>

@@ -22,7 +22,6 @@ import { AccessRequestPayload, AccessRequestService } from '../../services/acces
 import { ROUTE_PATHS } from '../../gnModule.module';
 import { Taxon } from '@geonature_common/form/taxonomy/taxonomy.component';
 
-
 type AccessRequestFormValue = {
   description: string | null;
   initialization_date: NgbDateStruct | string | null;
@@ -218,8 +217,7 @@ export class AccessRequestFormComponent {
       sensitivity_filter,
       scope,
       taxa,
-    } = this.form
-      .value as AccessRequestFormValue;
+    } = this.form.value as AccessRequestFormValue;
     const selectedTaxa = this._extractTaxaIdentifiers(taxa);
     const accessRequestTaxa = (this.accessRequest.taxa || []).map((taxon) => taxon.cd_nom);
     const normalizedSelectedTaxa = [...selectedTaxa].sort((a, b) => a - b);
@@ -251,7 +249,9 @@ export class AccessRequestFormComponent {
       normalizedSensitivity === accessRequestSensitivity &&
       normalizedScope === accessRequestScope &&
       normalizedSelectedTaxa.length === normalizedAccessRequestTaxa.length &&
-      normalizedSelectedTaxa.every((taxonId, index) => taxonId === normalizedAccessRequestTaxa[index])
+      normalizedSelectedTaxa.every(
+        (taxonId, index) => taxonId === normalizedAccessRequestTaxa[index]
+      )
     );
   }
 

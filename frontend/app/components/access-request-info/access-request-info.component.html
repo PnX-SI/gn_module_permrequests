@@ -45,9 +45,7 @@
       id="taxa"
       class="AccessRequestInfo__taxa"
     >
-      <li *ngFor="let taxon of accessRequest.taxa">
-        {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
-      </li>
+      <li *ngFor="let taxon of accessRequest.taxa">{{ taxon.cd_nom }} : {{ taxon.lb_nom }}</li>
     </ul>
   </div>
 

@@ -1,33 +1,35 @@
 <module-layout>
-  <div class="Header card-header">
-    <div class="Header__left">
-      <button
-        mat-flat-button
-        [routerLink]="homeRouterLink"
-      >
-        <mat-icon>chevron_left</mat-icon>
-        Retour
-      </button>
-    </div>
-    <div class="Header__center">
-      <div *ngIf="accessRequest; else newAccessRequest">
-        Access Request #{{ accessRequest.id_access_request }}
+  <div class="Layout">
+    <div class="Header card-header">
+      <div class="Header__left">
+        <button
+          mat-flat-button
+          [routerLink]="homeRouterLink"
+        >
+          <mat-icon>chevron_left</mat-icon>
+          Retour
+        </button>
       </div>
-      <ng-template #newAccessRequest><div>New Access Request</div></ng-template>
+      <div class="Header__center">
+        <div *ngIf="accessRequest; else newAccessRequest">
+          Access Request #{{ accessRequest.id_access_request }}
+        </div>
+        <ng-template #newAccessRequest><div>New Access Request</div></ng-template>
+      </div>
+      <div class="Header__right">
+        <access-request-toolbar
+          [accessRequest]="accessRequest"
+          [withInfo]="withInfo"
+          [withEdit]="withEdit"
+          [withDelete]="withDelete"
+          [withValidate]="withValidate"
+          (deleted)="onAccessRequestDeleted($event)"
+          (updated)="onAccessRequestUpdated($event)"
+        ></access-request-toolbar>
+      </div>
     </div>
-    <div class="Header__right">
-      <access-request-toolbar
-        [accessRequest]="accessRequest"
-        [withInfo]="withInfo"
-        [withEdit]="withEdit"
-        [withDelete]="withDelete"
-        [withValidate]="withValidate"
-        (deleted)="onAccessRequestDeleted($event)"
-        (updated)="onAccessRequestUpdated($event)"
-      ></access-request-toolbar>
+    <div class="card-body">
+      <ng-content />
     </div>
-  </div>
-  <div class="card-body">
-    <ng-content />
   </div>
 </module-layout>

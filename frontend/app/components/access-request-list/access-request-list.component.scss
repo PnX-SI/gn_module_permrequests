@@ -1,60 +1,62 @@
 .AccessRequestList {
   height: 100%;
   width: 100%;
-  &__toolbar {
+  .Toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
     padding: 1rem;
-  }
 
-  &__filters {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    min-height: 2.5rem;
-    .FiltersForm {
+    &__filters {
       display: flex;
-      flex-flow: row nowrap;
-      justify-content: flex-start;
-      column-gap: 0.5rem;
+      align-items: center;
+      .FiltersForm {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-start;
+        column-gap: 0.5rem;
 
-      &__Filter {
-        min-width: 150px;
+        &__Filter {
+          min-width: 200px;
 
+          ::ng-deep .ng-select-container .ng-value-container {
+            display: flex;
+            flex-flow: row nowrap;
+            gap: 0.25rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            scrollbar-width: none; /* Firefox */
+          }
+          ::ng-deep .ng-select-container .ng-value-container::-webkit-scrollbar {
+            display: none; /* WebKit */
+          }
 
-        ::ng-deep .ng-select-container .ng-value-container {
-          display: flex;
-          flex-flow: row nowrap;
-          gap: 0.25rem;
-          overflow-x: auto;
-          overflow-y: hidden;
-          white-space: nowrap;
-          scrollbar-width: none; /* Firefox */
-        }
-        ::ng-deep .ng-select-container .ng-value-container::-webkit-scrollbar {
-          display: none; /* WebKit */
-        }
+          ::ng-deep .ng-select .ng-value {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 0;
+          }
 
-        ::ng-deep .ng-select .ng-value {
-          display: inline-flex;
-          align-items: center;
-          margin-right: 0;
-        }
-
-        ::ng-deep .ng-select .ng-select-container .ng-value-container .ng-input {
-          flex: 0 0 auto;
+          ::ng-deep .ng-select .ng-select-container .ng-value-container .ng-input {
+            flex: 0 0 auto;
+          }
         }
       }
     }
+
+    &__spacer {
+      flex-grow: 2;
+    }
+    &__actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
   }
 
-  &__actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-  }
 
   &__table {
     height: inherit;
@@ -81,7 +83,6 @@
       }
     }
   }
-
 }
 
 .Taxa {

@@ -11,16 +11,15 @@ import { AccessRequest, AccessRequestScope, DEFAULT_SCOPE } from '../../models/a
   selector: 'access-request-info',
   templateUrl: 'access-request-info.component.html',
   styleUrls: ['./access-request-info.component.scss'],
-  imports: [CommonModule]
+  imports: [CommonModule],
 })
 export class AccessRequestInfoComponent {
-
   @Input()
   public accessRequest: AccessRequest | null = null;
 
   readonly scopeLabels: Record<AccessRequestScope, string> = {
     [AccessRequestScope.USER]: 'Utilisateur',
-    [AccessRequestScope.ORGANISM]: "Organisme",
+    [AccessRequestScope.ORGANISM]: 'Organisme',
   };
 
   getScopeLabel(scope: AccessRequestScope | null): string {

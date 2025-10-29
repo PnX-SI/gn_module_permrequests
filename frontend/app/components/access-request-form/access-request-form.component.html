@@ -3,154 +3,155 @@
   [formGroup]="form"
   (ngSubmit)="onSubmit()"
 >
-  <div
-    class="AccessRequestForm__field"
-    *ngIf="accessRequest?.author"
-  >
-    <label for="author">Author</label>
-    <div id="author">{{ accessRequest.author.nom_complet }}</div>
-  </div>
-
-  <div class="AccessRequestForm__field">
-    <label for="description">Description</label>
-    <textarea
-      id="description"
-      rows="4"
-      formControlName="description"
-    ></textarea>
-  </div>
-
-  <div class="AccessRequestForm__field">
-    <label for="taxa">Taxons</label>
-    <pnx-taxonomy
-      id="taxa"
-      [parentFormControl]="taxonSearchControl"
-      displayedLabel="lb_nom"
-      charNumber="3"
-      listLength="20"
-      (onChange)="onTaxonSelected($event)"
-    ></pnx-taxonomy>
+  <div class="AccessRequestForm__fields">
     <div
-      class="AccessRequestForm__selectedTaxa"
-      *ngIf="taxaControl?.value?.length"
+      class="Field"
+      *ngIf="accessRequest?.author"
     >
-      <ul>
-        <li *ngFor="let taxon of taxaControl?.value">
-          {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
-          <button
-            type="button"
-            mat-icon-button
-            color="warn"
-            (click)="removeTaxon(taxon.cd_nom)"
-            matTooltip="Retirer ce taxon"
-            aria-label="Retirer ce taxon"
-          >
-            <mat-icon>close</mat-icon>
-          </button>
-        </li>
-      </ul>
+      <label for="author">Author</label>
+      <div id="author">{{ accessRequest.author.nom_complet }}</div>
     </div>
-    <div
-      class="AccessRequestForm__error"
-      *ngIf="taxaControl?.hasError('required') && taxaControl?.touched"
-    >
-      Vous devez sélectionner au moins un taxon.
+
+    <div class="Field">
+      <label for="description">Description</label>
+      <textarea
+        id="description"
+        rows="4"
+        formControlName="description"
+      ></textarea>
     </div>
-  </div>
 
-  <div class="AccessRequestForm__field AccessRequestForm__field--sensitivity">
-    <label>
-      <input
-        type="checkbox"
-        formControlName="sensitivity_filter"
-      />
-      Inclure les données sensibles
-    </label>
-  </div>
-
-  <div class="AccessRequestForm__field">
-    <label for="initialization_date">Date d'initialisation</label>
-    <pnx-date
-      id="initialization_date"
-      [defaultToday]="false"
-      [parentFormControl]="initializationDateControl"
-      [noMaxDate]="true"
-    ></pnx-date>
-  </div>
-
-  <div class="AccessRequestForm__field">
-    <label for="expiration_date">Date d'expiration</label>
-    <pnx-date
-      id="expiration_date"
-      [defaultToday]="true"
-      [parentFormControl]="expirationDateControl"
-      [noMaxDate]="true"
-    ></pnx-date>
-    <div
-      class="AccessRequestForm__error"
-      *ngIf="expirationDateControl?.hasError('required') && expirationDateControl?.touched"
-    >
-      La date d'expiration est obligatoire.
+    <div class="Field">
+      <label for="taxa">Taxons</label>
+      <pnx-taxonomy
+        id="taxa"
+        [parentFormControl]="taxonSearchControl"
+        displayedLabel="lb_nom"
+        charNumber="3"
+        listLength="20"
+        (onChange)="onTaxonSelected($event)"
+      ></pnx-taxonomy>
+      <div
+        class="Field__selectedTaxa"
+        *ngIf="taxaControl?.value?.length"
+      >
+        <ul>
+          <li *ngFor="let taxon of taxaControl?.value">
+            {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
+            <button
+              type="button"
+              mat-icon-button
+              color="warn"
+              (click)="removeTaxon(taxon.cd_nom)"
+              matTooltip="Retirer ce taxon"
+              aria-label="Retirer ce taxon"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div
+        class="Field__error"
+        *ngIf="taxaControl?.hasError('required') && taxaControl?.touched"
+      >
+        Vous devez sélectionner au moins un taxon.
+      </div>
     </div>
-  </div>
 
-  <div
-    class="AccessRequestForm__error"
-    *ngIf="
-      form.errors?.invalidDate &&
-      (initializationDateControl?.touched || expirationDateControl?.touched)
-    "
-  >
-    La date d'initialisation doit être antérieure à la date d'expiration.
-  </div>
-
-  <div class="AccessRequestForm__field">
-    <label for="scope">Portée</label>
-    <div class="AccessRequestForm__scopeOptions">
+    <div class="Field">
       <label>
         <input
-          type="radio"
-          formControlName="scope"
-          [value]="AccessRequestScope.USER"
+          type="checkbox"
+          formControlName="sensitivity_filter"
         />
-        Moi uniquement
+        Inclure les données sensibles
       </label>
+    </div>
+
+    <div class="Field">
+      <label for="initialization_date">Date d'initialisation</label>
+      <pnx-date
+        id="initialization_date"
+        [defaultToday]="false"
+        [parentFormControl]="initializationDateControl"
+        [noMaxDate]="true"
+      ></pnx-date>
+    </div>
+
+    <div class="Field">
+      <label for="expiration_date">Date d'expiration</label>
+      <pnx-date
+        id="expiration_date"
+        [defaultToday]="true"
+        [parentFormControl]="expirationDateControl"
+        [noMaxDate]="true"
+      ></pnx-date>
+      <div
+        class="Field__error"
+        *ngIf="expirationDateControl?.hasError('required') && expirationDateControl?.touched"
+      >
+        La date d'expiration est obligatoire.
+      </div>
+    </div>
+
+    <div
+      class="Field__error"
+      *ngIf="
+        form.errors?.invalidDate &&
+        (initializationDateControl?.touched || expirationDateControl?.touched)
+      "
+    >
+      La date d'initialisation doit être antérieure à la date d'expiration.
+    </div>
+
+    <div class="Field">
+      <label for="scope">Portée</label>
+      <div class="Field__scopeOptions">
+        <label>
+          <input
+            type="radio"
+            formControlName="scope"
+            [value]="AccessRequestScope.USER"
+          />
+          Moi uniquement
+        </label>
+        <label>
+          <input
+            type="radio"
+            formControlName="scope"
+            [value]="AccessRequestScope.ORGANISM"
+          />
+          Mon organisme
+        </label>
+      </div>
+      <div
+        class="Field__error"
+        *ngIf="scopeControl?.hasError('required') && scopeControl?.touched"
+      >
+        La portée est obligatoire.
+      </div>
+    </div>
+
+    <div
+      class="Field Field--acknowledge"
+      *ngIf="shouldDisplayAcknowledgement"
+    >
       <label>
         <input
-          type="radio"
-          formControlName="scope"
-          [value]="AccessRequestScope.ORGANISM"
+          type="checkbox"
+          formControlName="acknowledgeTerms"
         />
-        Mon organisme
+        {{ termsAcknowledgementText }}
       </label>
-    </div>
-    <div
-      class="AccessRequestForm__error"
-      *ngIf="scopeControl?.hasError('required') && scopeControl?.touched"
-    >
-      La portée est obligatoire.
-    </div>
-  </div>
-
-  <div
-    class="AccessRequestForm__field AccessRequestForm__field--acknowledge"
-    *ngIf="shouldDisplayAcknowledgement"
-  >
-    <label>
-      <input
-        type="checkbox"
-        formControlName="acknowledgeTerms"
-      />
-      {{ termsAcknowledgementText }}
-    </label>
-    <div
-      class="AccessRequestForm__error"
-      *ngIf="acknowledgeTermsControl?.hasError('required') && acknowledgeTermsControl?.touched"
-    >
-      Vous devez accepter les conditions pour poursuivre.
+      <div
+        class="Field__error"
+        *ngIf="acknowledgeTermsControl?.hasError('required') && acknowledgeTermsControl?.touched"
+      >
+        Vous devez accepter les conditions pour poursuivre.
+      </div>
     </div>
   </div>
-
   <div class="AccessRequestForm__actions">
     <button
       type="button"

@@ -26,8 +26,8 @@ export interface AccessRequestTaxon {
 }
 
 export enum AccessRequestScope {
-  USER = "USER",
-  ORGANISM = "ORGANISM"
+  USER = 'USER',
+  ORGANISM = 'ORGANISM',
 }
 
 export const DEFAULT_SCOPE = AccessRequestScope.USER;

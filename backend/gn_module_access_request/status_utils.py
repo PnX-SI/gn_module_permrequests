@@ -54,7 +54,9 @@ def compute_status_label(validated, initialization_date, expiration_date, today=
     return STATUS_KEYS[key]
 
 
-def status_order_case(validated_column, initialization_column, expiration_column, current_date=None):
+def status_order_case(
+    validated_column, initialization_column, expiration_column, current_date=None
+):
     current_date = current_date or db.func.current_date()
 
     return case(
@@ -72,7 +74,9 @@ def status_order_case(validated_column, initialization_column, expiration_column
     )
 
 
-def status_filter_expression(status_key, *, validated_column, initialization_column, expiration_column):
+def status_filter_expression(
+    status_key, *, validated_column, initialization_column, expiration_column
+):
     current_date = db.func.current_date()
     if status_key == StatusKey.REFUSED:
         return validated_column.is_(False)

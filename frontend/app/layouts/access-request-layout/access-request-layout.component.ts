@@ -42,14 +42,16 @@ export class AccessRequestLayoutComponent {
   @Output()
   updated = new EventEmitter<number>();
 
-  onAccessRequestUpdated(accesRequestId: number){
-    console.log("-- called");
+  onAccessRequestUpdated(accesRequestId: number) {
     this.updated.emit(accesRequestId);
   }
 
-  onAccessRequestDeleted(accesRequestId: number){
+  onAccessRequestDeleted(accesRequestId: number) {
     this._router.navigate([this.homeRouterLink]);
   }
 
-  constructor(private _modules: ModuleService, private _router: Router) {}
+  constructor(
+    private _modules: ModuleService,
+    private _router: Router
+  ) {}
 }

@@ -1,25 +1,34 @@
-.Header {
+.Layout {
   display: flex;
-  flex-flow: row nowrap;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-
-  &__left {
-    justify-self: start; // ou end selon besoin
-  }
-  &__center {
-    justify-self: center; // centré horizontalement dans la colonne centrale
-    position: absolute;
-    left: 50%;
-    translate: -50%;
+  flex-flow: column;
+  border: 2px solid cornflowerblue;
+  height: 100%;
+  .Header {
     display: flex;
     flex-flow: row nowrap;
-    column-gap: 0.2rem;
-  }
-  &__right {
-    justify-self: end; // ou end selon besoin
-  }
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
 
-  border-bottom: 1px solid lightgray;
+    &__left {
+      justify-self: start; // ou end selon besoin
+    }
+    &__center {
+      justify-self: center; // centré horizontalement dans la colonne centrale
+      position: absolute;
+      left: 50%;
+      translate: -50%;
+      display: flex;
+      flex-flow: row nowrap;
+      column-gap: 0.2rem;
+    }
+    &__right {
+      justify-self: end; // ou end selon besoin
+    }
+  }
+  // .Body {
+  //   border: 2px solid red;
+  //   overflow: auto;
+  // }
+
 }

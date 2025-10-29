@@ -92,7 +92,6 @@ def _normalize_validated_filter(value):
     raise BadRequest("Parameter 'validated' must be true, false or none.")
 
 
-
 ## ########################################################################
 ## COLLECTION
 ## ########################################################################
@@ -175,7 +174,9 @@ def list_access_requests(scope):
         author_alias = aliased(User)
         permission_role_alias = aliased(User)
         query = query.outerjoin(author_alias, AccessRequest.author.of_type(author_alias))
-        query = query.outerjoin(permission_role_alias, permission_alias.role.of_type(permission_role_alias))
+        query = query.outerjoin(
+            permission_role_alias, permission_alias.role.of_type(permission_role_alias)
+        )
 
     if orderby == "scope":
         order_column = case(
@@ -210,8 +211,10 @@ def list_access_requests(scope):
         order_by_clauses = [desc(order_column)]
 
     if orderby == "status":
-        secondary = asc(AccessRequest.expiration_date) if sort == SortOrder.ASC else desc(
-            AccessRequest.expiration_date
+        secondary = (
+            asc(AccessRequest.expiration_date)
+            if sort == SortOrder.ASC
+            else desc(AccessRequest.expiration_date)
         )
         order_by_clauses.append(secondary)
     elif orderby == "scope":
@@ -260,9 +263,7 @@ def list_access_requests(scope):
         else:
             clauses = [Permission.sensitivity_filter.is_(value) for value in sensitivity_set]
             query = query.where(
-                sa.or_(
-                    *[AccessRequest.permission.has(clause) for clause in clauses]
-                )
+                sa.or_(*[AccessRequest.permission.has(clause) for clause in clauses])
             )
 
     if validated_filters:
@@ -283,9 +284,7 @@ def list_access_requests(scope):
                 else:
                     clauses.append(Permission.validated.is_(validated_value))
             query = query.where(
-                sa.or_(
-                    *[AccessRequest.permission.has(clause) for clause in clauses]
-                )
+                sa.or_(*[AccessRequest.permission.has(clause) for clause in clauses])
             )
 
     query = query.order_by(*order_by_clauses)
@@ -400,7 +399,9 @@ def create_access_request():
     taxa_query = select(Taxref).where(Taxref.cd_nom.in_(normalized_taxa_ids))
     taxa_items = db.session.scalars(taxa_query).all()
     taxa_by_id = {taxon.cd_nom: taxon for taxon in taxa_items}
-    missing_taxa = sorted({taxon_id for taxon_id in normalized_taxa_ids if taxon_id not in taxa_by_id})
+    missing_taxa = sorted(
+        {taxon_id for taxon_id in normalized_taxa_ids if taxon_id not in taxa_by_id}
+    )
     if missing_taxa:
         raise BadRequest(
             f"Some taxa identifiers are invalid or unknown: {', '.join(map(str, missing_taxa))}."
@@ -444,7 +445,9 @@ def create_access_request():
         select(PermObject.id_object).where(PermObject.code_object == "ALL")
     ).one_or_none()
     if object_id is None:
-        raise InternalServerError("Permission object 'ALL' not found in permissions configuration.")
+        raise InternalServerError(
+            "Permission object 'ALL' not found in permissions configuration."
+        )
 
     created_on_value = (
         datetime.combine(initialization_date, datetime.min.time())
@@ -613,7 +616,9 @@ def update_access_request(scope, id_access_request):
         taxa_query = select(Taxref).where(Taxref.cd_nom.in_(normalized_taxa_ids))
         taxa_items = db.session.scalars(taxa_query).all()
         taxa_by_id = {taxon.cd_nom: taxon for taxon in taxa_items}
-        missing_taxa = sorted({taxon_id for taxon_id in normalized_taxa_ids if taxon_id not in taxa_by_id})
+        missing_taxa = sorted(
+            {taxon_id for taxon_id in normalized_taxa_ids if taxon_id not in taxa_by_id}
+        )
         if missing_taxa:
             raise BadRequest(
                 f"Some taxa identifiers are invalid or unknown: {', '.join(map(str, missing_taxa))}."
