@@ -4,7 +4,11 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 
-import { NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbDateParserFormatter,
+  NgbDateStruct,
+  NgbTypeaheadSelectItemEvent,
+} from '@ng-bootstrap/ng-bootstrap';
 
 import { finalize } from 'rxjs/operators';
 
@@ -16,6 +20,7 @@ import { ConfigService } from '@geonature/services/config.service';
 import { AccessRequest } from '../../models/accessRequest';
 import { AccessRequestPayload, AccessRequestService } from '../../services/accessRequest.service';
 import { ROUTE_PATHS } from '../../gnModule.module';
+import { Taxon } from '@geonature_common/form/taxonomy/taxonomy.component';
 
 type AccessRequestFormValue = {
   description: string | null;
@@ -23,6 +28,8 @@ type AccessRequestFormValue = {
   expiration_date: NgbDateStruct | string | null;
   id_validator: number | null;
   acknowledgeTerms: boolean;
+  taxa: any[];
+  taxon_search: string | null;
 };
 
 @Component({
@@ -81,6 +88,8 @@ export class AccessRequestFormComponent {
       expiration_date: [null, [Validators.required]],
       id_validator: [null],
       acknowledgeTerms: [false, Validators.requiredTrue],
+      taxa: [[], Validators.required],
+      taxon_search: [''],
     });
     return group;
   }
@@ -137,6 +146,7 @@ export class AccessRequestFormComponent {
       description: rawValue.description?.trim() || null,
       initialization_date: initializationValue,
       expiration_date: this._dateParser.format(rawValue.expiration_date) as unknown as string,
+      taxa: this._extractTaxaIdentifiers(rawValue.taxa),
     };
     if (rawValue.id_validator !== undefined) {
       payload.id_validator = rawValue.id_validator;
@@ -192,8 +202,12 @@ export class AccessRequestFormComponent {
       return false;
     }
 
-    const { description, expiration_date, id_validator, initialization_date } = this.form
+    const { description, expiration_date, id_validator, initialization_date, taxa } = this.form
       .value as AccessRequestFormValue;
+    const selectedTaxa = this._extractTaxaIdentifiers(taxa);
+    const accessRequestTaxa = (this.accessRequest.taxa || []).map((taxon) => taxon.cd_nom);
+    const normalizedSelectedTaxa = [...selectedTaxa].sort((a, b) => a - b);
+    const normalizedAccessRequestTaxa = [...accessRequestTaxa].sort((a, b) => a - b);
 
     const normalizedDescription = (description ?? '').trim();
     const accessRequestDescription = (this.accessRequest.description ?? '').trim();
@@ -213,7 +227,9 @@ export class AccessRequestFormComponent {
       normalizedDescription === accessRequestDescription &&
       normalizedInitialization === accessRequestInitialization &&
       normalizedExpiration === accessRequestExpiration &&
-      normalizedValidator === accessRequestValidator
+      normalizedValidator === accessRequestValidator &&
+      normalizedSelectedTaxa.length === normalizedAccessRequestTaxa.length &&
+      normalizedSelectedTaxa.every((taxonId, index) => taxonId === normalizedAccessRequestTaxa[index])
     );
   }
 
@@ -239,6 +255,8 @@ export class AccessRequestFormComponent {
         expiration_date: null,
         id_validator: null,
         acknowledgeTerms: this.shouldDisplayAcknowledgement ? false : true,
+        taxa: [],
+        taxon_search: '',
       });
     } else {
       const initializationStruct = accessRequest.initialization_date
@@ -253,6 +271,12 @@ export class AccessRequestFormComponent {
         expiration_date: expirationStruct,
         id_validator: accessRequest.id_validator,
         acknowledgeTerms: true,
+        taxa: (accessRequest.taxa || []).map((taxon) => ({
+          cd_nom: taxon.cd_nom,
+          lb_nom: taxon.lb_nom,
+          displayName: taxon.lb_nom,
+        })),
+        taxon_search: '',
       });
     }
     this.form.markAsPristine();
@@ -269,5 +293,85 @@ export class AccessRequestFormComponent {
 
   get acknowledgeTermsControl() {
     return this.form.get('acknowledgeTerms');
+  }
+
+  get taxaControl() {
+    return this.form.get('taxa');
+  }
+
+  get taxonSearchControl() {
+    return this.form.get('taxon_search');
+  }
+
+  private _extractTaxaIdentifiers(value: any): number[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+    return value
+      .map((item) => {
+        if (!item) {
+          return null;
+        }
+        if (typeof item === 'number') {
+          return item;
+        }
+        if (typeof item === 'string' && item.trim() !== '') {
+          const parsed = Number(item);
+          return Number.isNaN(parsed) ? null : parsed;
+        }
+        if (typeof item === 'object' && 'cd_nom' in item) {
+          return Number(item['cd_nom']);
+        }
+        return null;
+      })
+      .filter((taxonId): taxonId is number => taxonId !== null);
+  }
+
+  onTaxonSelected(event: NgbTypeaheadSelectItemEvent<Taxon>): void {
+    const item = event.item;
+    if (!item || item.cd_nom === undefined || item.cd_nom === null) {
+      return;
+    }
+    const cdNom = Number(item.cd_nom);
+    if (!Number.isFinite(cdNom)) {
+      this._resetTaxonSearchControl();
+      return;
+    }
+    const currentTaxa = (this.taxaControl?.value as any[]) ?? [];
+    const alreadySelected = currentTaxa.some((taxon) => taxon.cd_nom === cdNom);
+    if (alreadySelected) {
+      this._resetTaxonSearchControl();
+      return;
+    }
+    const label =
+      item.lb_nom || item.nom_valide || item.search_name || item.nom_complet || `${item.cd_nom}`;
+    const updatedTaxa = [
+      ...currentTaxa,
+      {
+        cd_nom: cdNom,
+        lb_nom: label,
+        displayName: label,
+      },
+    ];
+    this.taxaControl?.setValue(updatedTaxa);
+    this.taxaControl?.markAsDirty();
+    this.taxaControl?.markAsTouched();
+    this.taxaControl?.updateValueAndValidity({ emitEvent: false });
+    this._resetTaxonSearchControl();
+  }
+
+  removeTaxon(cd_nom: number): void {
+    const currentTaxa = (this.taxaControl?.value as any[]) ?? [];
+    const updatedTaxa = currentTaxa.filter((taxon) => taxon.cd_nom !== cd_nom);
+    this.taxaControl?.setValue(updatedTaxa);
+    this.taxaControl?.markAsDirty();
+    this.taxaControl?.markAsTouched();
+    this.taxaControl?.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private _resetTaxonSearchControl(): void {
+    this.taxonSearchControl?.setValue('', { emitEvent: false });
+    this.taxonSearchControl?.markAsPristine();
+    this.taxonSearchControl?.markAsUntouched();
   }
 }

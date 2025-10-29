@@ -6,7 +6,7 @@ export interface AccessRequest {
   expiration_date: string | null;
   validated: boolean | null;
   description: string | null;
-  taxa: number[];
+  taxa: AccessRequestTaxon[];
   permissions: number[];
   status: string | null;
   author: AccessRequestRole | null;
@@ -16,6 +16,11 @@ export interface AccessRequest {
 
 export interface AccessRequestRole {
   nom_complet: string | null;
+}
+
+export interface AccessRequestTaxon {
+  cd_nom: number;
+  lb_nom: string;
 }
 
 export interface Cruved {

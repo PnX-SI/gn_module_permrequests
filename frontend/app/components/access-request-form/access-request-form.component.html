@@ -21,6 +21,44 @@
   </div>
 
   <div class="AccessRequestForm__field">
+    <label for="taxa">Taxons</label>
+    <pnx-taxonomy
+      id="taxa"
+      [parentFormControl]="taxonSearchControl"
+      displayedLabel="lb_nom"
+      charNumber="3"
+      listLength="20"
+      (onChange)="onTaxonSelected($event)"
+    ></pnx-taxonomy>
+    <div
+      class="AccessRequestForm__selectedTaxa"
+      *ngIf="taxaControl?.value?.length"
+    >
+      <ul>
+        <li *ngFor="let taxon of taxaControl?.value">
+          {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
+          <button
+            type="button"
+            mat-icon-button
+            color="warn"
+            (click)="removeTaxon(taxon.cd_nom)"
+            matTooltip="Retirer ce taxon"
+            aria-label="Retirer ce taxon"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </li>
+      </ul>
+    </div>
+    <div
+      class="AccessRequestForm__error"
+      *ngIf="taxaControl?.hasError('required') && taxaControl?.touched"
+    >
+      Vous devez sélectionner au moins un taxon.
+    </div>
+  </div>
+
+  <div class="AccessRequestForm__field">
     <label for="initialization_date">Date d'initialisation</label>
     <pnx-date
       id="initialization_date"

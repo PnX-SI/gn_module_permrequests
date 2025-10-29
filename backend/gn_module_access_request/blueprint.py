@@ -4,8 +4,7 @@ Définition des routes du module export
 
 from datetime import datetime
 from flask import Blueprint, request, g
-from sqlalchemy import desc, asc
-from sqlalchemy.orm import aliased
+from sqlalchemy import desc, asc, select
 from werkzeug.exceptions import BadRequest, NotFound, Forbidden
 
 from geonature.core.gn_permissions import decorators as permissions
@@ -18,6 +17,7 @@ from .models import AccessRequest
 from .schemas import AccessRequestSchema
 from .status_utils import status_order_case
 from pypnusershub.db.models import User
+from apptax.taxonomie.models import Taxref
 
 
 blueprint = Blueprint("access_request", __name__, cli_group="access_request")
@@ -152,7 +152,7 @@ def create_access_request():
             "Fields status, id_validator, " "id_author and author are not allowed during creation."
         )
 
-    allowed_fields = {"description", "expiration_date", "initialization_date"}
+    allowed_fields = {"description", "expiration_date", "initialization_date", "taxa"}
     unexpected_fields = set(payload.keys()) - allowed_fields
     if unexpected_fields:
         raise BadRequest(f"Unsupported fields provided: {', '.join(sorted(unexpected_fields))}.")
@@ -182,6 +182,27 @@ def create_access_request():
     if description_value is not None and not isinstance(description_value, str):
         raise BadRequest("description must be a string or null.")
 
+    taxa_ids = payload.get("taxa")
+    if taxa_ids is None:
+        raise BadRequest("Field 'taxa' is required.")
+    if not isinstance(taxa_ids, list):
+        raise BadRequest("taxa must be an array of integers.")
+    try:
+        normalized_taxa_ids = [int(taxon_id) for taxon_id in taxa_ids]
+    except (TypeError, ValueError) as exc:
+        raise BadRequest("taxa must contain only integer values.") from exc
+    if not normalized_taxa_ids:
+        raise BadRequest("taxa must contain at least one value.")
+
+    taxa_query = select(Taxref).where(Taxref.cd_nom.in_(normalized_taxa_ids))
+    taxa_items = db.session.scalars(taxa_query).all()
+    taxa_by_id = {taxon.cd_nom: taxon for taxon in taxa_items}
+    missing_taxa = sorted({taxon_id for taxon_id in normalized_taxa_ids if taxon_id not in taxa_by_id})
+    if missing_taxa:
+        raise BadRequest(
+            f"Some taxa identifiers are invalid or unknown: {', '.join(map(str, missing_taxa))}."
+        )
+
     current_user = getattr(g, "current_user", None)
     if current_user is None or not hasattr(current_user, "id_role"):
         raise Forbidden("Current user context is missing.")
@@ -195,6 +216,8 @@ def create_access_request():
     )
 
     db.session.add(access_request)
+    db.session.flush()
+    access_request.taxa = [taxa_by_id[taxon_id] for taxon_id in normalized_taxa_ids]
     db.session.commit()
 
     return access_request_schema.dump(access_request), 201
@@ -221,7 +244,13 @@ def update_access_request(scope, id_access_request):
     if forbidden_fields.intersection(payload.keys()):
         raise BadRequest("Field 'status' cannot be updated.")
 
-    allowed_fields = {"description", "expiration_date", "initialization_date", "id_validator"}
+    allowed_fields = {
+        "description",
+        "expiration_date",
+        "initialization_date",
+        "id_validator",
+        "taxa",
+    }
     if not allowed_fields.intersection(payload.keys()):
         raise BadRequest("No updatable fields were provided.")
 
@@ -274,6 +303,27 @@ def update_access_request(scope, id_access_request):
         if id_validator_value is not None and not isinstance(id_validator_value, int):
             raise BadRequest("id_validator must be an integer or null.")
         access_request.id_validator = id_validator_value
+
+    if "taxa" in payload:
+        taxa_value = payload.get("taxa")
+        if not isinstance(taxa_value, list):
+            raise BadRequest("taxa must be an array of integers.")
+        try:
+            normalized_taxa_ids = [int(taxon_id) for taxon_id in taxa_value]
+        except (TypeError, ValueError) as exc:
+            raise BadRequest("taxa must contain only integer values.") from exc
+        if not normalized_taxa_ids:
+            raise BadRequest("taxa must contain at least one value.")
+
+        taxa_query = select(Taxref).where(Taxref.cd_nom.in_(normalized_taxa_ids))
+        taxa_items = db.session.scalars(taxa_query).all()
+        taxa_by_id = {taxon.cd_nom: taxon for taxon in taxa_items}
+        missing_taxa = sorted({taxon_id for taxon_id in normalized_taxa_ids if taxon_id not in taxa_by_id})
+        if missing_taxa:
+            raise BadRequest(
+                f"Some taxa identifiers are invalid or unknown: {', '.join(map(str, missing_taxa))}."
+            )
+        access_request.taxa = [taxa_by_id[taxon_id] for taxon_id in normalized_taxa_ids]
 
     db.session.commit()
 

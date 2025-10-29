@@ -20,6 +20,23 @@
       font: inherit;
       padding: 0.5rem;
     }
+
+    .AccessRequestForm__selectedTaxa {
+      margin-top: 0.5rem;
+
+      ul {
+        margin: 0;
+        padding-left: 1rem;
+        display: grid;
+        gap: 0.25rem;
+      }
+
+      li {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    }
   }
 
   &__actions {

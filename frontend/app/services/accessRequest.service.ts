@@ -18,6 +18,7 @@ export interface AccessRequestPayload {
   initialization_date: string | null;
   expiration_date: string;
   id_validator?: number | null;
+  taxa: number[];
 }
 
 export interface ValidatedPayload {
@@ -45,7 +46,13 @@ export class AccessRequestService {
   }
 
   private _serializePayload(payload: AccessRequestPayload) {
-    return payload;
+    const normalizedTaxa = Array.from(
+      new Set((payload.taxa ?? []).map((taxonId) => Number(taxonId)))
+    ).filter((taxonId) => Number.isFinite(taxonId));
+    return {
+      ...payload,
+      taxa: normalizedTaxa,
+    };
   }
 
   updateAccessRequest(
