@@ -126,6 +126,7 @@
     <ngx-datatable-column
       name="Id"
       [prop]="PROP_ID_ACCESS_REQUEST"
+      [maxWidth]="50"
     >
       <ng-template
         ngx-datatable-cell-template
@@ -142,6 +143,7 @@
     <ngx-datatable-column
       name="Author"
       [prop]="PROP_AUTHOR"
+      [maxWidth]="150"
     >
       <ng-template
         ngx-datatable-cell-template
@@ -153,8 +155,9 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
-      name="Date d'initialisation"
+      name="Début"
       [prop]="PROP_INITIALIZATION_DATE"
+      [maxWidth]="100"
     >
       <ng-template
         ngx-datatable-cell-template
@@ -169,8 +172,9 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
-      name="Date d'expiration"
+      name="Fin"
       [prop]="PROP_EXPIRATION_DATE"
+      [maxWidth]="100"
     >
       <ng-template
         ngx-datatable-cell-template
@@ -187,6 +191,7 @@
     <ngx-datatable-column
       name="Portée"
       [prop]="PROP_SCOPE"
+      [maxWidth]="100"
     >
       <ng-template
         ngx-datatable-cell-template
@@ -198,8 +203,9 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
-      name="Données sensibles"
+      name="Sensibilité"
       [prop]="PROP_SENSITIVITY_FILTER"
+      [maxWidth]="100"
     >
       <ng-template
         ngx-datatable-cell-template
@@ -235,6 +241,7 @@
     <ngx-datatable-column
       name="Validator"
       [prop]="PROP_VALIDATOR"
+      [maxWidth]="150"
     >
       <ng-template
         ngx-datatable-cell-template
@@ -251,6 +258,7 @@
     <ngx-datatable-column
       name="Status"
       [prop]="PROP_STATUS"
+      [maxWidth]="100"
     >
       <ng-template
         ngx-datatable-cell-template

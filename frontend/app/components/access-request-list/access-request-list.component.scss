@@ -21,7 +21,31 @@
       column-gap: 0.5rem;
 
       &__Filter {
-        width: 200px;
+        min-width: 150px;
+
+
+        ::ng-deep .ng-select-container .ng-value-container {
+          display: flex;
+          flex-flow: row nowrap;
+          gap: 0.25rem;
+          overflow-x: auto;
+          overflow-y: hidden;
+          white-space: nowrap;
+          scrollbar-width: none; /* Firefox */
+        }
+        ::ng-deep .ng-select-container .ng-value-container::-webkit-scrollbar {
+          display: none; /* WebKit */
+        }
+
+        ::ng-deep .ng-select .ng-value {
+          display: inline-flex;
+          align-items: center;
+          margin-right: 0;
+        }
+
+        ::ng-deep .ng-select .ng-select-container .ng-value-container .ng-input {
+          flex: 0 0 auto;
+        }
       }
     }
   }
@@ -48,6 +72,12 @@
       ::ng-deep .datatable-body-cell,
       ::ng-deep .datatable-row-center .datatable-body-cell {
         white-space: nowrap;
+        display: flex;
+        align-items: center;
+      }
+      ::ng-deep .datatable-body-cell .datatable-body-cell-label {
+        display: block;
+        width: 100%;
       }
     }
   }
