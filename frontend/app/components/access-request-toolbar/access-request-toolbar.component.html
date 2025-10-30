@@ -7,7 +7,6 @@
       mat-stroked-button
       type="button"
       class="ValidationButton ValidationButton--accept"
-      [width]="50"
       [class.ValidationButton--active]="currentValidationState === 'true'"
       [disabled]="validationRequestPending"
       (click)="onValidationButtonClick('true')"

@@ -1,7 +1,6 @@
 .Layout {
   display: flex;
   flex-flow: column;
-  border: 2px solid cornflowerblue;
   height: 100%;
   .Header {
     display: flex;
@@ -26,9 +25,4 @@
       justify-self: end; // ou end selon besoin
     }
   }
-  // .Body {
-  //   border: 2px solid red;
-  //   overflow: auto;
-  // }
-
 }

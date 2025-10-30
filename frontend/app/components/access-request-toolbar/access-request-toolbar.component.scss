@@ -3,15 +3,14 @@
   flex-flow: row nowrap;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.1rem;
+  gap: 0.25rem;
 
   .ValidationButtons {
     display: inline-flex;
-    gap: 0.1rem;
+    gap: 0.25rem;
 
     .ValidationButton {
       background-color: white;
-      max-width: 50px !important;
       overflow: hidden;
       border-width: 1.5px;
       .mat-icon{
@@ -41,9 +40,5 @@
         }
       }
     }
-  }
-
-  &__button {
-    margin-left: 0.25rem;
   }
 }
