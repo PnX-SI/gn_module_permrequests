@@ -18,7 +18,7 @@ from utils_flask_sqla.response import json_resp
 from . import MODULE_CODE
 from .models import AccessRequest, SCOPE_USER, SCOPE_ORGANISM
 from .schemas import AccessRequestSchema
-from .status_utils import status_order_case, StatusKey, status_filter_expression
+from .status_utils import status_order_case, Status, status_filter_expression
 from pypnusershub.db.models import User
 from apptax.taxonomie.models import Taxref
 from sqlalchemy.orm import aliased
@@ -133,7 +133,7 @@ def list_access_requests(scope):
     status_filters = []
     for status_value in request.args.getlist("status"):
         try:
-            status_filters.append(StatusKey(status_value.upper()))
+            status_filters.append(Status(status_value.upper()))
         except ValueError as exc:
             raise BadRequest(f"Unsupported status value '{status_value}'.") from exc
 
@@ -228,12 +228,12 @@ def list_access_requests(scope):
     if status_filters:
         status_clauses = [
             status_filter_expression(
-                status_key,
+                status,
                 validated_column=AccessRequest.validated,
                 initialization_column=AccessRequest.initialization_date,
                 expiration_column=AccessRequest.expiration_date,
             )
-            for status_key in set(status_filters)
+            for status in set(status_filters)
         ]
         query = query.where(sa.or_(*status_clauses))
 

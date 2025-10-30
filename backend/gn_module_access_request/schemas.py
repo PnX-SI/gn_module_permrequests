@@ -6,7 +6,7 @@ from apptax.taxonomie.models import Taxref
 from geonature.utils.schema import CruvedSchemaMixin
 
 from .models import AccessRequest
-from .status_utils import compute_status_label
+from .status_utils import compute_status
 from . import MODULE_CODE
 
 
@@ -53,7 +53,7 @@ class AccessRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     cruved = fields.Method("get_cruved", dump_only=True)
 
     def get_status(self, obj):
-        return compute_status_label(
+        return compute_status(
             getattr(obj, "validated", None),
             getattr(obj, "initialization_date", None),
             getattr(obj, "expiration_date", None),

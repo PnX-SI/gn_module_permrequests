@@ -4,7 +4,7 @@
 >
   <div class="AccessRequestInfo__field">
     <gn-badge
-      [text]="accessRequest.status"
+      [text]="STATUS_LABELS[accessRequest.status]"
       [symbology]="{ color: STATUS_COLORS[accessRequest.status] }"
     ></gn-badge>
   </div>

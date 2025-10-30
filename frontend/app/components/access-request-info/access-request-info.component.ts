@@ -5,7 +5,7 @@ import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 
 import { AccessRequest, AccessRequestScope, DEFAULT_SCOPE } from '../../models/accessRequest';
 
-import { STATUS_COLORS } from '../../models/status'
+import { STATUS_COLORS, STATUS_LABELS } from '../../models/status'
 
 @Component({
   standalone: true,
@@ -16,6 +16,8 @@ import { STATUS_COLORS } from '../../models/status'
 })
 export class AccessRequestInfoComponent {
   readonly STATUS_COLORS = STATUS_COLORS;
+  readonly STATUS_LABELS = STATUS_LABELS;
+
   @Input()
   public accessRequest: AccessRequest | null = null;
 

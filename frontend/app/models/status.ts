@@ -1,9 +1,17 @@
 export enum STATUS {
-  REFUSED = "Refusée",
-  PENDING = "Non traitée",
-  EXPIRED = "Expirée",
-  UPCOMING = "A venir",
-  ACTIVE = "Active"
+  REFUSED = "REFUSED",
+  PENDING = "PENDING",
+  EXPIRED = "EXPIRED",
+  UPCOMING = "UPCOMING",
+  ACTIVE = "ACTIVE"
+}
+
+export const STATUS_LABELS: Record<STATUS, string> = {
+    [STATUS.REFUSED]: "Refusée",
+    [STATUS.PENDING]: "Non traitée",
+    [STATUS.EXPIRED]: "Expirée",
+    [STATUS.UPCOMING]: "A venir",
+    [STATUS.ACTIVE]: "Active",
 }
 
 export const STATUS_COLORS: Record<STATUS, string> = {

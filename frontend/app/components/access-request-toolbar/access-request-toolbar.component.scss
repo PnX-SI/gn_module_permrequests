@@ -10,29 +10,35 @@
     gap: 0.1rem;
 
     .ValidationButton {
-      opacity: 0.2;
+      background-color: white;
       max-width: 50px !important;
       overflow: hidden;
+      border-width: 1.5px;
       .mat-icon{
         margin: 0 !important;
       }
-
       &:hover {
-        opacity: 0.6;
+        opacity: 0.5;
       }
-      &--primary {
-        color: #fff;
-        border-color: green;
-        background-color: green;
+      &--accept {
+        --color-accept: #4caf50;
+        color: var(--color-accept);
+        border-color: var(--color-accept);
+        &.ValidationButton--active {
+          color: #fff;
+          background-color: var(--color-accept);
+          border-width: 2px;
+        }
       }
-      &--warn {
-        color: #fff;
-        border-color: red;
-        background-color: red;
-      }
-      &--active {
-        border-width: 2px;
-        opacity: 1;
+      &--decline {
+        --color-decline: #f44336;
+        color: var(--color-decline);
+        border-color: var(--color-decline);
+        &.ValidationButton--active {
+          color: #fff;
+          background-color: var(--color-decline);
+          border-width: 2px;
+        }
       }
     }
   }

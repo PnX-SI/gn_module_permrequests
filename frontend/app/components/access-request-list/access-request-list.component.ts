@@ -20,7 +20,7 @@ import { ROUTE_PATHS } from '../../gnModule.module';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { canCreateAccess } from '../../guards/can-create-access-request.guard';
-import { STATUS_COLORS } from '../../models/status';
+import { STATUS, STATUS_COLORS, STATUS_LABELS } from '../../models/status';
 
 type FiltersFormValue = {
   status: string[] | null;
@@ -57,6 +57,7 @@ export class AccessRequestListComponent implements OnInit, OnDestroy {
   readonly PROP_VALIDATOR = 'validator.nom_complet';
   readonly AccessRequestScope = AccessRequestScope;
   readonly STATUS_COLORS = STATUS_COLORS;
+  readonly STATUS_LABELS = STATUS_LABELS;
 
   pagination: PaginationItem = DEFAULT_PAGINATION;
   sort: SortItem = {
@@ -75,11 +76,11 @@ export class AccessRequestListComponent implements OnInit, OnDestroy {
   };
 
   statusOptions = [
-    { value: 'ACTIVE', label: 'Active' },
-    { value: 'UPCOMING', label: 'À venir' },
-    { value: 'EXPIRED', label: 'Expirée' },
-    { value: 'PENDING', label: 'Non traitée' },
-    { value: 'REFUSED', label: 'Refusée' },
+    { value: STATUS.ACTIVE, label: STATUS_LABELS[STATUS.ACTIVE]},
+    { value: STATUS.UPCOMING, label: STATUS_LABELS[STATUS.UPCOMING] },
+    { value: STATUS.EXPIRED, label: STATUS_LABELS[STATUS.EXPIRED]},
+    { value: STATUS.PENDING, label: STATUS_LABELS[STATUS.PENDING] },
+    { value: STATUS.REFUSED, label: STATUS_LABELS[STATUS.REFUSED]},
   ];
 
   scopeOptions = [

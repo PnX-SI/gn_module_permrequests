@@ -5,9 +5,8 @@
   >
     <button
       mat-stroked-button
-      color="primary"
       type="button"
-      class="ValidationButton ValidationButton--primary"
+      class="ValidationButton ValidationButton--accept"
       [width]="50"
       [class.ValidationButton--active]="currentValidationState === 'true'"
       [disabled]="validationRequestPending"
@@ -17,9 +16,8 @@
     </button>
     <button
       mat-stroked-button
-      color="warn"
       type="button"
-      class="ValidationButton ValidationButton--warn"
+      class="ValidationButton ValidationButton--decline"
       [class.ValidationButton--active]="currentValidationState === 'false'"
       [disabled]="validationRequestPending"
       (click)="onValidationButtonClick('false')"
