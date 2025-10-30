@@ -45,9 +45,25 @@
     <label for="taxa">Taxons</label>
     <ul
       id="taxa"
-      class="AccessRequestInfo__taxa"
+      class="AccessRequestInfo__list"
     >
       <li *ngFor="let taxon of accessRequest.taxa">{{ taxon.cd_nom }} : {{ taxon.lb_nom }}</li>
+    </ul>
+  </div>
+
+  <div
+    class="AccessRequestInfo__field"
+    *ngIf="accessRequest.areas?.length"
+  >
+    <label for="areas">Zones géographiques</label>
+    <ul
+      id="areas"
+      class="AccessRequestInfo__list"
+    >
+      <li *ngFor="let area of accessRequest.areas">
+        {{ area.area_name }}
+        <ng-container *ngIf="area.area_code">({{ area.area_code }})</ng-container>
+      </li>
     </ul>
   </div>
 

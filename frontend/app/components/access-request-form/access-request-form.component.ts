@@ -32,6 +32,7 @@ type AccessRequestFormValue = {
   acknowledgeTerms: boolean;
   taxa: any[];
   taxon_search: string | null;
+  areas: number[];
 };
 
 @Component({
@@ -46,6 +47,7 @@ export class AccessRequestFormComponent {
   readonly shouldDisplayAcknowledgement: boolean;
   readonly termsAcknowledgementText: string;
   readonly AccessRequestScope = AccessRequestScope;
+  selectedAreasDefaultItems: Array<{ id_area: number; area_name: string; displayName: string }> = [];
 
   constructor(
     private _accessRequestService: AccessRequestService,
@@ -95,6 +97,7 @@ export class AccessRequestFormComponent {
       acknowledgeTerms: [false, Validators.requiredTrue],
       taxa: [[], Validators.required],
       taxon_search: [''],
+      areas: [[], Validators.required],
     });
     return group;
   }
@@ -152,6 +155,7 @@ export class AccessRequestFormComponent {
       initialization_date: initializationValue,
       expiration_date: this._dateParser.format(rawValue.expiration_date) as unknown as string,
       taxa: this._extractTaxaIdentifiers(rawValue.taxa),
+      areas: this._extractAreaIdentifiers(rawValue.areas),
       scope: rawValue.scope,
       sensitivity_filter: !!rawValue.sensitivity_filter,
     };
@@ -217,11 +221,16 @@ export class AccessRequestFormComponent {
       sensitivity_filter,
       scope,
       taxa,
+      areas,
     } = this.form.value as AccessRequestFormValue;
     const selectedTaxa = this._extractTaxaIdentifiers(taxa);
     const accessRequestTaxa = (this.accessRequest.taxa || []).map((taxon) => taxon.cd_nom);
     const normalizedSelectedTaxa = [...selectedTaxa].sort((a, b) => a - b);
     const normalizedAccessRequestTaxa = [...accessRequestTaxa].sort((a, b) => a - b);
+    const selectedAreas = this._extractAreaIdentifiers(areas);
+    const accessRequestAreas = (this.accessRequest.areas || []).map((area) => area.id_area);
+    const normalizedSelectedAreas = [...selectedAreas].sort((a, b) => a - b);
+    const normalizedAccessRequestAreas = [...accessRequestAreas].sort((a, b) => a - b);
 
     const normalizedDescription = (description ?? '').trim();
     const accessRequestDescription = (this.accessRequest.description ?? '').trim();
@@ -251,6 +260,10 @@ export class AccessRequestFormComponent {
       normalizedSelectedTaxa.length === normalizedAccessRequestTaxa.length &&
       normalizedSelectedTaxa.every(
         (taxonId, index) => taxonId === normalizedAccessRequestTaxa[index]
+      ) &&
+      normalizedSelectedAreas.length === normalizedAccessRequestAreas.length &&
+      normalizedSelectedAreas.every(
+        (areaId, index) => areaId === normalizedAccessRequestAreas[index]
       )
     );
   }
@@ -281,7 +294,9 @@ export class AccessRequestFormComponent {
         acknowledgeTerms: this.shouldDisplayAcknowledgement ? false : true,
         taxa: [],
         taxon_search: '',
+        areas: [],
       });
+      this.selectedAreasDefaultItems = [];
     } else {
       const initializationStruct = accessRequest.initialization_date
         ? this._dateParser.parse(accessRequest.initialization_date)
@@ -303,7 +318,13 @@ export class AccessRequestFormComponent {
           displayName: taxon.lb_nom,
         })),
         taxon_search: '',
+        areas: (accessRequest.areas || []).map((area) => area.id_area),
       });
+      this.selectedAreasDefaultItems = (accessRequest.areas || []).map((area) => ({
+        id_area: area.id_area,
+        area_name: area.area_name,
+        displayName: area.area_name,
+      }));
     }
     this.form.markAsPristine();
     this.form.updateValueAndValidity({ emitEvent: false });
@@ -337,6 +358,10 @@ export class AccessRequestFormComponent {
     return this.form.get('taxon_search');
   }
 
+  get areasControl() {
+    return this.form.get('areas');
+  }
+
   private _extractTaxaIdentifiers(value: any): number[] {
     if (!Array.isArray(value)) {
       return [];
@@ -359,6 +384,30 @@ export class AccessRequestFormComponent {
         return null;
       })
       .filter((taxonId): taxonId is number => taxonId !== null);
+  }
+
+  private _extractAreaIdentifiers(value: any): number[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+    return value
+      .map((item) => {
+        if (item === null || item === undefined) {
+          return null;
+        }
+        if (typeof item === 'number') {
+          return item;
+        }
+        if (typeof item === 'string' && item.trim() !== '') {
+          const parsed = Number(item);
+          return Number.isNaN(parsed) ? null : parsed;
+        }
+        if (typeof item === 'object' && 'id_area' in item) {
+          return Number(item['id_area']);
+        }
+        return null;
+      })
+      .filter((areaId): areaId is number => areaId !== null);
   }
 
   onTaxonSelected(event: NgbTypeaheadSelectItemEvent<Taxon>): void {
@@ -401,6 +450,12 @@ export class AccessRequestFormComponent {
     this.taxaControl?.markAsDirty();
     this.taxaControl?.markAsTouched();
     this.taxaControl?.updateValueAndValidity({ emitEvent: false });
+  }
+
+  onAreasSelectionChange(selection: any[]): void {
+    this.selectedAreasDefaultItems = Array.isArray(selection) ? selection : [];
+    this.areasControl?.markAsDirty();
+    this.areasControl?.markAsTouched();
   }
 
   private _resetTaxonSearchControl(): void {

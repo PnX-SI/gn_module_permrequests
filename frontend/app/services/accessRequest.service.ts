@@ -21,6 +21,7 @@ export interface AccessRequestPayload {
   scope: AccessRequestScope;
   sensitivity_filter?: boolean;
   taxa: number[];
+  areas: number[];
 }
 
 export interface ValidatedPayload {
@@ -51,9 +52,13 @@ export class AccessRequestService {
     const normalizedTaxa = Array.from(
       new Set((payload.taxa ?? []).map((taxonId) => Number(taxonId)))
     ).filter((taxonId) => Number.isFinite(taxonId));
+    const normalizedAreas = Array.from(
+      new Set((payload.areas ?? []).map((areaId) => Number(areaId)))
+    ).filter((areaId) => Number.isFinite(areaId));
     return {
       ...payload,
       taxa: normalizedTaxa,
+      areas: normalizedAreas,
     };
   }
 

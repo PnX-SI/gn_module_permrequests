@@ -9,6 +9,7 @@ export interface AccessRequest {
   scope: AccessRequestScope | null;
   description: string | null;
   taxa: AccessRequestTaxon[];
+  areas: AccessRequestArea[];
   permissions: number[];
   status: string | null;
   author: AccessRequestRole | null;
@@ -23,6 +24,12 @@ export interface AccessRequestRole {
 export interface AccessRequestTaxon {
   cd_nom: number;
   lb_nom: string;
+}
+
+export interface AccessRequestArea {
+  id_area: number;
+  area_name: string;
+  area_code: string | null;
 }
 
 export enum AccessRequestScope {

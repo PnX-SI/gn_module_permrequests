@@ -53,6 +53,7 @@ export class AccessRequestListComponent implements OnInit, OnDestroy {
   readonly PROP_SCOPE = 'scope';
   readonly PROP_SENSITIVITY_FILTER = 'sensitivity_filter';
   readonly PROP_TAXA = 'taxa';
+  readonly PROP_AREAS = 'areas';
   readonly PROP_STATUS = 'status';
   readonly PROP_VALIDATOR = 'validator.nom_complet';
   readonly AccessRequestScope = AccessRequestScope;

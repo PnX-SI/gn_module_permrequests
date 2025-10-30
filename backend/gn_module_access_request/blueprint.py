@@ -21,6 +21,7 @@ from .schemas import AccessRequestSchema
 from .status_utils import status_order_case, Status, status_filter_expression
 from pypnusershub.db.models import User
 from apptax.taxonomie.models import Taxref
+from ref_geo.models import LAreas
 from sqlalchemy.orm import aliased
 
 
@@ -37,6 +38,7 @@ class SortOrder(Enum):
 
 
 ALLOWED_SCOPES = {SCOPE_USER, SCOPE_ORGANISM}
+ALLOWED_AREA_TYPE_CODES = {"COM", "DEP", "REG"}
 
 
 def _normalize_scope(value):
@@ -346,6 +348,7 @@ def create_access_request():
         "expiration_date",
         "initialization_date",
         "taxa",
+        "areas",
         "sensitivity_filter",
         "scope",
     }
@@ -408,6 +411,43 @@ def create_access_request():
         )
 
     taxa_list = [taxa_by_id[taxon_id] for taxon_id in normalized_taxa_ids]
+
+    raw_areas = payload.get("areas", [])
+    if raw_areas is None:
+        raw_areas = []
+    if not isinstance(raw_areas, list):
+        raise BadRequest("areas must be an array of integers.")
+    try:
+        normalized_area_ids = [int(area_id) for area_id in raw_areas]
+    except (TypeError, ValueError) as exc:
+        raise BadRequest("areas must contain only integer values.") from exc
+    areas_items = (
+        db.session.scalars(select(LAreas).where(LAreas.id_area.in_(normalized_area_ids))).all()
+        if normalized_area_ids
+        else []
+    )
+    areas_by_id = {area.id_area: area for area in areas_items}
+    missing_areas = sorted(
+        {area_id for area_id in normalized_area_ids if area_id not in areas_by_id}
+    )
+    if missing_areas:
+        raise BadRequest(
+            f"Some area identifiers are invalid or unknown: {', '.join(map(str, missing_areas))}."
+        )
+    invalid_area_types = sorted(
+        {
+            area_id
+            for area_id in normalized_area_ids
+            if area_id in areas_by_id
+            and getattr(areas_by_id[area_id].area_type, "type_code", None) not in ALLOWED_AREA_TYPE_CODES
+        }
+    )
+    if invalid_area_types:
+        allowed_codes = ", ".join(sorted(ALLOWED_AREA_TYPE_CODES))
+        raise BadRequest(
+            f"Areas must belong to one of the allowed types ({allowed_codes}). Invalid areas: {', '.join(map(str, invalid_area_types))}."
+        )
+    areas_list = [areas_by_id[area_id] for area_id in normalized_area_ids]
 
     sensitivity_filter_value = payload.get("sensitivity_filter", True)
     if not isinstance(sensitivity_filter_value, bool):
@@ -474,6 +514,7 @@ def create_access_request():
         validated=None,
     )
     permission.taxons_filter = list(taxa_list)
+    permission.areas_filter = list(areas_list)
 
     access_request.permission = permission
 
@@ -513,6 +554,7 @@ def update_access_request(scope, id_access_request):
         "initialization_date",
         "id_validator",
         "taxa",
+        "areas",
         "sensitivity_filter",
         "scope",
     }
@@ -626,6 +668,50 @@ def update_access_request(scope, id_access_request):
         if access_request.permission is None:
             raise InternalServerError("No permission is linked to this access request.")
         access_request.taxa = [taxa_by_id[taxon_id] for taxon_id in normalized_taxa_ids]
+
+    if "areas" in payload:
+        areas_value = payload.get("areas")
+        if areas_value is None:
+            normalized_area_ids = []
+        elif not isinstance(areas_value, list):
+            raise BadRequest("areas must be an array of integers.")
+        else:
+            try:
+                normalized_area_ids = [int(area_id) for area_id in areas_value]
+            except (TypeError, ValueError) as exc:
+                raise BadRequest("areas must contain only integer values.") from exc
+        areas_items = (
+            db.session.scalars(select(LAreas).where(LAreas.id_area.in_(normalized_area_ids))).all()
+            if normalized_area_ids
+            else []
+        )
+        areas_by_id = {area.id_area: area for area in areas_items}
+        missing_area_ids = sorted(
+            {area_id for area_id in normalized_area_ids if area_id not in areas_by_id}
+        )
+        if missing_area_ids:
+            raise BadRequest(
+                f"Some area identifiers are invalid or unknown: {', '.join(map(str, missing_area_ids))}."
+            )
+        invalid_area_types = sorted(
+            {
+                area_id
+                for area_id in normalized_area_ids
+                if area_id in areas_by_id
+                and getattr(areas_by_id[area_id].area_type, "type_code", None)
+                not in ALLOWED_AREA_TYPE_CODES
+            }
+        )
+        if invalid_area_types:
+            allowed_codes = ", ".join(sorted(ALLOWED_AREA_TYPE_CODES))
+            raise BadRequest(
+                f"Areas must belong to one of the allowed types ({allowed_codes}). Invalid areas: {', '.join(map(str, invalid_area_types))}."
+            )
+        if access_request.permission is None:
+            raise InternalServerError("No permission is linked to this access request.")
+        access_request.permission.areas_filter = [
+            areas_by_id[area_id] for area_id in normalized_area_ids
+        ]
 
     db.session.commit()
 

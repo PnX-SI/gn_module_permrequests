@@ -99,3 +99,18 @@
     }
   }
 }
+
+.Areas {
+  &List {
+    margin: 0;
+    padding-left: 1.2rem;
+    list-style: disc;
+
+    &--single {
+      list-style: none;
+      li {
+        list-style: none;
+      }
+    }
+  }
+}

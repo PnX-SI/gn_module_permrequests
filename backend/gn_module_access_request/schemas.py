@@ -2,6 +2,7 @@ from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
 from pypnusershub.db.models import User
 from apptax.taxonomie.models import Taxref
+from ref_geo.models import LAreas
 
 from geonature.utils.schema import CruvedSchemaMixin
 
@@ -28,6 +29,17 @@ class AccessRequestTaxonSchema(SQLAlchemySchema):
     lb_nom = auto_field()
 
 
+class AccessRequestAreaSchema(SQLAlchemySchema):
+    class Meta:
+        model = LAreas
+        load_instance = False
+        include_fk = True
+
+    id_area = auto_field()
+    area_name = auto_field()
+    area_code = auto_field()
+
+
 class AccessRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     class Meta:
         model = AccessRequest
@@ -47,6 +59,12 @@ class AccessRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     scope = fields.Method("get_scope", dump_only=True)
     description = auto_field()
     taxa = fields.Nested(AccessRequestTaxonSchema, many=True, dump_only=True)
+    areas = fields.Nested(
+        AccessRequestAreaSchema,
+        many=True,
+        attribute="permission.areas_filter",
+        dump_only=True,
+    )
     author = fields.Nested(AccessRequestUserSchema, dump_only=True)
     validator = fields.Nested(AccessRequestUserSchema, dump_only=True)
     status = fields.Method("get_status", dump_only=True)

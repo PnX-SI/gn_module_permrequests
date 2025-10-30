@@ -60,6 +60,17 @@
     </div>
 
     <div class="Field">
+      <label class="Field__label" for="areas">Zones géographiques</label>
+      <pnx-areas
+        id="areas"
+        [typeCodes]="['COM', 'DEP', 'REG']"
+        [parentFormControl]="areasControl"
+        [defaultItems]="selectedAreasDefaultItems"
+        (onSelectionChange)="onAreasSelectionChange($event)"
+      ></pnx-areas>
+    </div>
+
+    <div class="Field">
       <label class="Field__label">
         <input
           type="checkbox"

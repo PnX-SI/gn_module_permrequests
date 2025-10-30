@@ -257,6 +257,28 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
+      name="Zone(s) géographiques"
+      [prop]="PROP_AREAS"
+      [sortable]="false"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-accessRequest="row"
+      >
+        <div class="Areas">
+          <ul
+            class="AreasList"
+            [class.AreasList--single]="accessRequest.areas?.length === 1"
+          >
+            <li *ngFor="let area of accessRequest.areas || []">
+              {{ area.area_name }}
+              <ng-container *ngIf="area.area_code">({{ area.area_code }})</ng-container>
+            </li>
+          </ul>
+        </div>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
       name="Validator"
       [prop]="PROP_VALIDATOR"
       [maxWidth]="150"
