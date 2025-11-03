@@ -19,7 +19,6 @@
 
         &__Filter {
           min-width: 200px;
-
           ::ng-deep .ng-select-container .ng-value-container {
             display: flex;
             flex-flow: row nowrap;
@@ -28,9 +27,15 @@
             overflow-y: hidden;
             white-space: nowrap;
             scrollbar-width: none; /* Firefox */
+            padding-top: 0 !important;
           }
           ::ng-deep .ng-select-container .ng-value-container::-webkit-scrollbar {
             display: none; /* WebKit */
+          }
+
+          ::ng-deep .ng-select-container .ng-value-container .ng-placeholder{
+            top: auto;
+            padding-bottom: 0;
           }
 
           ::ng-deep .ng-select .ng-value {
@@ -38,7 +43,9 @@
             align-items: center;
             margin-right: 0;
           }
-
+          ::ng-deep .ng-select-container .ng-value-container .ng-value {
+            margin-bottom: 0 !important;
+          }
           ::ng-deep .ng-select .ng-select-container .ng-value-container .ng-input {
             flex: 0 0 auto;
           }
