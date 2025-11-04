@@ -8,10 +8,11 @@ from sqlalchemy import desc, asc, select, case
 import sqlalchemy as sa
 from werkzeug.exceptions import BadRequest, NotFound, Forbidden, InternalServerError
 
+from geonature.core.gn_commons.models.base import TModules
 from geonature.core.gn_permissions import decorators as permissions
 from geonature.core.gn_permissions.decorators import login_required
 from geonature.core.gn_permissions.models import Permission, PermAction, PermObject
-from geonature.core.gn_commons.models.base import TModules
+from geonature.core.notifications.utils import dispatch_notifications
 from geonature.utils.env import db
 from utils_flask_sqla.response import json_resp
 
@@ -19,6 +20,7 @@ from . import MODULE_CODE
 from .models import AccessRequest, SCOPE_USER, SCOPE_ORGANISM
 from .schemas import AccessRequestSchema
 from .status_utils import status_order_case, Status, status_filter_expression
+from .notifications_utils import AccessRequestCodes
 from pypnusershub.db.models import User
 from apptax.taxonomie.models import Taxref
 from ref_geo.models import LAreas
@@ -92,6 +94,50 @@ def _normalize_validated_filter(value):
     if lowered in {"none", "null"}:
         return "none"
     raise BadRequest("Parameter 'validated' must be true, false or none.")
+
+
+def _get_access_request_module_id():
+    module_id = db.session.scalar(
+        select(TModules.id_module).where(TModules.module_code == MODULE_CODE)
+    )
+    if module_id is None:
+        raise InternalServerError(
+            "Access request module is missing from permissions configuration."
+        )
+    return module_id
+
+
+def _get_validation_action_id():
+    action_id = db.session.scalar(
+        select(PermAction.id_action).where(PermAction.code_action == "V")
+    )
+    if action_id is None:
+        raise InternalServerError("Validation action (code 'V') not found in configuration.")
+    return action_id
+
+
+def _deduplicate_role_ids(role_ids):
+    return [role_id for role_id in dict.fromkeys(role_ids) if role_id is not None]
+
+
+def _get_validator_role_ids():
+    module_id = _get_access_request_module_id()
+    validation_action_id = _get_validation_action_id()
+    role_query = (
+        select(Permission.id_role)
+        .where(
+            Permission.id_module == module_id,
+            Permission.id_action == validation_action_id,
+            Permission.active_filter(),
+        )
+        .distinct()
+    )
+    role_ids = db.session.scalars(role_query).all()
+    return _deduplicate_role_ids(role_ids)
+
+
+def _build_role_recipient_ids(*role_ids):
+    return _deduplicate_role_ids(role_ids)
 
 
 ## ########################################################################
@@ -527,6 +573,19 @@ def create_access_request():
 
     db.session.commit()
 
+    notifications_role_ids = _get_validator_role_ids()
+    notifications_role_ids.append(g.current_user.id_role)
+    if notifications_role_ids:
+        dispatch_notifications(
+            code_categories=[AccessRequestCodes.ACCESS_REQUEST_NEW],
+            id_roles=notifications_role_ids,
+            context={
+                "access_request": access_request,
+                "user": g.current_user,
+            },
+        )
+    db.session.commit()
+
     return access_request_schema.dump(access_request), 201
 
 
@@ -715,6 +774,21 @@ def update_access_request(scope, id_access_request):
 
     db.session.commit()
 
+    notification_role_ids = _build_role_recipient_ids(
+        access_request.id_author,
+        access_request.id_validator,
+    )
+    if notification_role_ids:
+        dispatch_notifications(
+            code_categories=[AccessRequestCodes.ACCESS_REQUEST_MODIFICATION],
+            id_roles=notification_role_ids,
+            context={
+                "access_request": access_request,
+                "user": g.current_user,
+            },
+        )
+    db.session.commit()
+
     return access_request_schema.dump(access_request)
 
 
@@ -736,7 +810,23 @@ def delete_access_request(scope, id_access_request):
     if access_request is None:
         raise NotFound(f"Access request {id_access_request} not found")
 
+    notification_role_ids = _build_role_recipient_ids(
+        access_request.id_author,
+        access_request.id_validator,
+    )
+
     db.session.delete(access_request)
+    db.session.commit()
+
+    if notification_role_ids:
+        dispatch_notifications(
+            code_categories=[AccessRequestCodes.ACCESS_REQUEST_DELETE],
+            id_roles=notification_role_ids,
+            context={
+                "access_request": access_request,
+                "user": g.current_user,
+            },
+        )
     db.session.commit()
 
     return None, 204
@@ -787,6 +877,21 @@ def update_validated(scope, id_access_request):
     access_request.validated = validated_value
     access_request.id_validator = current_user.id_role
 
+    db.session.commit()
+
+    notification_role_ids = _build_role_recipient_ids(
+        access_request.id_author,
+        access_request.id_validator,
+    )
+
+    dispatch_notifications(
+        code_categories=[AccessRequestCodes.ACCESS_REQUEST_VALIDATION_UPDATE],
+        id_roles=notification_role_ids,
+        context={
+            "access_request": access_request,
+            "user": g.current_user,
+        },
+    )
     db.session.commit()
 
     return access_request_schema.dump(access_request)
