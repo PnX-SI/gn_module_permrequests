@@ -846,7 +846,7 @@ def update_validated(scope, id_access_request):
     if not isinstance(payload, dict):
         raise BadRequest("A JSON object is required.")
 
-    allowed_fields = {"validated"}
+    allowed_fields = {"validated", "validation_description"}
     unexpected_fields = set(payload.keys()) - allowed_fields
     if unexpected_fields:
         raise BadRequest(f"Unsupported fields provided: {', '.join(sorted(unexpected_fields))}.")
@@ -857,6 +857,17 @@ def update_validated(scope, id_access_request):
     validated_value = payload.get("validated")
     if validated_value not in (True, False, None):
         raise BadRequest("validated must be true, false or null.")
+    description_provided = "validation_description" in payload
+    validation_description = None
+    if description_provided:
+        raw_description = payload.get("validation_description")
+        if raw_description is not None and not isinstance(raw_description, str):
+            raise BadRequest("validation_description must be a string or null.")
+        if isinstance(raw_description, str):
+            trimmed = raw_description.strip()
+            validation_description = trimmed or None
+    else:
+        validation_description = access_request.validation_description
 
     query = AccessRequest.filter_by_scope(scope)
     access_request = (
@@ -876,6 +887,10 @@ def update_validated(scope, id_access_request):
 
     access_request.validated = validated_value
     access_request.id_validator = current_user.id_role
+    if validated_value is None:
+        access_request.validation_description = None
+    else:
+        access_request.validation_description = validation_description
 
     db.session.commit()
 

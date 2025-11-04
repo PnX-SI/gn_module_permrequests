@@ -8,6 +8,7 @@ export interface AccessRequest {
   sensitivity_filter: boolean;
   scope: AccessRequestScope | null;
   description: string | null;
+  validation_description: string | null;
   taxa: AccessRequestTaxon[];
   areas: AccessRequestArea[];
   permissions: number[];

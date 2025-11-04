@@ -44,6 +44,7 @@ class AccessRequest(DB.Model):
         DB.ForeignKey("utilisateurs.t_roles.id_role"),
         nullable=True,
     )
+    validation_description = DB.Column(DB.Text, nullable=True)
     description = DB.Column(DB.Text, nullable=True)
     id_permission = DB.Column(
         DB.Integer,

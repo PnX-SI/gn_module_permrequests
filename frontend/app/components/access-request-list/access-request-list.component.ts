@@ -56,6 +56,7 @@ export class AccessRequestListComponent implements OnInit, OnDestroy {
   readonly PROP_AREAS = 'areas';
   readonly PROP_STATUS = 'status';
   readonly PROP_VALIDATOR = 'validator.nom_complet';
+  readonly PROP_VALIDATION_DESCRIPTION = 'validation_description';
   readonly AccessRequestScope = AccessRequestScope;
   readonly STATUS_COLORS = STATUS_COLORS;
   readonly STATUS_LABELS = STATUS_LABELS;

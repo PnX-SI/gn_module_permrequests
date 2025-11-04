@@ -296,6 +296,23 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
+      name="Commentaire validation"
+      [prop]="PROP_VALIDATION_DESCRIPTION"
+      [sortable]="false"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-accessRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="
+            cellDefaultTemplate;
+            context: { value: accessRequest.validation_description || '-' }
+          "
+        ></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
       name="Status"
       [prop]="PROP_STATUS"
       [maxWidth]="120"

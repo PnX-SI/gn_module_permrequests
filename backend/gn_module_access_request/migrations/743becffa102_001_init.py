@@ -85,17 +85,15 @@ NOTIFICATION_CATEGORY_DEFINITIONS = [
             "<p>Bonjour,</p>"
             "<p>{{ user.nom_complet }} a modifié le statut de la demande d'accès "
             "n°{{ access_request.id_access_request }} a été mis à jour.</p>"
-            "{% if status_label is defined %}"
-            "<p>Nouveau statut : <strong>{{ status_label }}</strong></p>"
-            "{% elif status_code is defined %}"
-            "<p>Nouveau statut : <strong>{{ status_code }}</strong></p>"
+            "{% if permission.validation_description is defined %}"
+            "{{ permission.validation_description }}"
             "{% endif %}"
             "<p>Vous recevez cet email automatiquement via le service de notification de GeoNature.</p>"
         ),
         "db_content": (
             "{{ user.nom_complet }} a mis à jour pour la demande d'accès n°{{ access_request.id_access_request }}"
-            "{% if status_label is defined %} ({{ status_label }})"
-            "{% elif status_code is defined %} ({{ status_code }})"
+            "{% if permission.validation_description is defined %}"
+            "{{ permission.validation_description }}"
             "{% endif %}"
         ),
     },
@@ -142,6 +140,7 @@ def upgrade():
             ),
             nullable=True,
         ),
+        sa.Column("validation_description", sa.Text(), nullable=True),
         sa.Column("description", sa.Text(), nullable=True),
         sa.Column(
             "id_permission",

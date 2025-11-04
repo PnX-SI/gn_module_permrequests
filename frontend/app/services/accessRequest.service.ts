@@ -26,6 +26,7 @@ export interface AccessRequestPayload {
 
 export interface ValidatedPayload {
   validated: boolean | null;
+  validation_description?: string | null;
 }
 
 @Injectable()

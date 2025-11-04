@@ -58,6 +58,7 @@ class AccessRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     sensitivity_filter = fields.Boolean(attribute="sensitivity_filter", dump_only=True)
     scope = fields.Method("get_scope", dump_only=True)
     description = auto_field()
+    validation_description = auto_field(dump_only=True)
     taxa = fields.Nested(AccessRequestTaxonSchema, many=True, dump_only=True)
     areas = fields.Nested(
         AccessRequestAreaSchema,

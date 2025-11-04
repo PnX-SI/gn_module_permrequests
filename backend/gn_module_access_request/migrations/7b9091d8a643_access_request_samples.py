@@ -426,11 +426,13 @@ def _create_access_request_permissions(
                 INSERT INTO {SCHEMA_NAME}.{TABLE_NAME} (
                     id_author,
                     id_validator,
+                    validation_description,
                     description,
                     id_permission
                 ) VALUES (
                     :id_author,
                     :id_validator,
+                    :validation_description,
                     :description,
                     :id_permission
                 )
@@ -439,6 +441,11 @@ def _create_access_request_permissions(
             {
                 "id_author": author_id,
                 "id_validator": validator,
+                "validation_description": (
+                    f"Commentaire de validation #{index + 1}"
+                    if validator is not None and random.random() < 0.5
+                    else None
+                ),
                 "description": f"{ACCESS_REQUEST_DESCRIPTION_PREFIX}{index + 1}",
                 "id_permission": permission_id,
             },
@@ -652,6 +659,17 @@ def downgrade():
     conn = op.get_bind()
     _cleanup_access_requests(conn)
     role_ids = _fetch_sample_role_ids(conn)
+    sample_role_values = [role_id for role_id in role_ids.values() if role_id is not None]
+    if sample_role_values:
+        conn.execute(
+            sa.text(
+                """
+                DELETE FROM gn_notifications.t_notifications
+                WHERE id_role = ANY(:role_ids)
+                """
+            ),
+            {"role_ids": sample_role_values},
+        )
     _cleanup_module_permissions(conn, role_ids)
     _delete_sample_roles(conn, role_ids)
     _delete_sample_organism(conn)

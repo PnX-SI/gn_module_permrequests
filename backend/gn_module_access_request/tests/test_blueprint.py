@@ -79,6 +79,7 @@ def create_access_request(
     taxa_ids: list[int] | None = None,
     areas_ids: list[int] | None = None,
     id_validator: int | None = None,
+    validation_description: str | None = None,
 ):
     module_id, action_id, object_id = _permission_refs()
     if initialization is None:
@@ -114,6 +115,7 @@ def create_access_request(
             id_author=author.id_role,
             id_validator=id_validator,
             description=description,
+            validation_description=validation_description,
         )
         access_request.permission = permission
         db.session.add(access_request)
@@ -295,3 +297,30 @@ def test_update_validated_sets_validator(client, users, taxon_ids):
     reloaded = db.session.get(AccessRequest, created.id_access_request)
     assert reloaded.validated is True
     assert reloaded.id_validator == users["admin_user"].id_role
+    assert reloaded.validation_description is None
+
+
+def test_update_validated_can_store_description(client, users, taxon_ids):
+    created = create_access_request(users["admin_user"], description="Needs message", taxa_ids=taxon_ids[:2])
+
+    with logged_user(client, users["admin_user"]):
+        response = client.patch(
+            f"/access_request/{created.id_access_request}/validated",
+            json={"validated": False, "validation_description": "Refus motivé"},
+        )
+
+    assert response.status_code == 200
+    reloaded = db.session.get(AccessRequest, created.id_access_request)
+    assert reloaded.validated is False
+    assert reloaded.validation_description == "Refus motivé"
+
+    with logged_user(client, users["admin_user"]):
+        response = client.patch(
+            f"/access_request/{created.id_access_request}/validated",
+            json={"validated": None},
+        )
+
+    assert response.status_code == 200
+    reloaded = db.session.get(AccessRequest, created.id_access_request)
+    assert reloaded.validated is None
+    assert reloaded.validation_description is None

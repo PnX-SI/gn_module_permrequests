@@ -11,6 +11,10 @@ import { ModuleService } from '@geonature/services/module.service';
 
 import { AccessRequest } from '../../models/accessRequest';
 import { AccessRequestService } from '../../services/accessRequest.service';
+import {
+  ValidationDescriptionDialogComponent,
+  ValidationDescriptionDialogData,
+} from './validation-description-dialog.component';
 import { ROUTE_PATHS } from '../../gnModule.module';
 @Component({
   standalone: true,
@@ -100,17 +104,42 @@ export class AccessRequestToolbarComponent {
       return;
     }
 
-    let nextValidatedValue: boolean | null;
-    if (this.currentValidationState === rawValue) {
-      nextValidatedValue = null;
-    } else {
-      nextValidatedValue = rawValue === 'true';
+    const nextValidatedValue =
+      this.currentValidationState === rawValue ? null : rawValue === 'true';
+
+    const dialogRef = this._dialog.open<
+      ValidationDescriptionDialogComponent,
+      ValidationDescriptionDialogData,
+      string | null
+    >(ValidationDescriptionDialogComponent, {
+      width: '420px',
+      data: {
+        validated: nextValidatedValue,
+        validation_description: this.accessRequest.validation_description ?? null,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === undefined) {
+        return;
+      }
+      this._submitValidationRequest(nextValidatedValue, result ?? null);
+    });
+  }
+
+  private _submitValidationRequest(
+    validated: boolean | null,
+    validation_description: string | null
+  ): void {
+    if (!this.accessRequest) {
+      return;
     }
-
     this.validationRequestPending = true;
-
     this._accessRequestService
-      .updateValidated(this.accessRequest.id_access_request, { validated: nextValidatedValue })
+      .updateValidated(this.accessRequest.id_access_request, {
+        validated,
+        validation_description,
+      })
       .subscribe({
         next: (updatedAccessRequest: AccessRequest) => {
           this.accessRequest = updatedAccessRequest;

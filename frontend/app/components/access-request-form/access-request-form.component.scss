@@ -56,6 +56,11 @@
           font-weight: normal;
         }
       }
+
+      &__error {
+        color: #d32f2f;
+        font-size: 0.85rem;
+      }
     }
   }
 
@@ -68,8 +73,5 @@
     border-top: 1px solid rgba(0,0,0,.125);
   }
 
-  &__error {
-    color: #d32f2f;
-    font-size: 0.85rem;
-  }
+
 }

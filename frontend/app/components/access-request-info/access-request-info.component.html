@@ -13,6 +13,22 @@
     <div id="author">{{ accessRequest.author?.nom_complet }}</div>
   </div>
 
+  <div
+    class="AccessRequestInfo__field"
+    *ngIf="accessRequest.validator"
+  >
+    <label for="validator">Validateur</label>
+    <div id="validator">{{ accessRequest.validator?.nom_complet }}</div>
+  </div>
+
+  <div
+    class="AccessRequestInfo__field"
+    *ngIf="accessRequest.validation_description"
+  >
+    <label for="validation_description">Commentaire de validation</label>
+    <div id="validation_description">{{ accessRequest.validation_description }}</div>
+  </div>
+
   <div class="AccessRequestInfo__field">
     <label for="description">Description</label>
     <span
