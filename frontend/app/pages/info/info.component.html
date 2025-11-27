@@ -1,0 +1,9 @@
+<ng-container *ngIf="permissionRequest">
+  <permission-request-layout
+    [permissionRequest]="permissionRequest"
+    [withInfo]="false"
+    (updated)="onPermissionRequestUpdated($event)"
+  >
+    <permission-request-info info [permissionRequest]="permissionRequest" />
+  </permission-request-layout>
+</ng-container>

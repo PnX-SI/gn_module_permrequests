@@ -1,0 +1,60 @@
+<div class="PermissionRequestToolbar">
+  <div
+    class="ValidationButtons"
+    *ngIf="withValidate && permissionRequest?.cruved?.V"
+  >
+    <button
+      mat-stroked-button
+      type="button"
+      class="ValidationButton ValidationButton--accept"
+      [class.ValidationButton--active]="currentValidationState === 'true'"
+      [disabled]="validationRequestPending"
+      (click)="onValidationButtonClick('true')"
+    >
+      <mat-icon>check-circle</mat-icon>
+    </button>
+    <button
+      mat-stroked-button
+      type="button"
+      class="ValidationButton ValidationButton--decline"
+      [class.ValidationButton--active]="currentValidationState === 'false'"
+      [disabled]="validationRequestPending"
+      (click)="onValidationButtonClick('false')"
+    >
+      <mat-icon>cancel</mat-icon>
+    </button>
+  </div>
+  <button
+    *ngIf="permissionRequest && withEdit"
+    [disabled]="!permissionRequest.cruved.U"
+    class="Toolbar__button"
+    color="primary"
+    mat-icon-button
+    matTooltip="Editer"
+    [routerLink]="[editRouterLink]"
+  >
+    <mat-icon>edit</mat-icon>
+  </button>
+  <button
+    *ngIf="permissionRequest && withInfo"
+    [disabled]="!permissionRequest.cruved.R"
+    class="Toolbar__button"
+    color="primary"
+    mat-icon-button
+    matTooltip="Voir"
+    [routerLink]="[infoRouterLink]"
+  >
+    <mat-icon>info</mat-icon>
+  </button>
+  <button
+    *ngIf="permissionRequest && withDelete"
+    [disabled]="!permissionRequest.cruved.D"
+    color="warn"
+    class="Toolbar__button"
+    mat-icon-button
+    matTooltip="Supprimer"
+    (click)="deletePermissionRequest()"
+  >
+    <mat-icon>delete</mat-icon>
+  </button>
+</div>

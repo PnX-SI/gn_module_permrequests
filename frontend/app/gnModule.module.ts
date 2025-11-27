@@ -5,49 +5,49 @@ import { HttpClientXsrfModule } from '@angular/common/http';
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { AccessRequestService } from './services/accessRequest.service';
+import { PermissionRequestService } from './services/permissionRequest.service';
 import { ListPageComponent } from './pages/list/list.component';
-import { AccessRequestInfoPageComponent } from './pages/access-request-info/access-request-info.component';
-import { AccessRequestNewPageComponent } from './pages/access-request-new/access-request-new.component';
-import { AccessRequestEditPageComponent } from './pages/access-request-edit/access-request-edit.component';
-import { AccessRequestResolver } from './resolvers/access-request.resolver';
-import { canEditAccessRequestGuard } from './guards/can-edit-access-request.guard';
-import { canCreateAccessRequestGuard } from './guards/can-create-access-request.guard';
-import { canViewAccessRequestGuard } from './guards/can-view-access-request.guard';
+import { InfoPageComponent } from './pages/info/info.component';
+import { NewPageComponent } from './pages/new/new.component';
+import { EditPageComponent } from './pages/edit/edit.component';
+import { PermissionRequestResolver } from './resolvers/permission-request.resolver';
+import { canEditGuard } from './guards/can-edit.guard';
+import { canCreateGuard } from './guards/can-create.guard';
+import { canViewGuard } from './guards/can-view.guard';
 
 export const ROUTE_PATHS = {
-  accessRequests: '',
-  accessRequest: (id_access_request: number | string) => `${id_access_request}`,
-  accessRequestEdit: (id_access_request: number | string) => `${id_access_request}/edit`,
-  newAccessRequest: 'new',
+  permissionRequests: '',
+  permissionRequest: (id_permission_request: number | string) => `${id_permission_request}`,
+  permissionRequestEdit: (id_permission_request: number | string) => `${id_permission_request}/edit`,
+  newPermissionRequest: 'new',
 };
 
 export const routes: Routes = [
   {
-    path: ROUTE_PATHS.accessRequests,
+    path: ROUTE_PATHS.permissionRequests,
     component: ListPageComponent,
   },
   {
-    path: ROUTE_PATHS.newAccessRequest,
-    component: AccessRequestNewPageComponent,
-    canActivate: [canCreateAccessRequestGuard],
+    path: ROUTE_PATHS.newPermissionRequest,
+    component: NewPageComponent,
+    canActivate: [canCreateGuard],
   },
   {
-    path: ROUTE_PATHS.accessRequest(':id_access_request'),
-    component: AccessRequestInfoPageComponent,
+    path: ROUTE_PATHS.permissionRequest(':id_permission_request'),
+    component: InfoPageComponent,
     resolve: {
-      accessRequest: AccessRequestResolver,
+      permissionRequest: PermissionRequestResolver,
     },
-    canActivate: [canViewAccessRequestGuard],
+    canActivate: [canViewGuard],
     runGuardsAndResolvers: 'paramsOrQueryParamsChange',
   },
   {
-    path: ROUTE_PATHS.accessRequestEdit(':id_access_request'),
-    component: AccessRequestEditPageComponent,
+    path: ROUTE_PATHS.permissionRequestEdit(':id_permission_request'),
+    component: EditPageComponent,
     resolve: {
-      accessRequest: AccessRequestResolver,
+      permissionRequest: PermissionRequestResolver,
     },
-    canActivate: [canEditAccessRequestGuard],
+    canActivate: [canEditGuard],
     runGuardsAndResolvers: 'paramsOrQueryParamsChange',
   },
 ];
@@ -63,12 +63,12 @@ export const routes: Routes = [
     NgbModule,
     RouterModule.forChild(routes),
     // Module pages
-    AccessRequestEditPageComponent,
-    AccessRequestInfoPageComponent,
-    AccessRequestNewPageComponent,
+    EditPageComponent,
+    InfoPageComponent,
+    NewPageComponent,
     ListPageComponent,
   ],
-  providers: [AccessRequestService, AccessRequestResolver],
+  providers: [PermissionRequestService, PermissionRequestResolver],
   bootstrap: [],
 })
 export class GeonatureModule {}

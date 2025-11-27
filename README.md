@@ -1,6 +1,6 @@
-# Module Request Access
+# Module Request Permission
 
-- [Module Request Access](#module-request-access)
+- [Module Request Permission](#module-request-permission)
   - [Présentation](#présentation)
   - [Installation du module](#installation-du-module)
     - [Mise à jour du module](#mise-à-jour-du-module)
@@ -22,7 +22,7 @@ Pour chaque sous-module, correspondant à un protocole spécifique de suivi, il 
 
 ## Présentation
 
-Ce module permet d'ajouter des fonctionnalités de demandes d'accès à des données au sein de l'application GeoNature.
+Ce module permet d'ajouter des fonctionnalités de demandes de permission à des données au sein de l'application GeoNature.
 
 Ce module s'articule autour du concept de demande de permission.
 
@@ -31,11 +31,11 @@ Ce module s'articule autour du concept de demande de permission.
 
 
 
-Un utilisateur pourra via ce module effectuer une demande d'accès à des données. Sa demande sera caractérisée par 3 types d'informations:
+Un utilisateur pourra via ce module effectuer une demande de permission à des données. Sa demande sera caractérisée par 3 types d'informations:
 
-- un ou plusieurs groupe taxonomique auxquels il souhaite avoir accès
-- un périmètre géographique recouvrant les données auxquelles il souhaite avoir accès
-- une plage temporelle représentant la période d'accès aux données
+- un ou plusieurs groupe taxonomique auxquels il souhaite avoir la permission d'accéder
+- un périmètre géographique recouvrant les données auxquelles il souhaite avoir la permission d'accéder
+- une plage temporelle représentant la période de permission aux données
 
 Si la demande est acceptée, l'utilisateur pourra accéder à toutes les données taxonmiques données dans le périmètre géogrpahique fourni, durant la plage temporelle demandée.
 
@@ -52,7 +52,7 @@ Un validateur pourra accéder aux différentes demandes en cours, et traiter les
 
 ```bash
 cd
-wget https://github.com/PnX-SI/gn_module_access_request/archive/X.Y.Z.zip
+wget https://github.com/PnX-SI/gn_module_permission_request/archive/X.Y.Z.zip
 unzip X.Y.Z.zip
 rm X.Y.Z.zip
 ```
@@ -60,14 +60,14 @@ rm X.Y.Z.zip
 - Renommez le répertoire du module
 
 ```bash
-mv ~/gn_module_access_request-X.Y.Z ~/gn_module_access_request
+mv ~/gn_module_permission_request-X.Y.Z ~/gn_module_permission_request
 ```
 
 - Lancez l'installation du module
 
 ```bash
 source ~/geonature/backend/venv/bin/activate
-geonature install-gn-module ~/gn_module_access_request ACCESS_REQUEST
+geonature install-gn-module ~/gn_module_permission_request PERMISSION_REQUEST
 sudo systemctl restart geonature
 sudo systemctl restart geonature-worker
 deactivate
@@ -87,8 +87,8 @@ Pour mettre à jour le modue Monitoring, suivre la documentation de [mise à jou
 >
 
 Dans le cas de ce module, vous pouvez modifier la configuration du module en créant un fichier
-`access_request_config.toml` dans le dossier `config` de GeoNature, en vous inspirant
-du fichier `access_request_config.toml.example` et en surcouchant les paramètres que vous souhaitez.
+`permission_request_config.toml` dans le dossier `config` de GeoNature, en vous inspirant
+du fichier `permission_request_config.toml.example` et en surcouchant les paramètres que vous souhaitez.
 
 ### Paramètres
 

@@ -1,0 +1,90 @@
+<div
+  class="PermissionRequestInfo"
+  *ngIf="permissionRequest"
+>
+  <div class="PermissionRequestInfo__field">
+    <gn-badge
+      [text]="STATUS_LABELS[permissionRequest.status]"
+      [symbology]="{ color: STATUS_COLORS[permissionRequest.status] }"
+    ></gn-badge>
+  </div>
+  <div class="PermissionRequestInfo__field">
+    <label for="author">Auteur</label>
+    <div id="author">{{ permissionRequest.author?.nom_complet }}</div>
+  </div>
+
+  <div
+    class="PermissionRequestInfo__field"
+    *ngIf="permissionRequest.validator"
+  >
+    <label for="validator">Validateur</label>
+    <div id="validator">{{ permissionRequest.validator?.nom_complet }}</div>
+  </div>
+
+  <div
+    class="PermissionRequestInfo__field"
+    *ngIf="permissionRequest.validation_description"
+  >
+    <label for="validation_description">Commentaire de validation</label>
+    <div id="validation_description">{{ permissionRequest.validation_description }}</div>
+  </div>
+
+  <div class="PermissionRequestInfo__field">
+    <label for="description">Description</label>
+    <span
+      id="description"
+      rows="4"
+    >
+      {{ permissionRequest.description }}
+    </span>
+  </div>
+
+  <div class="PermissionRequestInfo__field">
+    <label for="initialization_date">Date d'initialisation</label>
+    <div id="initialization_date">{{ permissionRequest.initialization_date }}</div>
+  </div>
+
+  <div class="PermissionRequestInfo__field">
+    <label for="expiration_date">Date d'expiration</label>
+    <div id="expiration_date">{{ permissionRequest.expiration_date }}</div>
+  </div>
+
+  <div class="PermissionRequestInfo__field">
+    <label for="scope">Portée</label>
+    <div id="scope">{{ getScopeLabel(permissionRequest.scope) }}</div>
+  </div>
+
+  <div
+    class="PermissionRequestInfo__field"
+    *ngIf="permissionRequest.taxa?.length"
+  >
+    <label for="taxa">Taxons</label>
+    <ul
+      id="taxa"
+      class="PermissionRequestInfo__list"
+    >
+      <li *ngFor="let taxon of permissionRequest.taxa">{{ taxon.cd_nom }} : {{ taxon.lb_nom }}</li>
+    </ul>
+  </div>
+
+  <div
+    class="PermissionRequestInfo__field"
+    *ngIf="permissionRequest.areas?.length"
+  >
+    <label for="areas">Zones géographiques</label>
+    <ul
+      id="areas"
+      class="PermissionRequestInfo__list"
+    >
+      <li *ngFor="let area of permissionRequest.areas">
+        {{ area.area_name }}
+        <ng-container *ngIf="area.area_code">({{ area.area_code }})</ng-container>
+      </li>
+    </ul>
+  </div>
+
+  <div class="PermissionRequestInfo__field">
+    <label for="sensitivity_filter">Données sensibles visibles</label>
+    <div id="sensitivity_filter">{{ permissionRequest.sensitivity_filter ? 'Oui' : 'Non' }}</div>
+  </div>
+</div>

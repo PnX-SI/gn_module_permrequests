@@ -3,7 +3,7 @@ minversion = "6.0"
 testpaths = ["backend"]
 
 [tool.coverage.run]
-source = ["gn_module_access_request"]
+source = ["gn_module_permission_request"]
 omit = ["*/tests/*", "*/migrations/*"]
 
 [tool.black]

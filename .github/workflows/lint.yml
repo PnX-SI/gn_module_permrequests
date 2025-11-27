@@ -10,7 +10,7 @@ jobs:
       - name: Backend code formatting check (Black)
         uses: psf/black@stable
         with:
-          src: "setup.py ./backend/gn_module_access_request"
+          src: "setup.py ./backend/gn_module_permission_request"
   frontend:
     runs-on: ubuntu-latest
     steps:

@@ -1,0 +1,123 @@
+.PermissionRequestList {
+  height: 100%;
+  width: 100%;
+  .Toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+
+    &__filters {
+      display: flex;
+      align-items: center;
+      .FiltersForm {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-start;
+        column-gap: 0.5rem;
+
+        &__Filter {
+          min-width: 200px;
+          ::ng-deep .ng-select-container .ng-value-container {
+            display: flex;
+            flex-flow: row nowrap;
+            gap: 0.25rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            scrollbar-width: none; /* Firefox */
+            padding-top: 0 !important;
+          }
+          ::ng-deep .ng-select-container .ng-value-container::-webkit-scrollbar {
+            display: none; /* WebKit */
+          }
+
+          ::ng-deep .ng-select-container .ng-value-container .ng-placeholder{
+            top: auto;
+            padding-bottom: 0;
+          }
+
+          ::ng-deep .ng-select .ng-value {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 0;
+          }
+          ::ng-deep .ng-select-container .ng-value-container .ng-value {
+            margin-bottom: 0 !important;
+          }
+          ::ng-deep .ng-select .ng-select-container .ng-value-container .ng-input {
+            flex: 0 0 auto;
+          }
+        }
+      }
+    }
+
+    &__spacer {
+      flex-grow: 2;
+    }
+    &__actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+  }
+
+
+  &__table {
+    height: calc(100vh - 155px); // TODO Magicnumber
+    box-shadow: none;
+    ::ng-deep .visible {
+      height: inherit;
+      .datatable-body {
+        height: 87% !important;
+        overflow-y: scroll;
+        overflow-x: hidden;
+      }
+    }
+    &--nowrap {
+      ::ng-deep .datatable-header-cell,
+      ::ng-deep .datatable-body-cell,
+      ::ng-deep .datatable-row-center .datatable-body-cell {
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+      }
+      ::ng-deep .datatable-body-cell .datatable-body-cell-label {
+        display: block;
+        width: 100%;
+      }
+    }
+  }
+}
+
+.Taxa {
+  &List {
+    margin: 0;
+    padding-left: 1.2rem;
+    list-style: disc;
+
+    &--single {
+      list-style: none;
+      li {
+        list-style: none;
+      }
+    }
+  }
+}
+
+.Areas {
+  &List {
+    margin: 0;
+    padding-left: 1.2rem;
+    list-style: disc;
+
+    &--single {
+      list-style: none;
+      li {
+        list-style: none;
+      }
+    }
+  }
+}

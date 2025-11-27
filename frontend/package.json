@@ -1,7 +1,7 @@
 {
-  "name": "access_request",
+  "name": "permission_request",
   "version": "0.0",
-  "description": "GeoNature access request module",
+  "description": "GeoNature permission request module",
   "license": "GPLv3",
   "scripts": {
     "format": "prettier --config .prettierrc --ignore-path .prettierignore --write '**/*.{ts,html,scss}'",

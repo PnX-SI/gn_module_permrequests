@@ -1,0 +1,342 @@
+<div class="PermissionRequestList">
+  <div class="Toolbar card-header">
+    <div class="Toolbar__filters">
+      <form
+        [formGroup]="filtersForm"
+        class="FiltersForm FiltersForm--horizontal"
+      >
+        <ng-select
+          class="FiltersForm__Filter"
+          id="filter-status"
+          [items]="statusOptions"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="true"
+          placeholder="Statut"
+          formControlName="status"
+          [multiple]="true"
+          [closeOnSelect]="false"
+        ></ng-select>
+        <ng-select
+          class="FiltersForm__Filter"
+          id="filter-scope"
+          [items]="scopeOptions"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="true"
+          placeholder="Portée"
+          formControlName="scope"
+          [multiple]="true"
+          [closeOnSelect]="false"
+        ></ng-select>
+        <ng-select
+          class="FiltersForm__Filter"
+          id="filter-validated"
+          [items]="validatedOptions"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="true"
+          placeholder="Validée"
+          formControlName="validated"
+          [multiple]="true"
+          [closeOnSelect]="false"
+        ></ng-select>
+        <ng-select
+          class="FiltersForm__Filter"
+          id="filter-sensitive"
+          [items]="sensitivityOptions"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="true"
+          placeholder="Données sensibles"
+          formControlName="sensitivity_filter"
+          [multiple]="true"
+          [closeOnSelect]="false"
+        ></ng-select>
+      </form>
+    </div>
+    <div class="Toolbar__spacer"></div>
+    <div
+      class="Toolbar__actions"
+      *ngIf="canCreatePermissionRequest"
+    >
+      <button
+        mat-flat-button
+        color="primary"
+        [routerLink]="newPermissionRequestLink"
+      >
+        Nouvelle demande
+      </button>
+    </div>
+  </div>
+  <ng-template
+    #cellDateTemplate
+    let-date="date"
+  >
+    {{ renderDate(date) }}
+  </ng-template>
+
+  <ng-template
+    #cellNumberTemplate
+    let-value="value"
+  >
+    {{ value ? value : '-' }}
+  </ng-template>
+
+  <ng-template
+    #cellNameTemplate
+    let-value="value"
+  >
+    {{ value | titlecase }}
+  </ng-template>
+
+  <ng-template
+    #cellBooleanTemplate
+    let-value="value"
+  >
+    {{ value ? 'Oui' : 'Non' }}
+  </ng-template>
+
+
+  <ng-template
+    #cellStatusTemplate
+    let-value="value"
+  >
+    <gn-badge
+        [text]="STATUS_LABELS[value]"
+        [symbology]="{ color: STATUS_COLORS[value] }"
+      ></gn-badge>
+  </ng-template>
+
+  <ng-template
+    #cellScopeTemplate
+    let-value="value"
+  >
+    {{ renderScope(value) }}
+  </ng-template>
+
+  <ng-template
+    #cellDefaultTemplate
+    let-value="value"
+  >
+    {{ value }}
+  </ng-template>
+
+  <ngx-datatable
+    class="PermissionRequestList__table material striped PermissionRequestList__table--nowrap"
+    [rows]="permissionRequests"
+    columnMode="force"
+    [draggable]="false"
+    (page)="onChangePage($event)"
+    footerHeight="auto"
+    headerHeight="auto"
+    [externalPaging]="true"
+    [count]="pagination.totalItems"
+    [limit]="pagination.perPage"
+    rowHeight="auto"
+    [externalSorting]="true"
+    (sort)="onSort($event)"
+    [sorts]="[{ prop: sort.sortBy, dir: sort.sortOrder }]"
+  >
+    <ngx-datatable-column
+      name="Id"
+      [prop]="PROP_ID_PERMISSION_REQUEST"
+      [maxWidth]="50"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="
+            cellNumberTemplate;
+            context: { value: permissionRequest[PROP_ID_PERMISSION_REQUEST] }
+          "
+        ></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      name="Author"
+      [prop]="PROP_AUTHOR"
+      [maxWidth]="150"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="cellNameTemplate; context: { value: permissionRequest.author.nom_complet }"
+        ></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      name="Début"
+      [prop]="PROP_INITIALIZATION_DATE"
+      [maxWidth]="100"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="
+            cellDateTemplate;
+            context: { date: permissionRequest[PROP_INITIALIZATION_DATE] }
+          "
+        ></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      name="Fin"
+      [prop]="PROP_EXPIRATION_DATE"
+      [maxWidth]="100"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="
+            cellDateTemplate;
+            context: { date: permissionRequest[PROP_EXPIRATION_DATE] }
+          "
+        ></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      name="Portée"
+      [prop]="PROP_SCOPE"
+      [maxWidth]="100"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="cellScopeTemplate; context: { value: permissionRequest[PROP_SCOPE] }"
+        ></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      name="Sensibilité"
+      [prop]="PROP_SENSITIVITY_FILTER"
+      [maxWidth]="100"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="
+            cellBooleanTemplate;
+            context: { value: permissionRequest[PROP_SENSITIVITY_FILTER] }
+          "
+        ></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+
+    <ngx-datatable-column
+      name="Groupe(s) Taxonomique(s)"
+      [prop]="PROP_TAXA"
+      [sortable]="false"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <div class="Taxa">
+          <ul
+            class="TaxaList"
+            [class.TaxaList--single]="permissionRequest.taxa?.length === 1"
+          >
+            <li *ngFor="let taxon of permissionRequest.taxa || []">
+              {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
+            </li>
+          </ul>
+        </div>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      name="Zone(s) géographiques"
+      [prop]="PROP_AREAS"
+      [sortable]="false"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <div class="Areas">
+          <ul
+            class="AreasList"
+            [class.AreasList--single]="permissionRequest.areas?.length === 1"
+          >
+            <li *ngFor="let area of permissionRequest.areas || []">
+              {{ area.area_name }}
+              <ng-container *ngIf="area.area_code">({{ area.area_code }})</ng-container>
+            </li>
+          </ul>
+        </div>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      name="Validator"
+      [prop]="PROP_VALIDATOR"
+      [maxWidth]="150"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="
+            cellNameTemplate;
+            context: { value: permissionRequest.validator?.nom_complet }
+          "
+        ></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      name="Commentaire validation"
+      [prop]="PROP_VALIDATION_DESCRIPTION"
+      [sortable]="false"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="
+            cellDefaultTemplate;
+            context: { value: permissionRequest.validation_description || '-' }
+          "
+        ></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column
+      name="Status"
+      [prop]="PROP_STATUS"
+      [maxWidth]="120"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="cellStatusTemplate; context: { value: permissionRequest.status }"
+        ></ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column [sortable]="false">
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <permission-request-toolbar
+          [permissionRequest]="permissionRequest"
+          (deleted)="onPermissionRequestDeleted($event)"
+          (updated)="onPermissionRequestUpdated($event)"
+        ></permission-request-toolbar>
+      </ng-template>
+    </ngx-datatable-column>
+  </ngx-datatable>
+</div>

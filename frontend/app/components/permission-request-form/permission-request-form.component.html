@@ -1,0 +1,185 @@
+<form
+  class="PermissionRequestForm"
+  [formGroup]="form"
+  (ngSubmit)="onSubmit()"
+>
+  <div class="PermissionRequestForm__fields">
+    <div
+      class="Field"
+      *ngIf="permissionRequest?.author"
+    >
+      <label class="Field__label" for="author">Auteur</label>
+      <div id="author">{{ permissionRequest.author.nom_complet }}</div>
+    </div>
+
+    <div class="Field">
+      <label class="Field__label" for="description">Description</label>
+      <textarea
+        id="description"
+        rows="4"
+        formControlName="description"
+      ></textarea>
+    </div>
+
+    <div class="Field">
+      <label class="Field__label" for="taxa">Taxons</label>
+      <pnx-taxonomy
+        id="taxa"
+        [parentFormControl]="taxonSearchControl"
+        displayedLabel="lb_nom"
+        charNumber="3"
+        listLength="20"
+        (onChange)="onTaxonSelected($event)"
+      ></pnx-taxonomy>
+      <div
+        class="Field__selectedTaxa"
+        *ngIf="taxaControl?.value?.length"
+      >
+        <ul>
+          <li *ngFor="let taxon of taxaControl?.value">
+            {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
+            <button
+              type="button"
+              mat-icon-button
+              color="warn"
+              (click)="removeTaxon(taxon.cd_nom)"
+              matTooltip="Retirer ce taxon"
+              aria-label="Retirer ce taxon"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div
+        class="Field__error"
+        *ngIf="taxaControl?.hasError('required') && taxaControl?.touched"
+      >
+        Vous devez sélectionner au moins un taxon.
+      </div>
+    </div>
+
+    <div class="Field">
+      <label class="Field__label" for="areas">Zones géographiques</label>
+      <pnx-areas
+        id="areas"
+        [typeCodes]="['COM', 'DEP', 'REG']"
+        [parentFormControl]="areasControl"
+        [defaultItems]="selectedAreasDefaultItems"
+        (onSelectionChange)="onAreasSelectionChange($event)"
+      ></pnx-areas>
+    </div>
+
+    <div class="Field">
+      <label class="Field__label">
+        <input
+          type="checkbox"
+          formControlName="sensitivity_filter"
+        />
+        Inclure les données sensibles
+      </label>
+    </div>
+
+    <div class="Field">
+      <label class="Field__label" for="initialization_date">Date d'initialisation</label>
+      <pnx-date
+        id="initialization_date"
+        [defaultToday]="false"
+        [parentFormControl]="initializationDateControl"
+        [noMaxDate]="true"
+      ></pnx-date>
+    </div>
+
+    <div class="Field">
+      <label class="Field__label" for="expiration_date">Date d'expiration</label>
+      <pnx-date
+        id="expiration_date"
+        [defaultToday]="true"
+        [parentFormControl]="expirationDateControl"
+        [noMaxDate]="true"
+      ></pnx-date>
+      <div
+        class="Field__error"
+        *ngIf="expirationDateControl?.hasError('required') && expirationDateControl?.touched"
+      >
+        La date d'expiration est obligatoire.
+      </div>
+    </div>
+
+    <div
+      class="Field__error"
+      *ngIf="
+        form.errors?.invalidDate &&
+        (initializationDateControl?.touched || expirationDateControl?.touched)
+      "
+    >
+      La date d'initialisation doit être antérieure à la date d'expiration.
+    </div>
+
+    <div class="Field">
+      <label class="Field__label" for="scope">Portée</label>
+      <div class="Field__scopeOptions">
+        <label>
+          <input
+            type="radio"
+            formControlName="scope"
+            [value]="PermissionRequestScope.USER"
+          />
+          Moi uniquement
+        </label>
+        <label>
+          <input
+            type="radio"
+            formControlName="scope"
+            [value]="PermissionRequestScope.ORGANISM"
+          />
+          Mon organisme
+        </label>
+      </div>
+      <div
+        class="Field__error"
+        *ngIf="scopeControl?.hasError('required') && scopeControl?.touched"
+      >
+        La portée est obligatoire.
+      </div>
+    </div>
+
+    <div
+      class="Field Field--acknowledge"
+      *ngIf="shouldDisplayAcknowledgement"
+    >
+      <label class="Field__label">
+        <input
+          type="checkbox"
+          formControlName="acknowledgeTerms"
+        />
+        {{ termsAcknowledgementText }}
+      </label>
+      <div
+        class="Field__error"
+        *ngIf="acknowledgeTermsControl?.hasError('required') && acknowledgeTermsControl?.touched"
+      >
+        Vous devez accepter les conditions pour poursuivre.
+      </div>
+    </div>
+  </div>
+  <div class="PermissionRequestForm__actions">
+    <button
+      type="button"
+      mat-stroked-button
+      color="primary"
+      (click)="onReset()"
+      [disabled]="form.pristine || isSaving || isSameAsPermissionRequest"
+    >
+      Réinitialiser
+    </button>
+    <button
+      type="submit"
+      mat-flat-button
+      color="primary"
+      [disabled]="form.invalid || form.pristine || isSaving || isSameAsPermissionRequest"
+    >
+      Enregistrer
+    </button>
+  </div>
+</form>

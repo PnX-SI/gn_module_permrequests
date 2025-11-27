@@ -1,0 +1,35 @@
+<module-layout>
+  <div class="Layout">
+    <div class="Header card-header">
+      <div class="Header__left">
+        <button
+          mat-flat-button
+          [routerLink]="homeRouterLink"
+        >
+          <mat-icon>chevron_left</mat-icon>
+          Retour
+        </button>
+      </div>
+      <div class="Header__center">
+        <div *ngIf="permissionRequest; else newPermissionRequest">
+          Permission Request #{{ permissionRequest.id_permission_request }}
+        </div>
+        <ng-template #newPermissionRequest><div>New Permission Request</div></ng-template>
+      </div>
+      <div class="Header__right">
+        <permission-request-toolbar
+          [permissionRequest]="permissionRequest"
+          [withInfo]="withInfo"
+          [withEdit]="withEdit"
+          [withDelete]="withDelete"
+          [withValidate]="withValidate"
+          (deleted)="onPermissionRequestDeleted($event)"
+          (updated)="onPermissionRequestUpdated($event)"
+        ></permission-request-toolbar>
+      </div>
+    </div>
+    <div class="card-body Body">
+      <ng-content />
+    </div>
+  </div>
+</module-layout>
