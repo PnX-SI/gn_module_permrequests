@@ -1,33 +1,34 @@
 <div class="PermissionRequestToolbar">
-  <div
-    class="ValidationButtons"
-    *ngIf="withValidate && permissionRequest?.cruved?.V"
+  <button
+    class="Edit"
+    [ngClass]="permissionRequest?.status ? 'Edit--' + permissionRequest.status : ''"
+    [disabled]="validationRequestPending"
+    mat-stroked-button
+    matTooltip="Editer"
+    (click)="openValidationDialog()"
+    *ngIf="(withValidate && permissionRequest?.cruved?.V); else displayStatus"
+
   >
-    <button
-      mat-stroked-button
-      type="button"
-      class="ValidationButton ValidationButton--accept"
-      [class.ValidationButton--active]="currentValidationState === 'true'"
-      [disabled]="validationRequestPending"
-      (click)="onValidationButtonClick('true')"
+    <span class="Edit__label">{{ STATUS_LABELS[permissionRequest.status] }}</span>
+    <mat-icon
+      class="Edit__icon"
     >
-      <mat-icon>check-circle</mat-icon>
-    </button>
+        edit
+      </mat-icon>
+  </button>
+  <ng-template #displayStatus>
     <button
+      class="Edit Edit--disabled"
       mat-stroked-button
-      type="button"
-      class="ValidationButton ValidationButton--decline"
-      [class.ValidationButton--active]="currentValidationState === 'false'"
-      [disabled]="validationRequestPending"
-      (click)="onValidationButtonClick('false')"
+      [ngClass]="permissionRequest?.status ? 'Edit--' + permissionRequest.status : ''"
+      disabled
     >
-      <mat-icon>cancel</mat-icon>
+      <span class="Edit__label">{{ STATUS_LABELS[permissionRequest.status] }}</span>
     </button>
-  </div>
+  </ng-template>
   <button
     *ngIf="permissionRequest && withEdit"
     [disabled]="!permissionRequest.cruved.U"
-    class="Toolbar__button"
     color="primary"
     mat-icon-button
     matTooltip="Editer"
@@ -38,7 +39,6 @@
   <button
     *ngIf="permissionRequest && withInfo"
     [disabled]="!permissionRequest.cruved.R"
-    class="Toolbar__button"
     color="primary"
     mat-icon-button
     matTooltip="Voir"
@@ -50,7 +50,6 @@
     *ngIf="permissionRequest && withDelete"
     [disabled]="!permissionRequest.cruved.D"
     color="warn"
-    class="Toolbar__button"
     mat-icon-button
     matTooltip="Supprimer"
     (click)="deletePermissionRequest()"

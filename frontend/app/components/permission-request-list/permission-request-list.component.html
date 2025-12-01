@@ -99,16 +99,6 @@
 
 
   <ng-template
-    #cellStatusTemplate
-    let-value="value"
-  >
-    <gn-badge
-        [text]="STATUS_LABELS[value]"
-        [symbology]="{ color: STATUS_COLORS[value] }"
-      ></gn-badge>
-  </ng-template>
-
-  <ng-template
     #cellScopeTemplate
     let-value="value"
   >
@@ -295,38 +285,9 @@
         ></ng-template>
       </ng-template>
     </ngx-datatable-column>
-    <ngx-datatable-column
-      name="Commentaire validation"
-      [prop]="PROP_VALIDATION_DESCRIPTION"
-      [sortable]="false"
+    <ngx-datatable-column [sortable]="false"
+      [width]="200"
     >
-      <ng-template
-        ngx-datatable-cell-template
-        let-permissionRequest="row"
-      >
-        <ng-template
-          *ngTemplateOutlet="
-            cellDefaultTemplate;
-            context: { value: permissionRequest.validation_description || '-' }
-          "
-        ></ng-template>
-      </ng-template>
-    </ngx-datatable-column>
-    <ngx-datatable-column
-      name="Status"
-      [prop]="PROP_STATUS"
-      [maxWidth]="120"
-    >
-      <ng-template
-        ngx-datatable-cell-template
-        let-permissionRequest="row"
-      >
-        <ng-template
-          *ngTemplateOutlet="cellStatusTemplate; context: { value: permissionRequest.status }"
-        ></ng-template>
-      </ng-template>
-    </ngx-datatable-column>
-    <ngx-datatable-column [sortable]="false">
       <ng-template
         ngx-datatable-cell-template
         let-permissionRequest="row"

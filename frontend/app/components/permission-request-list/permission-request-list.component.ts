@@ -20,7 +20,7 @@ import { ROUTE_PATHS } from '../../gnModule.module';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { canCreatePermission } from '../../guards/can-create.guard';
-import { STATUS, STATUS_COLORS, STATUS_LABELS } from '../../models/status';
+ import { STATUS, STATUS_LABELS } from '../../models/status';
 
 type FiltersFormValue = {
   status: string[] | null;
@@ -54,12 +54,9 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
   readonly PROP_SENSITIVITY_FILTER = 'sensitivity_filter';
   readonly PROP_TAXA = 'taxa';
   readonly PROP_AREAS = 'areas';
-  readonly PROP_STATUS = 'status';
   readonly PROP_VALIDATOR = 'validator.nom_complet';
   readonly PROP_VALIDATION_DESCRIPTION = 'validation_description';
   readonly PermissionRequestScope = PermissionRequestScope;
-  readonly STATUS_COLORS = STATUS_COLORS;
-  readonly STATUS_LABELS = STATUS_LABELS;
 
   pagination: PaginationItem = DEFAULT_PAGINATION;
   sort: SortItem = {

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { Router } from '@angular/router';
+
 
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { ConfirmationDialog } from '@geonature_common/others/modal-confirmation/confirmation.dialog';
@@ -11,11 +11,9 @@ import { ModuleService } from '@geonature/services/module.service';
 
 import { PermissionRequest } from '../../models/permissionRequest';
 import { PermissionRequestService } from '../../services/permissionRequest.service';
-import {
-  ValidationDescriptionDialogComponent,
-  ValidationDescriptionDialogData,
-} from './validation-description-dialog.component';
 import { ROUTE_PATHS } from '../../gnModule.module';
+import { STATUS_LABELS } from '../../models/status';
+import { ValidationDescriptionDialogComponent, ValidationDescriptionDialogData, ValidationDescriptionDialogResult } from './validation-description-dialog.component';
 @Component({
   standalone: true,
   selector: 'permission-request-toolbar',
@@ -24,11 +22,12 @@ import { ROUTE_PATHS } from '../../gnModule.module';
   imports: [GN2CommonModule, CommonModule, RouterModule, MatButtonModule],
 })
 export class PermissionRequestToolbarComponent {
+  readonly STATUS_LABELS = STATUS_LABELS;
+
   constructor(
     private _permissionRequestService: PermissionRequestService,
     private _dialog: MatDialog,
     private _moduleService: ModuleService,
-    private _router: Router
   ) {}
 
   @Input()
@@ -48,18 +47,6 @@ export class PermissionRequestToolbarComponent {
 
   @Output()
   updated = new EventEmitter<number>();
-
-  validationRequestPending = false;
-
-  get currentValidationState(): 'true' | 'false' | null {
-    if (this.permissionRequest?.validated === true) {
-      return 'true';
-    }
-    if (this.permissionRequest?.validated === false) {
-      return 'false';
-    }
-    return null;
-  }
 
   get infoRouterLink(): string {
     if (!this.permissionRequest) {
@@ -99,31 +86,53 @@ export class PermissionRequestToolbarComponent {
     });
   }
 
-  onValidationButtonClick(rawValue: 'true' | 'false'): void {
+
+  validationRequestPending = false;
+
+  get validationButtonIcon(): string {
+    if (this.permissionRequest?.validated === true) {
+      return 'check-circle';
+    }
+    if (this.permissionRequest?.validated === false) {
+      return 'cancel';
+    }
+    return 'edit';
+  }
+
+  get validationButtonLabel(): string {
+    if (this.permissionRequest?.validated === true) {
+      return 'Validée';
+    }
+    if (this.permissionRequest?.validated === false) {
+      return 'Refusée';
+    }
+    return 'Gérer la validation';
+  }
+
+  openValidationDialog(): void {
     if (!this.permissionRequest || !this.permissionRequest.cruved?.V) {
       return;
     }
 
-    const nextValidatedValue =
-      this.currentValidationState === rawValue ? null : rawValue === 'true';
-
     const dialogRef = this._dialog.open<
       ValidationDescriptionDialogComponent,
       ValidationDescriptionDialogData,
-      string | null
+      ValidationDescriptionDialogResult | undefined
     >(ValidationDescriptionDialogComponent, {
-      width: '420px',
+      width: '500px',
       data: {
-        validated: nextValidatedValue,
+        validated: this.permissionRequest.validated ?? null,
         validation_description: this.permissionRequest.validation_description ?? null,
+        initialization_date: this.permissionRequest.initialization_date ?? null,
+        expiration_date: this.permissionRequest.expiration_date ?? null,
       },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result === undefined) {
+      if (!result) {
         return;
       }
-      this._submitValidationRequest(nextValidatedValue, result ?? null);
+      this._submitValidationRequest(result.validated, result.validation_description);
     });
   }
 

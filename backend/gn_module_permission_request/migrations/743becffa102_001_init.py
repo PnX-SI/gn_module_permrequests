@@ -85,15 +85,15 @@ NOTIFICATION_CATEGORY_DEFINITIONS = [
             "<p>Bonjour,</p>"
             "<p>{{ user.nom_complet }} a modifié le statut de la demande de permission "
             "n°{{ permission_request.id_permission_request }} a été mis à jour.</p>"
-            "{% if permission.validation_description is defined %}"
-            "{{ permission.validation_description }}"
+            "{% if permission_request.validation_description is defined %}"
+            "{{ permission_request.validation_description }}"
             "{% endif %}"
             "<p>Vous recevez cet email automatiquement via le service de notification de GeoNature.</p>"
         ),
         "db_content": (
             "{{ user.nom_complet }} a mis à jour pour la demande de permission n°{{ permission_request.id_permission_request }}"
-            "{% if permission.validation_description is defined %}"
-            "{{ permission.validation_description }}"
+            "{% if permission_request.validation_description is defined %}"
+            "{{ permission_request.validation_description }}"
             "{% endif %}"
         ),
     },

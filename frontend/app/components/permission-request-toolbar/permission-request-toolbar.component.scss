@@ -4,41 +4,45 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.25rem;
+  $edit-status-colors: (
+    REFUSED: #FF5722,
+    PENDING: #BDBDBD,
+    EXPIRED: #FF9800,
+    UPCOMING: #30a5ff,
+    ACTIVE: #8BC34A
+  );
 
-  .ValidationButtons {
-    display: inline-flex;
-    gap: 0.25rem;
+  .Edit{
+    --edit-color: #333333; // Default value
+    text-transform: uppercase;
+    border-width: 2px;
+    font-size: 0.7rem;
+    color: var(--edit-color);
+    background-color: color-mix(in srgb, var(--edit-color) 50%, white);
+    border: 2px solid color-mix(in srgb, var(--edit-color) 80%, black);
 
-    .ValidationButton {
-      background-color: white;
-      overflow: hidden;
-      border-width: 1.5px;
-      .mat-icon{
-        margin: 0 !important;
-      }
-      &:hover {
-        opacity: 0.5;
-      }
-      &--accept {
-        --color-accept: #4caf50;
-        color: var(--color-accept);
-        border-color: var(--color-accept);
-        &.ValidationButton--active {
-          color: #fff;
-          background-color: var(--color-accept);
-          border-width: 2px;
-        }
-      }
-      &--decline {
-        --color-decline: #f44336;
-        color: var(--color-decline);
-        border-color: var(--color-decline);
-        &.ValidationButton--active {
-          color: #fff;
-          background-color: var(--color-decline);
-          border-width: 2px;
-        }
+    &--disabled{
+      cursor: default;
+    }
+
+    @each $status, $color in $edit-status-colors {
+      &--#{$status} {
+        --edit-color: #{$color};
       }
     }
+    &__label {
+      color: #333;
+    }
+    &__icon {
+      color: inherit;
+    }
+  }
+  .BadgeContainer {
+    width: 100px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-around;
+    column-gap: 0;
+    align-items: center;
   }
 }

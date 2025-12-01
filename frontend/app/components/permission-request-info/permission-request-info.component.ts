@@ -1,11 +1,14 @@
-import { Component, Input, OnDestroy, OnInit, Optional } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 
-import { PermissionRequest, PermissionRequestScope, DEFAULT_SCOPE } from '../../models/permissionRequest';
+import { PermissionRequest, PermissionRequestScope, DEFAULT_SCOPE, PermissionRequestTaxon, PermissionRequestArea } from '../../models/permissionRequest';
 
-import { STATUS_COLORS, STATUS_LABELS } from '../../models/status'
+const SCOPE_LABELS: Record<PermissionRequestScope, string> = {
+  [PermissionRequestScope.USER]: 'Utilisateur',
+  [PermissionRequestScope.ORGANISM]: 'Organisme',
+};
 
 @Component({
   standalone: true,
@@ -15,16 +18,10 @@ import { STATUS_COLORS, STATUS_LABELS } from '../../models/status'
   imports: [CommonModule, GN2CommonModule],
 })
 export class PermissionRequestInfoComponent {
-  readonly STATUS_COLORS = STATUS_COLORS;
-  readonly STATUS_LABELS = STATUS_LABELS;
-
   @Input()
   public permissionRequest: PermissionRequest | null = null;
 
-  readonly scopeLabels: Record<PermissionRequestScope, string> = {
-    [PermissionRequestScope.USER]: 'Utilisateur',
-    [PermissionRequestScope.ORGANISM]: 'Organisme',
-  };
+  readonly scopeLabels = SCOPE_LABELS;
 
   getScopeLabel(scope: PermissionRequestScope | null): string {
     if (!scope) {
@@ -35,4 +32,8 @@ export class PermissionRequestInfoComponent {
     }
     return scope;
   }
+
+  trackByTaxon = (_: number, taxon: PermissionRequestTaxon) => taxon?.cd_nom ?? _;
+
+  trackByArea = (_: number, area: PermissionRequestArea) => area?.id_area ?? area?.area_code ?? _;
 }
