@@ -499,12 +499,12 @@ def create_permission_request():
     if not isinstance(sensitivity_filter_value, bool):
         raise BadRequest("sensitivity_filter must be a boolean value.")
 
-    current_user = getattr(g, "current_user", None)
+    current_user = g.current_user
     if current_user is None or not hasattr(current_user, "id_role"):
         raise Forbidden("Current user context is missing.")
 
-    author_role_id = getattr(current_user, "id_role", None)
-    author_organism_id = getattr(current_user, "id_organisme", None)
+    author_role_id = current_user.id_role
+    author_organism_id = current_user.id_organisme
     permission_role_id = _resolve_permission_role(
         scope_value,
         author_role_id=author_role_id,
@@ -684,8 +684,8 @@ def update_permission_request(scope, id_permission_request):
             raise InternalServerError("Permission request author is missing.")
         new_role_id = _resolve_permission_role(
             scope_value,
-            author_role_id=getattr(author, "id_role", None),
-            author_organism_id=getattr(author, "id_organisme", None),
+            author_role_id=author.id_role,
+            author_organism_id=author.id_organisme,
         )
         permission_request.permission.id_role = new_role_id
 
@@ -878,7 +878,7 @@ def update_validated(scope, id_permission_request):
     if permission_request is None:
         raise NotFound(f"Permission request {id_permission_request} not found")
 
-    current_user = getattr(g, "current_user", None)
+    current_user = g.current_user
     if current_user is None or not hasattr(current_user, "id_role"):
         raise Forbidden("Current user context is missing.")
 

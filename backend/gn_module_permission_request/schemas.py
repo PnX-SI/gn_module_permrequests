@@ -17,7 +17,7 @@ class PermissionRequestUserSchema(SQLAlchemySchema):
         load_instance = False
         include_fk = True
 
-    nom_complet = fields.Function(lambda obj: getattr(obj, "nom_complet", None))
+    nom_complet = fields.Function(lambda obj: obj.nom_complet)
 
 
 class PermissionRequestTaxonSchema(SQLAlchemySchema):
@@ -73,14 +73,10 @@ class PermissionRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     cruved = fields.Method("get_cruved", dump_only=True)
 
     def get_status(self, obj):
-        return compute_status(
-            getattr(obj, "validated", None),
-            getattr(obj, "initialization_date", None),
-            getattr(obj, "expiration_date", None),
-        )
+        return compute_status(obj.validated, obj.initialization_date, obj.expiration_date)
 
     def get_scope(self, obj):
-        return getattr(obj, "scope", None)
+        return obj.scope
 
     def get_cruved(self, obj):
         base = CruvedSchemaMixin.get_cruved(self, obj)

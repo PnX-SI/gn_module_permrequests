@@ -108,32 +108,28 @@ class PermissionRequest(DB.Model):
             return True
 
         if user is None:
-            user = getattr(g, "current_user", None)
+            user = g.current_user
         if user is None:
             return False
 
         if scope == 1:
-            return self.id_author == getattr(user, "id_role", None)
+            return self.id_author == user.id_role
 
         if scope == 2:
-            if self.id_author == getattr(user, "id_role", None):
+            if self.id_author == user.id_role:
                 return True
 
-            user_org = getattr(user, "id_organisme", None)
-            if user_org is None:
-                return False
-
-            author_org = getattr(self.author, "id_organisme", None) if self.author else None
+            user_org = user.id_organisme
+            author_org = self.author.id_organisme
             return author_org == user_org
 
         return False
 
     @hybrid_property
     def initialization_date(self):
-        permission = getattr(self, "permission", None)
-        if permission is None or permission.created_on is None:
+        if self.permission is None or self.permission.created_on is None:
             return None
-        return permission.created_on.date()
+        return self.permission.created_on.date()
 
     @initialization_date.setter
     def initialization_date(self, value):
@@ -156,11 +152,10 @@ class PermissionRequest(DB.Model):
 
     @hybrid_property
     def expiration_date(self):
-        permission = getattr(self, "permission", None)
-        if permission is None or permission.expire_on is None:
+        if self.permission is None or self.permission.expire_on is None:
             return None
-        expire_on = permission.expire_on
-        return expire_on.date() if hasattr(expire_on, "date") else expire_on
+        expire_on = self.permission.expire_on
+        return expire_on.date()
 
     @expiration_date.setter
     def expiration_date(self, value):
@@ -183,10 +178,9 @@ class PermissionRequest(DB.Model):
 
     @hybrid_property
     def validated(self):
-        permission = getattr(self, "permission", None)
-        if permission is None:
+        if self.permission is None:
             return None
-        return permission.validated
+        return self.permission.validated
 
     @validated.setter
     def validated(self, value):
@@ -207,22 +201,20 @@ class PermissionRequest(DB.Model):
 
     @property
     def scope(self):
-        permission = getattr(self, "permission", None)
-        author_id = getattr(self, "id_author", None)
-        if permission is None or permission.id_role is None or author_id is None:
+        if self.permission is None or self.permission.id_role is None or self.author_id is None:
             return None
 
-        if permission.id_role == author_id:
+        if self.permission.id_role == self.author_id:
             return SCOPE_USER
 
-        role = getattr(permission, "role", None)
-        author = getattr(self, "author", None)
+        role = self.permission.role
+        author = self.author
         if (
             role is not None
-            and getattr(role, "groupe", False)
+            and role.groupe
             and author is not None
-            and getattr(author, "id_organisme", None) is not None
-            and getattr(role, "id_organisme", None) == getattr(author, "id_organisme", None)
+            and author.id_organisme is not None
+            and role.id_organisme == author.id_organisme
         ):
             return SCOPE_ORGANISM
 
@@ -230,10 +222,9 @@ class PermissionRequest(DB.Model):
 
     @hybrid_property
     def sensitivity_filter(self):
-        permission = getattr(self, "permission", None)
-        if permission is None:
+        if self.permission is None:
             return None
-        return permission.sensitivity_filter
+        return self.permission.sensitivity_filter
 
     @sensitivity_filter.setter
     def sensitivity_filter(self, value):
@@ -253,10 +244,9 @@ class PermissionRequest(DB.Model):
 
     @property
     def taxa(self):
-        permission = getattr(self, "permission", None)
-        if permission is None:
+        if self.permission is None:
             return []
-        return permission.taxons_filter
+        return self.permission.taxons_filter
 
     @taxa.setter
     def taxa(self, value):
