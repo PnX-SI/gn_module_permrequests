@@ -1,3 +1,38 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gn_module_permission_request"
+dynamic = ["version"]
+description = "Module Demande de Permission"
+readme = { file = "README.md", content-type = "text/markdown" }
+maintainers = [{ name = "Natural Solutions", email = "geonature@natural-solutions.eu" }]
+license = { file = "LICENSE.txt" }
+dependencies = []
+urls = { Homepage = "https://github.com/PnX-SI/gn_module_permission_request/" }
+[project.entry-points."gn_module"]
+code = "gn_module_permission_request:MODULE_CODE"
+label = "gn_module_permission_request:MODULE_LABEL"
+picto = "gn_module_permission_request:MODULE_PICTO"
+blueprint = "gn_module_permission_request.blueprint:blueprint"
+config_schema = "gn_module_permission_request.conf_schema:GnModuleSchemaConf"
+migrations = "gn_module_permission_request:migrations"
+alembic_branch = "gn_module_permission_request:ALEMBIC_BRANCH"
+
+[tool.setuptools]
+package-dir = { "" = "backend" }
+
+[tool.setuptools.dynamic]
+version = { file = "VERSION" }
+
+[tool.setuptools.packages.find]
+where = ["backend"]
+
+[tool.setuptools.package-data]
+"gn_module_permission_request" = ["templates/**", "static/**"]
+"gn_module_permission_request.migrations" = ["data/*.sql"]
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 testpaths = ["backend"]

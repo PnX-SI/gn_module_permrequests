@@ -3,16 +3,10 @@ name: pytest
 on:
   push:
     branches:
-      - master
-      - hotfixes
+      - main
       - develop
-      - workshop
   pull_request:
-    branches:
-      - master
-      - hotfixes
-      - develop
-      - workshop
+  workflow_call:
 
 jobs:
   build:
