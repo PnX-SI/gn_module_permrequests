@@ -1,17 +1,23 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=61.0", "setuptools_scm>=8.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "gn_module_permission_request"
 dynamic = ["version"]
-description = "Module Demande de Permission"
+description = "Module GeoNature de demande de permission"
 readme = { file = "README.md", content-type = "text/markdown" }
-maintainers = [{ name = "Natural Solutions", email = "geonature@natural-solutions.eu" }]
+maintainers = [
+  { name = "Conservatoire Botanique National Alpin", email = "geonature@cbn-alpin.fr" },
+  { name = "Parcs nationaux des Écrins et des Cévennes", email = "geonature@ecrins-parcnational.fr" },
+  { name = "Natural Solutions", email = "geonature@natural-solutions.eu" }
+]
 license = { file = "LICENSE.txt" }
-dependencies = []
-urls = { Homepage = "https://github.com/PnX-SI/gn_module_permission_request/" }
-[project.entry-points."gn_module"]
+dependencies = ["geonature >= 2.14"]
+urls = { Repository = "https://github.com/PnX-SI/gn_module_permission_request/" }
+requires-python = ">=3.9"
+
+[project.entry-points.gn_module]
 code = "gn_module_permission_request:MODULE_CODE"
 label = "gn_module_permission_request:MODULE_LABEL"
 picto = "gn_module_permission_request:MODULE_PICTO"

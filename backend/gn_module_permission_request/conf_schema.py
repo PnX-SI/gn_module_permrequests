@@ -16,3 +16,6 @@ class GnModuleSchemaConf(Schema):
     TERMS_ACKNOWLEDGMENT = fields.Nested(
         TermsAcknowledgmentSchema, load_default=DEFAULT_TERMS_ACKNOWLEDGMENT
     )
+    # No use: all those with valdiation permissions are notified
+    # List of id_role
+    # NOTIFY_ON_NEW_REQUEST = fields.List(fields.Int, load_default=[])
