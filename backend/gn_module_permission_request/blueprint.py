@@ -538,7 +538,7 @@ def create_permission_request():
     created_on_value = (
         datetime.combine(initialization_date, datetime.min.time())
         if initialization_date is not None
-        else datetime.utcnow()
+        else datetime.now()
     )
     expire_on_value = datetime.combine(expiration_date, datetime.min.time())
 

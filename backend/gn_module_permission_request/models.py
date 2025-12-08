@@ -45,6 +45,7 @@ class PermissionRequest(DB.Model):
         nullable=True,
     )
     validation_description = DB.Column(DB.Text, nullable=True)
+    validation_date = DB.Column(DB.DateTime, nullable=True)
     description = DB.Column(DB.Text, nullable=True)
     id_permission = DB.Column(
         DB.Integer,
@@ -191,6 +192,9 @@ class PermissionRequest(DB.Model):
     def validated(self, value):
         if self.permission is None:
             raise AttributeError("No permission is linked to this permission request.")
+        previous = self.permission.validated
+        if previous != value:
+            self.validation_date = datetime.now()
         self.permission.validated = value
 
     @validated.expression

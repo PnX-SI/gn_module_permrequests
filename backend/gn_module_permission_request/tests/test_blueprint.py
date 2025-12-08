@@ -298,6 +298,7 @@ def test_update_validated_sets_validator(client, users, taxon_ids):
     assert reloaded.validated is True
     assert reloaded.id_validator == users["admin_user"].id_role
     assert reloaded.validation_description is None
+    assert reloaded.validation_date is not None
 
 
 def test_update_validated_can_store_description(client, users, taxon_ids):
@@ -313,6 +314,8 @@ def test_update_validated_can_store_description(client, users, taxon_ids):
     reloaded = db.session.get(PermissionRequest, created.id_permission_request)
     assert reloaded.validated is False
     assert reloaded.validation_description == "Refus motivé"
+    first_validation_date = reloaded.validation_date
+    assert first_validation_date is not None
 
     with logged_user(client, users["admin_user"]):
         response = client.patch(
@@ -324,3 +327,5 @@ def test_update_validated_can_store_description(client, users, taxon_ids):
     reloaded = db.session.get(PermissionRequest, created.id_permission_request)
     assert reloaded.validated is None
     assert reloaded.validation_description is None
+    assert reloaded.validation_date is not None
+    assert reloaded.validation_date > first_validation_date

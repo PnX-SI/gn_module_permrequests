@@ -367,7 +367,7 @@ def _grant_module_permissions(conn, module_id, object_id, action_ids, role_id, s
             "id_object": object_id,
             "scope_value": scope_value,
             "sensitivity_filter": False,
-            "created_on": datetime.utcnow(),
+            "created_on": datetime.now(),
             "expire_on": None,
             "validated": True,
         }
