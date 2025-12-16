@@ -1,4 +1,4 @@
-<div class="PermissionRequestToolbar">
+<div class="PermissionRequestToolbar" *ngIf="permissionRequest">
   <button
     class="Edit"
     [ngClass]="permissionRequest?.status ? 'Edit--' + permissionRequest.status : ''"

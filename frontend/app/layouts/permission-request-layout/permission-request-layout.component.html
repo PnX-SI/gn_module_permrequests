@@ -18,6 +18,7 @@
       </div>
       <div class="Header__right">
         <permission-request-toolbar
+          *ngIf="permissionRequest"
           [permissionRequest]="permissionRequest"
           [withInfo]="withInfo"
           [withEdit]="withEdit"
