@@ -217,10 +217,10 @@ class PermissionRequest(DB.Model):
 
     @property
     def scope(self):
-        if self.permission is None or self.permission.id_role is None or self.author_id is None:
+        if self.permission is None or self.permission.id_role is None or self.id_author is None:
             return None
 
-        if self.permission.id_role == self.author_id:
+        if self.permission.id_role == self.id_author:
             return SCOPE_USER
 
         role = self.permission.role

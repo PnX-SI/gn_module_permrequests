@@ -16,7 +16,7 @@ import sqlalchemy as sa
 revision = "7b9091d8a643"
 down_revision = None
 branch_labels = ("permission_request_samples",)
-depends_on = "743becffa102"
+depends_on = "c0c83e1f1f16"
 
 MODULE_CODE = "PERMISSION_REQUEST"
 SYNTHESIS_MODULE_CODE = "SYNTHESE"
@@ -395,7 +395,7 @@ def _create_permission_request_permissions(
     template_count = len(PERMISSION_REQUEST_TEMPLATES)
     for index in range(PERMISSION_REQUEST_SAMPLE_SIZE):
         template = PERMISSION_REQUEST_TEMPLATES[index % template_count]
-        author_id = random.choice(authors)
+        id_author = random.choice(authors)
         initialization = base_date - timedelta(days=random.randint(-40, 40))
         expiration = initialization + timedelta(days=random.randint(1, 40))
         created_on = datetime.combine(initialization, datetime.min.time())
@@ -403,7 +403,7 @@ def _create_permission_request_permissions(
         scope_value = template["scope"]
         validated_value = template["validated"]
         validator = random.choice(validator_ids) if validated_value is not None else None
-        permission_role_id = group_role_id if scope_value == "ORGANISM" else author_id
+        permission_role_id = group_role_id if scope_value == "ORGANISM" else id_author
         permission_id = _insert_permission(
             conn,
             {
@@ -439,7 +439,7 @@ def _create_permission_request_permissions(
                 """
             ),
             {
-                "id_author": author_id,
+                "id_author": id_author,
                 "id_validator": validator,
                 "validation_description": (
                     f"Commentaire de validation #{index + 1}"
