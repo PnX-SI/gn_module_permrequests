@@ -163,6 +163,7 @@ def list_permission_requests(scope):
         PermissionRequest.validated,
         PermissionRequest.initialization_date,
         PermissionRequest.expiration_date,
+        PermissionRequest.id_validator,
     ).label("status_order")
 
     # Order by
@@ -280,6 +281,7 @@ def list_permission_requests(scope):
                 validated_column=PermissionRequest.validated,
                 initialization_column=PermissionRequest.initialization_date,
                 expiration_column=PermissionRequest.expiration_date,
+                id_validator_column=PermissionRequest.id_validator,
             )
             for status in set(status_filters)
         ]
@@ -843,6 +845,8 @@ def delete_permission_request(scope, id_permission_request):
 @json_resp
 def update_validated(scope, id_permission_request):
     payload = request.get_json(silent=True)
+    if payload is None:
+        payload = {}
     if not isinstance(payload, dict):
         raise BadRequest("A JSON object is required.")
 
@@ -850,24 +854,6 @@ def update_validated(scope, id_permission_request):
     unexpected_fields = set(payload.keys()) - allowed_fields
     if unexpected_fields:
         raise BadRequest(f"Unsupported fields provided: {', '.join(sorted(unexpected_fields))}.")
-
-    if "validated" not in payload:
-        raise BadRequest("Field 'validated' must be provided.")
-
-    validated_value = payload.get("validated")
-    if validated_value not in (True, False, None):
-        raise BadRequest("validated must be true, false or null.")
-    description_provided = "validation_description" in payload
-    validation_description = None
-    if description_provided:
-        raw_description = payload.get("validation_description")
-        if raw_description is not None and not isinstance(raw_description, str):
-            raise BadRequest("validation_description must be a string or null.")
-        if isinstance(raw_description, str):
-            trimmed = raw_description.strip()
-            validation_description = trimmed or None
-    else:
-        validation_description = permission_request.validation_description
 
     query = PermissionRequest.filter_by_scope(scope)
     permission_request = (
@@ -885,12 +871,41 @@ def update_validated(scope, id_permission_request):
     if permission_request.permission is None:
         raise InternalServerError("No permission is linked to this permission request.")
 
+    reset_payload = len(payload) == 0
+
+    validated_value = None
+    validation_description = None
+    if reset_payload:
+        validated_value = None
+    else:
+        if "validated" not in payload:
+            raise BadRequest("Field 'validated' must be provided.")
+
+        validated_value = payload.get("validated")
+        if validated_value not in (True, False, None):
+            raise BadRequest("validated must be true, false or null.")
+
+        description_provided = "validation_description" in payload
+        if description_provided:
+            raw_description = payload.get("validation_description")
+            if raw_description is not None and not isinstance(raw_description, str):
+                raise BadRequest("validation_description must be a string or null.")
+            if isinstance(raw_description, str):
+                trimmed = raw_description.strip()
+                validation_description = trimmed or None
+        else:
+            validation_description = permission_request.validation_description
+
     permission_request.validated = validated_value
-    permission_request.id_validator = current_user.id_role
-    if validated_value is None:
+    if reset_payload:
+        permission_request.id_validator = None
         permission_request.validation_description = None
     else:
-        permission_request.validation_description = validation_description
+        permission_request.id_validator = current_user.id_role
+        if validated_value is None:
+            permission_request.validation_description = None
+        else:
+            permission_request.validation_description = validation_description
 
     db.session.commit()
 

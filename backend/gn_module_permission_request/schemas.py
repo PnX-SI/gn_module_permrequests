@@ -73,7 +73,12 @@ class PermissionRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     cruved = fields.Method("get_cruved", dump_only=True)
 
     def get_status(self, obj):
-        return compute_status(obj.validated, obj.initialization_date, obj.expiration_date)
+        return compute_status(
+            obj.validated,
+            obj.initialization_date,
+            obj.expiration_date,
+            obj.id_validator,
+        )
 
     def get_scope(self, obj):
         return obj.scope

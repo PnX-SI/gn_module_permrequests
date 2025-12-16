@@ -1,3 +1,5 @@
+import { STATUS } from './status';
+
 export interface PermissionRequest {
   id_permission_request: number;
   id_author: number;
@@ -12,7 +14,7 @@ export interface PermissionRequest {
   taxa: PermissionRequestTaxon[];
   areas: PermissionRequestArea[];
   permissions: number[];
-  status: string | null;
+  status: STATUS | null;
   author: PermissionRequestRole | null;
   validator: PermissionRequestRole | null;
   cruved: Cruved | null;

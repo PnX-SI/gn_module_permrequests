@@ -97,4 +97,11 @@ export class PermissionRequestService {
       payload
     );
   }
+
+  resetValidated(id_permission_request: number): Observable<PermissionRequestResponse> {
+    return this._http.patch<PermissionRequestResponse>(
+      `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/${id_permission_request}/validated`,
+      null
+    );
+  }
 }

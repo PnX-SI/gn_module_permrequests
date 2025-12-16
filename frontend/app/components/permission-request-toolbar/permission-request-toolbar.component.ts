@@ -10,7 +10,7 @@ import { ConfirmationDialog } from '@geonature_common/others/modal-confirmation/
 import { ModuleService } from '@geonature/services/module.service';
 
 import { PermissionRequest } from '../../models/permissionRequest';
-import { PermissionRequestService } from '../../services/permissionRequest.service';
+import { PermissionRequestService, ValidatedPayload } from '../../services/permissionRequest.service';
 import { ROUTE_PATHS } from '../../gnModule.module';
 import { STATUS_LABELS } from '../../models/status';
 import { ValidationDescriptionDialogComponent, ValidationDescriptionDialogData, ValidationDescriptionDialogResult } from './validation-description-dialog.component';
@@ -121,10 +121,10 @@ export class PermissionRequestToolbarComponent {
     >(ValidationDescriptionDialogComponent, {
       width: '500px',
       data: {
-        validated: this.permissionRequest.validated ?? null,
         validation_description: this.permissionRequest.validation_description ?? null,
         initialization_date: this.permissionRequest.initialization_date ?? null,
         expiration_date: this.permissionRequest.expiration_date ?? null,
+        status: this.permissionRequest.status ?? null,
       },
     });
 
@@ -132,23 +132,51 @@ export class PermissionRequestToolbarComponent {
       if (!result) {
         return;
       }
-      this._submitValidationRequest(result.validated, result.validation_description);
+      if (result.reset) {
+        this._resetValidationRequest();
+      } else {
+        this._submitValidationRequest(result.validated, result.validation_description);
+      }
     });
   }
 
   private _submitValidationRequest(
     validated: boolean | null,
-    validation_description: string | null
+    validation_description: string | null,
   ): void {
     if (!this.permissionRequest) {
       return;
     }
     this.validationRequestPending = true;
+    const payload: ValidatedPayload = {
+      validated,
+      validation_description,
+    };
     this._permissionRequestService
       .updateValidated(this.permissionRequest.id_permission_request, {
-        validated,
-        validation_description,
+        ...payload,
       })
+      .subscribe({
+        next: (updatedPermissionRequest: PermissionRequest) => {
+          this.permissionRequest = updatedPermissionRequest;
+          this.updated.emit(updatedPermissionRequest.id_permission_request);
+        },
+        error: () => {
+          this.validationRequestPending = false;
+        },
+        complete: () => {
+          this.validationRequestPending = false;
+        },
+      });
+  }
+
+  private _resetValidationRequest(): void {
+    if (!this.permissionRequest) {
+      return;
+    }
+    this.validationRequestPending = true;
+    this._permissionRequestService
+      .resetValidated(this.permissionRequest.id_permission_request)
       .subscribe({
         next: (updatedPermissionRequest: PermissionRequest) => {
           this.permissionRequest = updatedPermissionRequest;

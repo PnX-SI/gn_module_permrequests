@@ -329,3 +329,40 @@ def test_update_validated_can_store_description(client, users, taxon_ids):
     assert reloaded.validation_description is None
     assert reloaded.validation_date is not None
     assert reloaded.validation_date > first_validation_date
+
+
+def test_update_validated_can_mark_in_progress_and_reset(client, users, taxon_ids):
+    created = create_permission_request(
+        users["admin_user"], description="Needs work", taxa_ids=taxon_ids[:2], id_validator=None
+    )
+    assert created.id_validator is None
+
+    with logged_user(client, users["admin_user"]):
+        response = client.patch(
+            f"/permission_request/{created.id_permission_request}/validated",
+            json={"validated": None},
+        )
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["validated"] is None
+    assert data["id_validator"] == users["admin_user"].id_role
+    assert data["status"] == "IN_PROGRESS"
+
+    reloaded = db.session.get(PermissionRequest, created.id_permission_request)
+    assert reloaded.id_validator == users["admin_user"].id_role
+
+    with logged_user(client, users["admin_user"]):
+        response = client.patch(
+            f"/permission_request/{created.id_permission_request}/validated",
+            json=None,
+        )
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["validated"] is None
+    assert data["id_validator"] is None
+    assert data["status"] == "PENDING"
+
+    reloaded = db.session.get(PermissionRequest, created.id_permission_request)
+    assert reloaded.id_validator is None

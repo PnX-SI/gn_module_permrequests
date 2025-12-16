@@ -10,6 +10,7 @@ from geonature.utils.env import db
 class Status(str, Enum):
     REFUSED = "REFUSED"
     PENDING = "PENDING"
+    IN_PROGRESS = "IN_PROGRESS"
     EXPIRED = "EXPIRED"
     UPCOMING = "UPCOMING"
     ACTIVE = "ACTIVE"
@@ -17,6 +18,7 @@ class Status(str, Enum):
 STATUS_ORDER = [
     Status.REFUSED,
     Status.PENDING,
+    Status.IN_PROGRESS,
     Status.EXPIRED,
     Status.UPCOMING,
     Status.ACTIVE,
@@ -24,12 +26,14 @@ STATUS_ORDER = [
 STATUS_ORDER_INDEX = {key: index + 1 for index, key in enumerate(STATUS_ORDER)}
 
 
-def compute_status(validated, initialization_date, expiration_date, today=None):
+def compute_status(validated, initialization_date, expiration_date, id_validator=None, today=None):
     today = today or date.today()
 
     if validated is False:
         return Status.REFUSED
     if validated is None:
+        if id_validator is not None:
+            return Status.IN_PROGRESS
         return Status.PENDING
 
     # validated is True
@@ -41,12 +45,20 @@ def compute_status(validated, initialization_date, expiration_date, today=None):
 
 
 def status_order_case(
-    validated_column, initialization_column, expiration_column, current_date=None
+    validated_column,
+    initialization_column,
+    expiration_column,
+    id_validator_column,
+    current_date=None,
 ):
     current_date = current_date or db.func.current_date()
 
     return case(
         (validated_column.is_(False), STATUS_ORDER_INDEX[Status.REFUSED]),
+        (
+            and_(validated_column.is_(None), id_validator_column.is_not(None)),
+            STATUS_ORDER_INDEX[Status.IN_PROGRESS],
+        ),
         (validated_column.is_(None), STATUS_ORDER_INDEX[Status.PENDING]),
         (
             and_(validated_column.is_(True), expiration_column < current_date),
@@ -61,13 +73,20 @@ def status_order_case(
 
 
 def status_filter_expression(
-    status, *, validated_column, initialization_column, expiration_column
+    status,
+    *,
+    validated_column,
+    initialization_column,
+    expiration_column,
+    id_validator_column,
 ):
     current_date = db.func.current_date()
     if status == Status.REFUSED:
         return validated_column.is_(False)
     if status == Status.PENDING:
-        return validated_column.is_(None)
+        return and_(validated_column.is_(None), id_validator_column.is_(None))
+    if status == Status.IN_PROGRESS:
+        return and_(validated_column.is_(None), id_validator_column.is_not(None))
     if status == Status.EXPIRED:
         return and_(validated_column.is_(True), expiration_column < current_date)
     if status == Status.UPCOMING:

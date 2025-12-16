@@ -79,6 +79,7 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
     { value: STATUS.UPCOMING, label: STATUS_LABELS[STATUS.UPCOMING] },
     { value: STATUS.EXPIRED, label: STATUS_LABELS[STATUS.EXPIRED]},
     { value: STATUS.PENDING, label: STATUS_LABELS[STATUS.PENDING] },
+    { value: STATUS.IN_PROGRESS, label: STATUS_LABELS[STATUS.IN_PROGRESS] },
     { value: STATUS.REFUSED, label: STATUS_LABELS[STATUS.REFUSED]},
   ];
 
@@ -90,7 +91,7 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
   validatedOptions = [
     { value: 'true', label: 'Validée' },
     { value: 'false', label: 'Refusée' },
-    { value: 'none', label: 'Non traitée' },
+    { value: 'none', label: 'Non traitée ou en cours' },
   ];
 
   sensitivityOptions = [
