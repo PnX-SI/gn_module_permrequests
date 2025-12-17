@@ -29,7 +29,6 @@ import { STATUS, STATUS_LABELS } from '../../models/status';
 type FiltersFormValue = {
   status: string[] | null;
   scope: PermissionRequestScope[] | null;
-  validated: string[] | null;
   sensitivity_filter: string[] | null;
 };
 
@@ -106,12 +105,6 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
     { value: PermissionRequestScope.ORGANISM, label: 'Organisme' },
   ];
 
-  validatedOptions = [
-    { value: 'true', label: 'Validée' },
-    { value: 'false', label: 'Refusée' },
-    { value: 'none', label: 'Non traitée ou en cours' },
-  ];
-
   sensitivityOptions = [
     { value: 'true', label: 'Oui' },
     { value: 'false', label: 'Non' },
@@ -120,7 +113,6 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
   filtersForm = new FormGroup({
     status: new FormControl<string[] | null>([]),
     scope: new FormControl<PermissionRequestScope[] | null>([]),
-    validated: new FormControl<string[] | null>([]),
     sensitivity_filter: new FormControl<string[] | null>([]),
   });
 
@@ -202,11 +194,6 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
     const scopeFilters = new Set(filters.scope ?? []);
     scopeFilters.forEach((value) => {
       params = params.append('scope', value);
-    });
-
-    const validatedFilters = new Set(filters.validated ?? []);
-    validatedFilters.forEach((value) => {
-      params = params.append('validated', value);
     });
 
     const sensitivityFilters = new Set(filters.sensitivity_filter ?? []);
