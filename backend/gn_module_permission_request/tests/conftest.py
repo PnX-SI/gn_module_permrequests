@@ -30,8 +30,7 @@ def ensure_permission_request_module(app, users):
         module = db.session.scalar(select(TModules).filter_by(module_code=MODULE_CODE))
 
     actions = {
-        code: db.session.scalar(select(PermAction).filter_by(code_action=code))
-        for code in "CRUDV"
+        code: db.session.scalar(select(PermAction).filter_by(code_action=code)) for code in "CRUDV"
     }
     object_all = db.session.scalar(select(PermObject).filter_by(code_object="ALL"))
 

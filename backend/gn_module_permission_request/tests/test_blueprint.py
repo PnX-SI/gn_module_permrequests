@@ -147,8 +147,12 @@ def test_list_permission_requests_returns_latest(client, users, taxon_ids):
 
 
 def test_list_permission_requests_respects_scope(client, users, taxon_ids):
-    other_request = create_permission_request(users["admin_user"], description="Hidden", taxa_ids=taxon_ids[:2])
-    self_request = create_permission_request(users["self_user"], description="Visible", taxa_ids=taxon_ids[:2])
+    other_request = create_permission_request(
+        users["admin_user"], description="Hidden", taxa_ids=taxon_ids[:2]
+    )
+    self_request = create_permission_request(
+        users["self_user"], description="Visible", taxa_ids=taxon_ids[:2]
+    )
 
     with logged_user(client, users["self_user"]):
         response = client.get(
@@ -263,7 +267,9 @@ def test_update_permission_request_updates_fields(client, users, taxon_ids, area
     }
 
     with logged_user(client, users["admin_user"]):
-        response = client.patch(f"/permission_request/{created.id_permission_request}", json=update_payload)
+        response = client.patch(
+            f"/permission_request/{created.id_permission_request}", json=update_payload
+        )
 
     assert response.status_code == 200
     data = response.get_json()
@@ -271,11 +277,15 @@ def test_update_permission_request_updates_fields(client, users, taxon_ids, area
     reloaded = db.session.get(PermissionRequest, created.id_permission_request)
     assert reloaded.permission.sensitivity_filter is False
     assert [tax.cd_nom for tax in reloaded.permission.taxons_filter] == update_payload["taxa"]
-    assert sorted(area.id_area for area in reloaded.permission.areas_filter) == sorted(update_payload["areas"])
+    assert sorted(area.id_area for area in reloaded.permission.areas_filter) == sorted(
+        update_payload["areas"]
+    )
 
 
 def test_delete_permission_request_removes_entry(client, users, taxon_ids):
-    created = create_permission_request(users["admin_user"], description="To delete", taxa_ids=taxon_ids[:2])
+    created = create_permission_request(
+        users["admin_user"], description="To delete", taxa_ids=taxon_ids[:2]
+    )
 
     with logged_user(client, users["admin_user"]):
         response = client.delete(f"/permission_request/{created.id_permission_request}")
@@ -285,7 +295,9 @@ def test_delete_permission_request_removes_entry(client, users, taxon_ids):
 
 
 def test_update_validated_sets_validator(client, users, taxon_ids):
-    created = create_permission_request(users["admin_user"], description="Needs validation", taxa_ids=taxon_ids[:2])
+    created = create_permission_request(
+        users["admin_user"], description="Needs validation", taxa_ids=taxon_ids[:2]
+    )
 
     with logged_user(client, users["admin_user"]):
         response = client.patch(
@@ -302,7 +314,9 @@ def test_update_validated_sets_validator(client, users, taxon_ids):
 
 
 def test_update_validated_can_store_description(client, users, taxon_ids):
-    created = create_permission_request(users["admin_user"], description="Needs message", taxa_ids=taxon_ids[:2])
+    created = create_permission_request(
+        users["admin_user"], description="Needs message", taxa_ids=taxon_ids[:2]
+    )
 
     with logged_user(client, users["admin_user"]):
         response = client.patch(

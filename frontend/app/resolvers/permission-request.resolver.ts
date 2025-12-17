@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import { Resolve, ActivatedRouteSnapshot } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 
-import { PermissionRequestResponse, PermissionRequestService } from '../services/permissionRequest.service';
+import {
+  PermissionRequestResponse,
+  PermissionRequestService,
+} from '../services/permissionRequest.service';
 
 @Injectable()
 export class PermissionRequestResolver implements Resolve<PermissionRequestResponse> {

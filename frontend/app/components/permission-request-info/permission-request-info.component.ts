@@ -3,7 +3,13 @@ import { CommonModule } from '@angular/common';
 
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 
-import { PermissionRequest, PermissionRequestScope, DEFAULT_SCOPE, PermissionRequestTaxon, PermissionRequestArea } from '../../models/permissionRequest';
+import {
+  PermissionRequest,
+  PermissionRequestScope,
+  DEFAULT_SCOPE,
+  PermissionRequestTaxon,
+  PermissionRequestArea,
+} from '../../models/permissionRequest';
 
 const SCOPE_LABELS: Record<PermissionRequestScope, string> = {
   [PermissionRequestScope.USER]: 'Utilisateur',

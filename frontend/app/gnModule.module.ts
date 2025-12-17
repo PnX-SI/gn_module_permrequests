@@ -18,7 +18,8 @@ import { canViewGuard } from './guards/can-view.guard';
 export const ROUTE_PATHS = {
   permissionRequests: '',
   permissionRequest: (id_permission_request: number | string) => `${id_permission_request}`,
-  permissionRequestEdit: (id_permission_request: number | string) => `${id_permission_request}/edit`,
+  permissionRequestEdit: (id_permission_request: number | string) =>
+    `${id_permission_request}/edit`,
   newPermissionRequest: 'new',
 };
 

@@ -83,7 +83,6 @@ PERMISSION_REQUEST_TEMPLATES = [
 PERMISSION_REQUEST_SAMPLE_SIZE = 54
 
 
-
 def _get_module_id(conn, module_code):
     module_id = conn.execute(
         sa.text(
@@ -565,16 +564,20 @@ def _fetch_sample_role_ids(conn):
 
 
 def _cleanup_permission_requests(conn):
-    rows = conn.execute(
-        sa.text(
-            f"""
+    rows = (
+        conn.execute(
+            sa.text(
+                f"""
             SELECT {PRIMARY_KEY} AS id_permission_request, id_permission
             FROM {SCHEMA_NAME}.{TABLE_NAME}
             WHERE description LIKE :prefix
             """
-        ),
-        {"prefix": f"{PERMISSION_REQUEST_DESCRIPTION_PREFIX}%"},
-    ).mappings().all()
+            ),
+            {"prefix": f"{PERMISSION_REQUEST_DESCRIPTION_PREFIX}%"},
+        )
+        .mappings()
+        .all()
+    )
     permission_ids = [row["id_permission"] for row in rows if row["id_permission"] is not None]
 
     for row in rows:

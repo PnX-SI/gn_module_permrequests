@@ -35,12 +35,14 @@
 
   <div class="PermissionRequestInfo__field">
     <label for="initialization_date">Date d'initialisation</label>
-    <div id="initialization_date">{{ permissionRequest.initialization_date | date:'dd/MM/yyyy' }}</div>
+    <div id="initialization_date">
+      {{ permissionRequest.initialization_date | date: 'dd/MM/yyyy' }}
+    </div>
   </div>
 
   <div class="PermissionRequestInfo__field">
     <label for="expiration_date">Date d'expiration</label>
-    <div id="expiration_date">{{ permissionRequest.expiration_date | date:'dd/MM/yyyy' }}</div>
+    <div id="expiration_date">{{ permissionRequest.expiration_date | date: 'dd/MM/yyyy' }}</div>
   </div>
 
   <div class="PermissionRequestInfo__field">
@@ -57,7 +59,9 @@
       id="taxa"
       class="PermissionRequestInfo__list"
     >
-      <li *ngFor="let taxon of permissionRequest.taxa; trackBy: trackByTaxon">{{ taxon.cd_nom }} : {{ taxon.lb_nom }}</li>
+      <li *ngFor="let taxon of permissionRequest.taxa; trackBy: trackByTaxon">
+        {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
+      </li>
     </ul>
   </div>
 

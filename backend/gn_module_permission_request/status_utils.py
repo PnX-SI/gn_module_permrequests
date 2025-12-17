@@ -15,6 +15,7 @@ class Status(str, Enum):
     UPCOMING = "UPCOMING"
     ACTIVE = "ACTIVE"
 
+
 STATUS_ORDER = [
     Status.REFUSED,
     Status.PENDING,

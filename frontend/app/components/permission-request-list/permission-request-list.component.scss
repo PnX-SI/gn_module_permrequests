@@ -33,7 +33,7 @@
             display: none; /* WebKit */
           }
 
-          ::ng-deep .ng-select-container .ng-value-container .ng-placeholder{
+          ::ng-deep .ng-select-container .ng-value-container .ng-placeholder {
             top: auto;
             padding-bottom: 0;
           }
@@ -61,9 +61,7 @@
       align-items: center;
       justify-content: flex-end;
     }
-
   }
-
 
   &__table {
     height: calc(100vh - 155px); // TODO Magicnumber

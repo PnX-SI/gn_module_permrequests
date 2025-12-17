@@ -97,7 +97,6 @@
     {{ value ? 'Oui' : 'Non' }}
   </ng-template>
 
-
   <ng-template
     #cellScopeTemplate
     let-value="value"
@@ -155,7 +154,10 @@
         let-permissionRequest="row"
       >
         <ng-template
-          *ngTemplateOutlet="cellNameTemplate; context: { value: permissionRequest.author.nom_complet }"
+          *ngTemplateOutlet="
+            cellNameTemplate;
+            context: { value: permissionRequest.author.nom_complet }
+          "
         ></ng-template>
       </ng-template>
     </ngx-datatable-column>
@@ -285,7 +287,8 @@
         ></ng-template>
       </ng-template>
     </ngx-datatable-column>
-    <ngx-datatable-column [sortable]="false"
+    <ngx-datatable-column
+      [sortable]="false"
       [width]="200"
     >
       <ng-template

@@ -5,15 +5,15 @@
   justify-content: flex-end;
   gap: 0.25rem;
   $edit-status-colors: (
-    REFUSED: #FF5722,
-    PENDING: #BDBDBD,
+    REFUSED: #ff5722,
+    PENDING: #bdbdbd,
     IN_PROGRESS: #673ab7,
-    EXPIRED: #FF9800,
+    EXPIRED: #ff9800,
     UPCOMING: #30a5ff,
-    ACTIVE: #8BC34A
+    ACTIVE: #8bc34a,
   );
 
-  .Edit{
+  .Edit {
     --edit-color: #333333; // Default value
     text-transform: uppercase;
     border-width: 2px;
@@ -22,7 +22,7 @@
     background-color: color-mix(in srgb, var(--edit-color) 50%, white);
     border: 2px solid color-mix(in srgb, var(--edit-color) 80%, black);
 
-    &--disabled{
+    &--disabled {
       cursor: default;
     }
 

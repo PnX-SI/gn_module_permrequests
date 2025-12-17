@@ -27,84 +27,100 @@ type ValidationChoice = 'approve' | 'reject' | 'in_progress' | null;
   standalone: true,
   selector: 'permission-request-validation-description-dialog',
   template: `
-    <h1 mat-dialog-title>Commentaire de validation</h1>
-    <div mat-dialog-content>
-      <p class="ValidationDescriptionDialog__intro">
-        Choisissez le statut de validation puis ajoutez un message optionnel.
-      </p>
-      <mat-button-toggle-group
-        class="ValidationDescriptionDialog__toggle"
-        [(ngModel)]="choice"
-        name="validation-choice"
-        aria-label="Choix de validation"
-      >
-        <mat-button-toggle
-          class="DecisionToggle DecisionToggle--approve"
-          [ngStyle]="decisionStyles.approve"
-          [value]="'approve'"
-        >
-          Valider
-        </mat-button-toggle>
-        <mat-button-toggle
-          class="DecisionToggle DecisionToggle--in-progress"
-          [ngStyle]="decisionStyles.inProgress"
-          [value]="'in_progress'"
-      >
-        En cours
-      </mat-button-toggle>
-      <mat-button-toggle
-        class="DecisionToggle DecisionToggle--reject"
-          [ngStyle]="decisionStyles.reject"
-          [value]="'reject'"
-        >
-          Refuser
-        </mat-button-toggle>
-      </mat-button-toggle-group>
-      <div class="ValidationDescriptionDialog__status-hint-wrapper">
-        <p
-          *ngIf="choice === 'approve' && dateStatusLabel"
-          class="ValidationDescriptionDialog__status-hint"
-          [ngStyle]="{ color: dateStatusColor }"
-        >
-          Cette demande sera considérée comme "{{ dateStatusLabel }}".
-        </p>
+    <div class="card">
+      <div class="card-header">
+        <h1 mat-dialog-title>Valider la demande de permission</h1>
       </div>
-      <p>
-        Vous pouvez renseigner un message optionnel à transmettre lors de cette validation.
-      </p>
-      <mat-form-field appearance="fill" class="ValidationDescriptionDialog__field">
-        <mat-label>Message (optionnel)</mat-label>
-        <textarea
-          matInput
-          rows="3"
-          [(ngModel)]="description"
-          placeholder="Renseignez un commentaire"
-        ></textarea>
-      </mat-form-field>
-    </div>
-    <div mat-dialog-actions class="ValidationDescriptionDialog__actions">
-      <div class="ValidationDescriptionDialog__actions-group">
-        <button
-          mat-stroked-button
-          color="primary"
-          type="button"
-          (click)="onReset()"
-          [disabled]="!canReset"
-        >
-          Réinitialiser
-        </button>
+      <div class="card-body">
+        <div mat-dialog-content>
+          <p class="ValidationDescriptionDialog__intro">Statut de validation</p>
+          <mat-button-toggle-group
+            class="ValidationDescriptionDialog__toggle"
+            [(ngModel)]="choice"
+            name="validation-choice"
+            aria-label="Choix de validation"
+          >
+            <mat-button-toggle
+              class="DecisionToggle DecisionToggle--approve"
+              [ngStyle]="decisionStyles.approve"
+              [value]="'approve'"
+            >
+              Valider
+            </mat-button-toggle>
+            <mat-button-toggle
+              class="DecisionToggle DecisionToggle--in-progress"
+              [ngStyle]="decisionStyles.inProgress"
+              [value]="'in_progress'"
+            >
+              En cours
+            </mat-button-toggle>
+            <mat-button-toggle
+              class="DecisionToggle DecisionToggle--reject"
+              [ngStyle]="decisionStyles.reject"
+              [value]="'reject'"
+            >
+              Refuser
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+          <div class="ValidationDescriptionDialog__status-hint-wrapper">
+            <p
+              *ngIf="choice === 'approve' && dateStatusLabel"
+              class="ValidationDescriptionDialog__status-hint"
+              [ngStyle]="{ color: dateStatusColor }"
+            >
+              Cette demande sera considérée comme "{{ dateStatusLabel }}".
+            </p>
+          </div>
+          <p>Message à transmettre lors de cette validation</p>
+          <mat-form-field
+            appearance="fill"
+            class="ValidationDescriptionDialog__field"
+          >
+            <mat-label>Message (optionnel)</mat-label>
+            <textarea
+              matInput
+              rows="6"
+              [(ngModel)]="description"
+              placeholder="Renseignez un commentaire"
+            ></textarea>
+          </mat-form-field>
+        </div>
       </div>
-      <div class="ValidationDescriptionDialog__actions-group">
-        <button mat-button type="button" (click)="onCancel()">Annuler</button>
-        <button
-          mat-flat-button
-          color="primary"
-          type="button"
-          (click)="onConfirm()"
-          [disabled]="!choice"
+      <div class="card-footer">
+        <div
+          mat-dialog-actions
+          class="ValidationDescriptionDialog__actions"
         >
-          Valider
-        </button>
+          <div class="ValidationDescriptionDialog__actions-group">
+            <button
+              mat-stroked-button
+              color="primary"
+              type="button"
+              (click)="onReset()"
+              [disabled]="!canReset"
+            >
+              Réinitialiser
+            </button>
+          </div>
+          <div class="ValidationDescriptionDialog__actions-group">
+            <button
+              mat-button
+              type="button"
+              (click)="onCancel()"
+            >
+              Annuler
+            </button>
+            <button
+              mat-flat-button
+              color="primary"
+              type="button"
+              (click)="onConfirm()"
+              [disabled]="!choice"
+            >
+              Valider
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -115,6 +131,7 @@ type ValidationChoice = 'approve' | 'reject' | 'in_progress' | null;
       }
       .ValidationDescriptionDialog__toggle {
         margin: 0.5rem 0 1rem;
+        width: 100%;
       }
       .ValidationDescriptionDialog__intro {
         margin-bottom: 0.25rem;
@@ -146,6 +163,7 @@ type ValidationChoice = 'approve' | 'reject' | 'in_progress' | null;
         border: 1px solid transparent;
         --decision-color: #555;
         color: var(--decision-color);
+        width: 100%;
       }
       .DecisionToggle.mat-button-toggle-checked {
         background-color: color-mix(in srgb, var(--decision-color) 12%, white);

@@ -18,7 +18,7 @@ COR_PERMISSION_REQUEST_PERMISSIONS_TABLE = f"cor_{MODULE_CODE.lower()}_permissio
 
 NOTIFICATION_SCHEMA = "gn_notifications"
 NOTIFICATION_CATEGORY_DEFINITIONS = [
-      {
+    {
         "code": "PERMISSION_REQUEST_DELETE",
         "label": "Suppression d'une demande",
         "description": "Suppression d'une demande de permission",
@@ -208,7 +208,9 @@ def upgrade():
         {"module_code": MODULE_CODE},
     ).scalar()
     if module_id is None:
-        raise RuntimeError("PERMISSION_REQUEST module must be registered before running this migration.")
+        raise RuntimeError(
+            "PERMISSION_REQUEST module must be registered before running this migration."
+        )
 
     object_id = conn.execute(
         sa.text(
@@ -235,7 +237,9 @@ def upgrade():
             {"action_code": action_code},
         ).scalar()
         if action_id is None:
-            raise RuntimeError(f"Permission action '{action_code}' is required to configure notifications.")
+            raise RuntimeError(
+                f"Permission action '{action_code}' is required to configure notifications."
+            )
         return action_id
 
     category_values = []

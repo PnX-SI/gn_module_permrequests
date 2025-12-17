@@ -17,8 +17,15 @@ import { FormService } from '@geonature_common/form/form.service';
 import { ModuleService } from '@geonature/services/module.service';
 import { ConfigService } from '@geonature/services/config.service';
 
-import { PermissionRequest, PermissionRequestScope, DEFAULT_SCOPE } from '../../models/permissionRequest';
-import { PermissionRequestPayload, PermissionRequestService } from '../../services/permissionRequest.service';
+import {
+  PermissionRequest,
+  PermissionRequestScope,
+  DEFAULT_SCOPE,
+} from '../../models/permissionRequest';
+import {
+  PermissionRequestPayload,
+  PermissionRequestService,
+} from '../../services/permissionRequest.service';
 import { ROUTE_PATHS } from '../../gnModule.module';
 import { Taxon } from '@geonature_common/form/taxonomy/taxonomy.component';
 
@@ -47,7 +54,8 @@ export class PermissionRequestFormComponent {
   readonly shouldDisplayAcknowledgement: boolean;
   readonly termsAcknowledgementText: string;
   readonly PermissionRequestScope = PermissionRequestScope;
-  selectedAreasDefaultItems: Array<{ id_area: number; area_name: string; displayName: string }> = [];
+  selectedAreasDefaultItems: Array<{ id_area: number; area_name: string; displayName: string }> =
+    [];
 
   constructor(
     private _permissionRequestService: PermissionRequestService,
@@ -241,7 +249,9 @@ export class PermissionRequestFormComponent {
     );
 
     const normalizedExpiration = this._normalizeDateValue(expiration_date);
-    const permissionRequestExpiration = this._normalizeDateValue(this.permissionRequest.expiration_date);
+    const permissionRequestExpiration = this._normalizeDateValue(
+      this.permissionRequest.expiration_date
+    );
 
     const normalizedValidator = id_validator ?? null;
     const permissionRequestValidator = this.permissionRequest.id_validator ?? null;

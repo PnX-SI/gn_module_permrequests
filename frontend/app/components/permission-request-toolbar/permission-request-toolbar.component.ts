@@ -4,16 +4,22 @@ import { RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 
-
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { ConfirmationDialog } from '@geonature_common/others/modal-confirmation/confirmation.dialog';
 import { ModuleService } from '@geonature/services/module.service';
 
 import { PermissionRequest } from '../../models/permissionRequest';
-import { PermissionRequestService, ValidatedPayload } from '../../services/permissionRequest.service';
+import {
+  PermissionRequestService,
+  ValidatedPayload,
+} from '../../services/permissionRequest.service';
 import { ROUTE_PATHS } from '../../gnModule.module';
 import { STATUS_LABELS } from '../../models/status';
-import { ValidationDescriptionDialogComponent, ValidationDescriptionDialogData, ValidationDescriptionDialogResult } from './validation-description-dialog.component';
+import {
+  ValidationDescriptionDialogComponent,
+  ValidationDescriptionDialogData,
+  ValidationDescriptionDialogResult,
+} from './validation-description-dialog.component';
 @Component({
   standalone: true,
   selector: 'permission-request-toolbar',
@@ -27,7 +33,7 @@ export class PermissionRequestToolbarComponent {
   constructor(
     private _permissionRequestService: PermissionRequestService,
     private _dialog: MatDialog,
-    private _moduleService: ModuleService,
+    private _moduleService: ModuleService
   ) {}
 
   @Input()
@@ -67,7 +73,7 @@ export class PermissionRequestToolbarComponent {
       return;
     }
     const message =
-      "Vous vous apprétez à supprimer la requête de permission #" +
+      'Vous vous apprétez à supprimer la requête de permission #' +
       this.permissionRequest.id_permission_request +
       '\
       Voulez-vous continuer ? \
@@ -79,13 +85,14 @@ export class PermissionRequestToolbarComponent {
     });
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result && this.permissionRequest) {
-        this._permissionRequestService.deletePermissionRequest(this.permissionRequest).subscribe(() => {
-          this.deleted.emit(this.permissionRequest?.id_permission_request);
-        });
+        this._permissionRequestService
+          .deletePermissionRequest(this.permissionRequest)
+          .subscribe(() => {
+            this.deleted.emit(this.permissionRequest?.id_permission_request);
+          });
       }
     });
   }
-
 
   validationRequestPending = false;
 
@@ -119,7 +126,7 @@ export class PermissionRequestToolbarComponent {
       ValidationDescriptionDialogData,
       ValidationDescriptionDialogResult | undefined
     >(ValidationDescriptionDialogComponent, {
-      width: '500px',
+      width: '700px',
       data: {
         validation_description: this.permissionRequest.validation_description ?? null,
         initialization_date: this.permissionRequest.initialization_date ?? null,
@@ -142,7 +149,7 @@ export class PermissionRequestToolbarComponent {
 
   private _submitValidationRequest(
     validated: boolean | null,
-    validation_description: string | null,
+    validation_description: string | null
   ): void {
     if (!this.permissionRequest) {
       return;

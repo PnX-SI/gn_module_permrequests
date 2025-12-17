@@ -74,7 +74,9 @@ export class PermissionRequestService {
     );
   }
 
-  createPermissionRequest(payload: PermissionRequestPayload): Observable<PermissionRequestResponse> {
+  createPermissionRequest(
+    payload: PermissionRequestPayload
+  ): Observable<PermissionRequestResponse> {
     payload = this._serializePayload(payload);
     return this._http.post<PermissionRequestResponse>(
       `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/`,

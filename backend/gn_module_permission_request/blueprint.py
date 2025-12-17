@@ -487,7 +487,8 @@ def create_permission_request():
             area_id
             for area_id in normalized_area_ids
             if area_id in areas_by_id
-            and getattr(areas_by_id[area_id].area_type, "type_code", None) not in ALLOWED_AREA_TYPE_CODES
+            and getattr(areas_by_id[area_id].area_type, "type_code", None)
+            not in ALLOWED_AREA_TYPE_CODES
         }
     )
     if invalid_area_types:
@@ -645,7 +646,9 @@ def update_permission_request(scope, id_permission_request):
         else:
             try:
                 if permission_request.permission is None:
-                    raise InternalServerError("No permission is linked to this permission request.")
+                    raise InternalServerError(
+                        "No permission is linked to this permission request."
+                    )
                 permission_request.initialization_date = datetime.strptime(
                     initialization_value, "%Y-%m-%d"
                 ).date()
@@ -661,7 +664,9 @@ def update_permission_request(scope, id_permission_request):
         try:
             if permission_request.permission is None:
                 raise InternalServerError("No permission is linked to this permission request.")
-            permission_request.expiration_date = datetime.strptime(expiration_value, "%Y-%m-%d").date()
+            permission_request.expiration_date = datetime.strptime(
+                expiration_value, "%Y-%m-%d"
+            ).date()
         except ValueError as exc:
             raise BadRequest("expiration_date must be a valid date in YYYY-MM-DD format.") from exc
     if (

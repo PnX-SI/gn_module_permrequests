@@ -6,7 +6,11 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { DEFAULT_PAGINATION, PaginationItem } from '../../models/paginationItem';
 import { SORT_ORDER, SortItem } from '../../models/sortItem';
-import { PermissionRequest, PermissionRequestScope, DEFAULT_SCOPE } from '../../models/permissionRequest';
+import {
+  PermissionRequest,
+  PermissionRequestScope,
+  DEFAULT_SCOPE,
+} from '../../models/permissionRequest';
 import {
   PermissionRequestListResponse,
   PermissionRequestService,
@@ -20,7 +24,7 @@ import { ROUTE_PATHS } from '../../gnModule.module';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { canCreatePermission } from '../../guards/can-create.guard';
- import { STATUS, STATUS_LABELS } from '../../models/status';
+import { STATUS, STATUS_LABELS } from '../../models/status';
 
 type FiltersFormValue = {
   status: string[] | null;
@@ -75,12 +79,12 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
   };
 
   statusOptions = [
-    { value: STATUS.ACTIVE, label: STATUS_LABELS[STATUS.ACTIVE]},
+    { value: STATUS.ACTIVE, label: STATUS_LABELS[STATUS.ACTIVE] },
     { value: STATUS.UPCOMING, label: STATUS_LABELS[STATUS.UPCOMING] },
-    { value: STATUS.EXPIRED, label: STATUS_LABELS[STATUS.EXPIRED]},
+    { value: STATUS.EXPIRED, label: STATUS_LABELS[STATUS.EXPIRED] },
     { value: STATUS.PENDING, label: STATUS_LABELS[STATUS.PENDING] },
     { value: STATUS.IN_PROGRESS, label: STATUS_LABELS[STATUS.IN_PROGRESS] },
-    { value: STATUS.REFUSED, label: STATUS_LABELS[STATUS.REFUSED]},
+    { value: STATUS.REFUSED, label: STATUS_LABELS[STATUS.REFUSED] },
   ];
 
   scopeOptions = [

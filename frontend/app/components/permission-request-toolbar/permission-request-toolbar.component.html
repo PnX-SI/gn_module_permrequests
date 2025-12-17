@@ -1,4 +1,7 @@
-<div class="PermissionRequestToolbar" *ngIf="permissionRequest">
+<div
+  class="PermissionRequestToolbar"
+  *ngIf="permissionRequest"
+>
   <button
     class="Edit"
     [ngClass]="permissionRequest?.status ? 'Edit--' + permissionRequest.status : ''"
@@ -6,15 +9,10 @@
     mat-stroked-button
     matTooltip="Editer"
     (click)="openValidationDialog()"
-    *ngIf="(withValidate && permissionRequest?.cruved?.V); else displayStatus"
-
+    *ngIf="withValidate && permissionRequest?.cruved?.V; else displayStatus"
   >
     <span class="Edit__label">{{ STATUS_LABELS[permissionRequest.status] }}</span>
-    <mat-icon
-      class="Edit__icon"
-    >
-        edit
-      </mat-icon>
+    <mat-icon class="Edit__icon">edit</mat-icon>
   </button>
   <ng-template #displayStatus>
     <button
