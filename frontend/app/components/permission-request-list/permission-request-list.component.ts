@@ -78,13 +78,27 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
     [PermissionRequestScope.ORGANISM]: 'Organisme',
   };
 
+  private readonly VALIDATED_STATUS_GROUP_LABEL = 'Validée';
+
   statusOptions = [
-    { value: STATUS.ACTIVE, label: STATUS_LABELS[STATUS.ACTIVE] },
-    { value: STATUS.UPCOMING, label: STATUS_LABELS[STATUS.UPCOMING] },
-    { value: STATUS.EXPIRED, label: STATUS_LABELS[STATUS.EXPIRED] },
     { value: STATUS.PENDING, label: STATUS_LABELS[STATUS.PENDING] },
     { value: STATUS.IN_PROGRESS, label: STATUS_LABELS[STATUS.IN_PROGRESS] },
     { value: STATUS.REFUSED, label: STATUS_LABELS[STATUS.REFUSED] },
+    {
+      value: STATUS.UPCOMING,
+      label: STATUS_LABELS[STATUS.UPCOMING],
+      group: this.VALIDATED_STATUS_GROUP_LABEL,
+    },
+    {
+      value: STATUS.ACTIVE,
+      label: STATUS_LABELS[STATUS.ACTIVE],
+      group: this.VALIDATED_STATUS_GROUP_LABEL,
+    },
+    {
+      value: STATUS.EXPIRED,
+      label: STATUS_LABELS[STATUS.EXPIRED],
+      group: this.VALIDATED_STATUS_GROUP_LABEL,
+    },
   ];
 
   scopeOptions = [

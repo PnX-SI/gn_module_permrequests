@@ -6,7 +6,7 @@
         class="FiltersForm FiltersForm--horizontal"
       >
         <ng-select
-          class="FiltersForm__Filter"
+          class="FiltersForm__Filter Multiselect"
           id="filter-status"
           [items]="statusOptions"
           bindLabel="label"
@@ -16,7 +16,35 @@
           formControlName="status"
           [multiple]="true"
           [closeOnSelect]="false"
-        ></ng-select>
+          groupBy="group"
+          [selectableGroup]="true"
+          [selectableGroupAsModel]="false"
+        >
+          <ng-template ng-optgroup-tmp let-item="item" let-item$="item$" let-index="index">
+            <div class="MultiselectOptionItem">
+              <input
+                class="MultiselectOptionItem__checkbox"
+                id="status-group-{{ index }}"
+                type="checkbox"
+                [ngModel]="item$.selected"
+                [ngModelOptions]="{ standalone: true }"
+              />
+              <div class="MultiselectOptionItem__text">{{ item.group || item.label }}</div>
+            </div>
+          </ng-template>
+          <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
+            <div class="MultiselectOptionItem">
+              <input
+                class="MultiselectOptionItem__checkbox"
+                id="status-item-{{ index }}"
+                type="checkbox"
+                [ngModel]="item$.selected"
+                [ngModelOptions]="{ standalone: true }"
+              />
+              <div class="MultiselectOptionItem__text">{{ item.label }}</div>
+            </div>
+          </ng-template>
+        </ng-select>
         <ng-select
           class="FiltersForm__Filter"
           id="filter-scope"
