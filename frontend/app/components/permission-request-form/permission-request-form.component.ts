@@ -1,7 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 
 import {
@@ -16,6 +18,7 @@ import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { FormService } from '@geonature_common/form/form.service';
 import { ModuleService } from '@geonature/services/module.service';
 import { ConfigService } from '@geonature/services/config.service';
+import { AuthService } from '@geonature/components/auth/auth.service';
 
 import {
   PermissionRequest,
@@ -47,7 +50,14 @@ type PermissionRequestFormValue = {
   selector: 'permission-request-form',
   templateUrl: 'permission-request-form.component.html',
   styleUrls: ['./permission-request-form.component.scss'],
-  imports: [GN2CommonModule, CommonModule, ReactiveFormsModule, MatButtonModule],
+  imports: [
+    GN2CommonModule,
+    CommonModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+  ],
 })
 export class PermissionRequestFormComponent {
   isSaving = false;
@@ -64,7 +74,8 @@ export class PermissionRequestFormComponent {
     private _formService: FormService,
     private _moduleService: ModuleService,
     private _configService: ConfigService,
-    private _router: Router
+    private _router: Router,
+    private _authService: AuthService
   ) {
     const moduleConfig = this._configService.PERMISSION_REQUEST ?? {};
     this.shouldDisplayAcknowledgement = !!moduleConfig.REQUIRE_TERMS_ACKNOWLEDGEMENT;
@@ -86,6 +97,14 @@ export class PermissionRequestFormComponent {
   }
   get permissionRequest(): PermissionRequest | null {
     return this._permissionRequest;
+  }
+
+  get authorName(): string | null {
+    return (
+      this.permissionRequest?.author?.nom_complet ??
+      this._authService.getCurrentUser()?.nom_complet ??
+      null
+    );
   }
 
   // //////////////////////////////////////////////////////////////////////////

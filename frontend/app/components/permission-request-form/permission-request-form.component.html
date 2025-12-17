@@ -1,219 +1,165 @@
-<form
-  class="PermissionRequestForm"
-  [formGroup]="form"
-  (ngSubmit)="onSubmit()"
->
+<form class="PermissionRequestForm" [formGroup]="form" (ngSubmit)="onSubmit()">
   <div class="PermissionRequestForm__fields">
-    <div
-      class="Field"
-      *ngIf="permissionRequest?.author"
-    >
-      <label
-        class="Field__label"
-        for="author"
-      >
-        Auteur
-      </label>
-      <div id="author">{{ permissionRequest.author.nom_complet }}</div>
-    </div>
-
-    <div class="Field">
-      <label
-        class="Field__label"
-        for="description"
-      >
-        Description
-      </label>
-      <textarea
-        id="description"
-        rows="4"
-        formControlName="description"
-      ></textarea>
-    </div>
-
-    <div class="Field">
-      <label
-        class="Field__label"
-        for="taxa"
-      >
-        Taxons
-      </label>
-      <pnx-taxonomy
-        id="taxa"
-        [parentFormControl]="taxonSearchControl"
-        displayedLabel="lb_nom"
-        charNumber="3"
-        listLength="20"
-        (onChange)="onTaxonSelected($event)"
-      ></pnx-taxonomy>
-      <div
-        class="Field__selectedTaxa"
-        *ngIf="taxaControl?.value?.length"
-      >
-        <ul>
-          <li *ngFor="let taxon of taxaControl?.value">
-            {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
-            <button
-              type="button"
-              mat-icon-button
-              color="warn"
-              (click)="removeTaxon(taxon.cd_nom)"
-              matTooltip="Retirer ce taxon"
-              aria-label="Retirer ce taxon"
-            >
-              <mat-icon>close</mat-icon>
-            </button>
-          </li>
-        </ul>
-      </div>
-      <div
-        class="Field__error"
-        *ngIf="taxaControl?.hasError('required') && taxaControl?.touched"
-      >
-        Vous devez sélectionner au moins un taxon.
+    <div class="PermissionRequestForm__intro" *ngIf="!permissionRequest">
+      <div class="PermissionRequestForm__intro-title">Préparer votre demande</div>
+      <div class="PermissionRequestForm__intro-text">
+        Décrivez votre besoin, ciblez les données concernées puis indiquez la période de validité.
       </div>
     </div>
 
-    <div class="Field">
-      <label
-        class="Field__label"
-        for="areas"
-      >
-        Zones géographiques
-      </label>
-      <pnx-areas
-        id="areas"
-        [typeCodes]="['COM', 'DEP', 'REG']"
-        [parentFormControl]="areasControl"
-        [defaultItems]="selectedAreasDefaultItems"
-        (onSelectionChange)="onAreasSelectionChange($event)"
-      ></pnx-areas>
-    </div>
+    <div class="PermissionRequestForm__grid">
+      <div class="PermissionRequestForm__row PermissionRequestForm__row--top">
+        <mat-card class="PermissionRequestForm__card PermissionRequestForm__card--narrow">
+          <mat-card-header>
+            <mat-card-title><mat-icon class="CardTitle__icon">person</mat-icon>Bénéficiaire</mat-card-title>
+            <mat-card-subtitle>Auteur et portée de la demande.</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content class="PermissionRequestForm__card-content">
+            <div class="Field Field--inline" *ngIf="authorName">
+              <div class="Field__label">Auteur</div>
+              <div>{{ authorName }}</div>
+            </div>
 
-    <div class="Field">
-      <label class="Field__label">
-        <input
-          type="checkbox"
-          formControlName="sensitivity_filter"
-        />
-        Inclure les données sensibles
-      </label>
-    </div>
+            <div class="Field Field--scopeInline">
+              <div class="Field__label">Portée</div>
+              <div class="Field__scopeOptions">
+                <label>
+                  <input type="radio" formControlName="scope" [value]="PermissionRequestScope.USER" />
+                  Moi uniquement
+                </label>
+                <label>
+                  <input type="radio" formControlName="scope" [value]="PermissionRequestScope.ORGANISM" />
+                  Mon organisme
+                </label>
+              </div>
+              <div class="Field__error" *ngIf="scopeControl?.hasError('required') && scopeControl?.touched">
+                La portée est obligatoire.
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
 
-    <div class="Field">
-      <label
-        class="Field__label"
-        for="initialization_date"
-      >
-        Date d'initialisation
-      </label>
-      <pnx-date
-        id="initialization_date"
-        [defaultToday]="false"
-        [parentFormControl]="initializationDateControl"
-        [noMaxDate]="true"
-      ></pnx-date>
-    </div>
-
-    <div class="Field">
-      <label
-        class="Field__label"
-        for="expiration_date"
-      >
-        Date d'expiration
-      </label>
-      <pnx-date
-        id="expiration_date"
-        [defaultToday]="true"
-        [parentFormControl]="expirationDateControl"
-        [noMaxDate]="true"
-      ></pnx-date>
-      <div
-        class="Field__error"
-        *ngIf="expirationDateControl?.hasError('required') && expirationDateControl?.touched"
-      >
-        La date d'expiration est obligatoire.
+        <mat-card class="PermissionRequestForm__card PermissionRequestForm__card--description">
+          <mat-card-header>
+            <mat-card-title><mat-icon class="CardTitle__icon">notes</mat-icon>Description</mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="PermissionRequestForm__card-content">
+            <div class="Field Field--description">
+              <textarea id="description" rows="6" formControlName="description"
+                placeholder="Décrivez le besoin ou le contexte"></textarea>
+            </div>
+          </mat-card-content>
+        </mat-card>
       </div>
-    </div>
 
-    <div
-      class="Field__error"
-      *ngIf="
-        form.errors?.invalidDate &&
-        (initializationDateControl?.touched || expirationDateControl?.touched)
-      "
-    >
-      La date d'initialisation doit être antérieure à la date d'expiration.
-    </div>
+      <div class="PermissionRequestForm__row PermissionRequestForm__row--data">
+        <mat-card class="PermissionRequestForm__card PermissionRequestForm__card--validity">
+          <mat-card-header>
+            <mat-card-title><mat-icon class="CardTitle__icon">event</mat-icon>Fenêtre de validité</mat-card-title>
+            <mat-card-subtitle>Période pendant laquelle la permission est requise.</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content class="PermissionRequestForm__card-content">
+            <div class="PermissionRequestForm__dates">
+              <div class="Field">
+                <label class="Field__label" for="initialization_date">
+                  Date d'initialisation
+                </label>
+                <pnx-date id="initialization_date" [defaultToday]="false"
+                  [parentFormControl]="initializationDateControl" [noMaxDate]="true"></pnx-date>
+              </div>
 
-    <div class="Field">
-      <label
-        class="Field__label"
-        for="scope"
-      >
-        Portée
-      </label>
-      <div class="Field__scopeOptions">
-        <label>
-          <input
-            type="radio"
-            formControlName="scope"
-            [value]="PermissionRequestScope.USER"
-          />
-          Moi uniquement
-        </label>
-        <label>
-          <input
-            type="radio"
-            formControlName="scope"
-            [value]="PermissionRequestScope.ORGANISM"
-          />
-          Mon organisme
-        </label>
-      </div>
-      <div
-        class="Field__error"
-        *ngIf="scopeControl?.hasError('required') && scopeControl?.touched"
-      >
-        La portée est obligatoire.
-      </div>
-    </div>
+              <div class="Field">
+                <label class="Field__label" for="expiration_date">
+                  Date d'expiration
+                </label>
+                <pnx-date id="expiration_date" [defaultToday]="true" [parentFormControl]="expirationDateControl"
+                  [noMaxDate]="true"></pnx-date>
+                <div class="Field__error"
+                  *ngIf="expirationDateControl?.hasError('required') && expirationDateControl?.touched">
+                  La date d'expiration est obligatoire.
+                </div>
+              </div>
+            </div>
 
-    <div
-      class="Field Field--acknowledge"
-      *ngIf="shouldDisplayAcknowledgement"
-    >
-      <label class="Field__label">
-        <input
-          type="checkbox"
-          formControlName="acknowledgeTerms"
-        />
-        {{ termsAcknowledgementText }}
-      </label>
-      <div
-        class="Field__error"
-        *ngIf="acknowledgeTermsControl?.hasError('required') && acknowledgeTermsControl?.touched"
-      >
-        Vous devez accepter les conditions pour poursuivre.
+            <div class="Field__error" *ngIf="
+                form.errors?.invalidDate &&
+                (initializationDateControl?.touched || expirationDateControl?.touched)
+              ">
+              La date d'initialisation doit être antérieure à la date d'expiration.
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="PermissionRequestForm__card PermissionRequestForm__card--data">
+          <mat-card-header>
+            <mat-card-title><mat-icon class="CardTitle__icon">layers</mat-icon>Données concernées</mat-card-title>
+            <mat-card-subtitle>Sélectionnez les taxons et zones concernés.</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content class="PermissionRequestForm__card-content">
+            <div class="PermissionRequestForm__dataset">
+              <div class="Field">
+                <label class="Field__label" for="taxa">
+                  Taxons
+                </label>
+                <pnx-taxonomy id="taxa" [parentFormControl]="taxonSearchControl" displayedLabel="lb_nom" charNumber="3"
+                  listLength="20" (onChange)="onTaxonSelected($event)"></pnx-taxonomy>
+                <div class="Field__selectedTaxa" *ngIf="taxaControl?.value?.length">
+                  <ul>
+                    <li *ngFor="let taxon of taxaControl?.value">
+                      {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
+                      <button type="button" mat-icon-button color="warn" (click)="removeTaxon(taxon.cd_nom)"
+                        matTooltip="Retirer ce taxon" aria-label="Retirer ce taxon">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+                <div class="Field__error" *ngIf="taxaControl?.hasError('required') && taxaControl?.touched">
+                  Vous devez sélectionner au moins un taxon.
+                </div>
+              </div>
+
+              <div class="Field">
+                <label class="Field__label" for="areas">
+                  Zones géographiques
+                </label>
+                <pnx-areas id="areas" [typeCodes]="['COM', 'DEP', 'REG']" [parentFormControl]="areasControl"
+                  [defaultItems]="selectedAreasDefaultItems"
+                  (onSelectionChange)="onAreasSelectionChange($event)"></pnx-areas>
+              </div>
+            </div>
+            <div class="Field Field--inline-check">
+              <label class="Field__label">
+                <input type="checkbox" formControlName="sensitivity_filter" />
+                Inclure les données sensibles
+              </label>
+            </div>
+          </mat-card-content>
+        </mat-card>
       </div>
+      <mat-card-content>
+        <div class="Field Field--inline-check PermissionRequestForm__ack" *ngIf="shouldDisplayAcknowledgement">
+          <label class="Field__label">
+            <input type="checkbox" formControlName="acknowledgeTerms" />
+            {{ termsAcknowledgementText }}
+          </label>
+          <div class="Field__error"
+            *ngIf="acknowledgeTermsControl?.hasError('required') && acknowledgeTermsControl?.touched">
+            Vous devez accepter les conditions pour poursuivre.
+          </div>
+        </div>
+      </mat-card-content>
+
     </div>
   </div>
   <div class="PermissionRequestForm__actions">
-    <button
-      type="button"
-      mat-stroked-button
-      color="primary"
-      (click)="onReset()"
-      [disabled]="form.pristine || isSaving || isSameAsPermissionRequest"
-    >
+
+    <button type="button" mat-stroked-button color="primary" (click)="onReset()"
+      [disabled]="form.pristine || isSaving || isSameAsPermissionRequest">
       Réinitialiser
     </button>
-    <button
-      type="submit"
-      mat-flat-button
-      color="primary"
-      [disabled]="form.invalid || form.pristine || isSaving || isSameAsPermissionRequest"
-    >
+    <button type="submit" mat-flat-button color="primary"
+      [disabled]="form.invalid || form.pristine || isSaving || isSameAsPermissionRequest">
       Enregistrer
     </button>
   </div>

@@ -1,5 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 
@@ -21,7 +23,7 @@ const SCOPE_LABELS: Record<PermissionRequestScope, string> = {
   selector: 'permission-request-info',
   templateUrl: 'permission-request-info.component.html',
   styleUrls: ['./permission-request-info.component.scss'],
-  imports: [CommonModule, GN2CommonModule],
+  imports: [CommonModule, GN2CommonModule, MatCardModule, MatIconModule],
 })
 export class PermissionRequestInfoComponent {
   @Input()

@@ -10,16 +10,134 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    row-gap: 1rem;
+    row-gap: 1.25rem;
+
+    .PermissionRequestForm__intro {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .PermissionRequestForm__intro-title {
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .PermissionRequestForm__intro-text {
+      color: #4b5563;
+      font-size: 0.95rem;
+    }
+
+    .PermissionRequestForm__grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .PermissionRequestForm__row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: stretch;
+    }
+
+    .PermissionRequestForm__row--top {
+      align-items: stretch;
+    }
+
+    .PermissionRequestForm__row--data .PermissionRequestForm__card {
+      width: auto;
+      flex: 1 1 320px;
+    }
+
+    .PermissionRequestForm__card {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #e5e7eb;
+      box-shadow: none;
+      border-radius: 8px;
+
+      .mat-mdc-card-header {
+        padding-bottom: 0.35rem;
+      }
+
+      .mat-mdc-card-content {
+        flex: 1 1 auto;
+        padding-top: 0.35rem;
+      }
+    }
+
+    .CardTitle__icon {
+      margin-right: 0.35rem;
+      vertical-align: middle;
+      font-size: 20px;
+      color: #1f2937;
+    }
+
+    .PermissionRequestForm__card--narrow {
+      min-width: 260px;
+      max-width: 420px;
+      flex: 1 1 320px;
+    }
+
+    .PermissionRequestForm__card--description {
+      flex: 1 1 400px;
+    }
+
+    .PermissionRequestForm__card--data {
+      flex: 2 1 420px;
+    }
+
+    .PermissionRequestForm__card--validity {
+      flex: 1 1 320px;
+      max-width: 420px;
+    }
+
+    .PermissionRequestForm__card-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .PermissionRequestForm__dates {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .PermissionRequestForm__dataset {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1rem;
+      align-items: start;
+    }
 
     .Field {
       display: flex;
       flex-flow: column;
       justify-content: flex-start;
+      gap: 0.35rem;
+
+      &--inline {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+
+        .Field__label {
+          margin-bottom: 0;
+        }
+      }
 
       &__label {
         font-weight: 600;
-        margin-bottom: 0;
+        margin-bottom: 0.1rem;
+        color: #1f2937;
       }
 
       textarea,
@@ -28,6 +146,18 @@
         border-radius: 4px;
         font: inherit;
         padding: 0.5rem;
+        width: 100%;
+      }
+
+      &--inline-check {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.35rem;
+
+        input[type='checkbox'] {
+          width: auto;
+          margin: 0;
+        }
       }
 
       &__selectedTaxa {
@@ -48,12 +178,17 @@
       }
 
       &__scopeOptions {
-        display: flex;
+        display: inline-flex;
         flex-flow: row nowrap;
-        justify-content: flex-start;
-        gap: 1rem;
+        align-items: center;
+        gap: 0.75rem;
         label {
           font-weight: normal;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          margin-bottom: 0;
+          white-space: nowrap;
         }
       }
 
@@ -69,7 +204,11 @@
     justify-content: flex-end;
     align-items: center;
     column-gap: 0.5rem;
-    padding-top: 0.5rem;
+    padding-top: 0.75rem;
     border-top: 1px solid rgba(0, 0, 0, 0.125);
+
+    .PermissionRequestForm__ack {
+      margin-left: auto;
+    }
   }
 }
