@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { RouterModule, Params } from '@angular/router';
 import { STATUS, STATUS_LABELS, STATUS_COLORS } from '../../models/status';
 
 export interface ValidationDescriptionDialogData {
@@ -13,6 +14,7 @@ export interface ValidationDescriptionDialogData {
   initialization_date: string | null;
   expiration_date: string | null;
   status: STATUS | null;
+  cdNom: number[];
 }
 
 export interface ValidationDescriptionDialogResult {
@@ -92,6 +94,16 @@ type ValidationChoice = 'approve' | 'reject' | 'in_progress' | null;
           class="ValidationDescriptionDialog__actions"
         >
           <div class="ValidationDescriptionDialog__actions-group">
+            <a
+              mat-stroked-button
+              color="primary"
+              [routerLink]="syntheseLink"
+              [queryParams]="syntheseQueryParams"
+              target="_blank"
+              rel="noopener"
+            >
+              Visualiser les données
+            </a>
             <button
               mat-stroked-button
               color="primary"
@@ -180,6 +192,7 @@ type ValidationChoice = 'approve' | 'reject' | 'in_progress' | null;
     MatInputModule,
     MatFormFieldModule,
     MatButtonToggleModule,
+    RouterModule,
   ],
 })
 export class ValidationDescriptionDialogComponent {
@@ -194,6 +207,8 @@ export class ValidationDescriptionDialogComponent {
     reject: { '--decision-color': STATUS_COLORS[STATUS.REFUSED] },
     inProgress: { '--decision-color': STATUS_COLORS[STATUS.IN_PROGRESS] },
   };
+  readonly syntheseLink = ['/synthese'];
+  readonly syntheseQueryParams: Params;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: ValidationDescriptionDialogData,
@@ -208,6 +223,7 @@ export class ValidationDescriptionDialogComponent {
     this.dateStatus = this._computeDateStatus(data?.initialization_date, data?.expiration_date);
     this.dateStatusLabel = this.dateStatus ? STATUS_LABELS[this.dateStatus] : null;
     this.dateStatusColor = this.dateStatus ? STATUS_COLORS[this.dateStatus] : null;
+    this.syntheseQueryParams = this._computeSyntheseQueryParams(data?.cdNom ?? []);
   }
 
   onConfirm(): void {
@@ -296,5 +312,24 @@ export class ValidationDescriptionDialogComponent {
       data?.status === STATUS.IN_PROGRESS ||
       data?.status === STATUS.EXPIRED;
     return hasDecision;
+  }
+
+  private _computeSyntheseQueryParams(cdNoms: number[]) {
+    const query: Params = {};
+    const uniqueCdNoms = Array.from(
+      new Set(
+        (cdNoms || [])
+          .flatMap((value) => value)
+          .map((value) => Number(value))
+          .filter((value) => Number.isFinite(value))
+      )
+    ) as number[];
+    if (uniqueCdNoms.length) {
+      // In synthse, the query_params available is cd_ref.
+      // In permission request, the taxon is referenced by cd_nom because of fk behavior.
+      // But it's actually a cd_ref.
+      query.cd_ref = uniqueCdNoms;
+    }
+    return query;
   }
 }

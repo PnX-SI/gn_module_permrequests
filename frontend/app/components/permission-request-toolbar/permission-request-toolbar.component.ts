@@ -132,6 +132,7 @@ export class PermissionRequestToolbarComponent {
         initialization_date: this.permissionRequest.initialization_date ?? null,
         expiration_date: this.permissionRequest.expiration_date ?? null,
         status: this.permissionRequest.status ?? null,
+        cdNom: this._getCdNoms(this.permissionRequest),
       },
     });
 
@@ -196,5 +197,18 @@ export class PermissionRequestToolbarComponent {
           this.validationRequestPending = false;
         },
       });
+  }
+
+  private _getCdNoms(permissionRequest: PermissionRequest | null): number[] {
+    if (!permissionRequest?.taxa?.length) {
+      return [];
+    }
+    return Array.from(
+      new Set(
+        permissionRequest.taxa
+          .map((taxon) => taxon.cd_nom)
+          .filter((value): value is number => Number.isFinite(value))
+      )
+    );
   }
 }

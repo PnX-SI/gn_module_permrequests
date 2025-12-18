@@ -444,13 +444,13 @@ export class PermissionRequestFormComponent {
     if (!item || item.cd_nom === undefined || item.cd_nom === null) {
       return;
     }
-    const cdNom = Number(item.cd_nom);
-    if (!Number.isFinite(cdNom)) {
+    const cd_ref = Number(item.cd_ref);
+    if (!Number.isFinite(cd_ref)) {
       this._resetTaxonSearchControl();
       return;
     }
     const currentTaxa = (this.taxaControl?.value as any[]) ?? [];
-    const alreadySelected = currentTaxa.some((taxon) => taxon.cd_nom === cdNom);
+    const alreadySelected = currentTaxa.some((taxon) => taxon.cd_nom === cd_ref);
     if (alreadySelected) {
       this._resetTaxonSearchControl();
       return;
@@ -460,7 +460,7 @@ export class PermissionRequestFormComponent {
     const updatedTaxa = [
       ...currentTaxa,
       {
-        cd_nom: cdNom,
+        cd_nom: cd_ref,
         lb_nom: label,
         displayName: label,
       },
