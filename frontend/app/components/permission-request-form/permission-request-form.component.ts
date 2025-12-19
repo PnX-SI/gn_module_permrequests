@@ -81,7 +81,7 @@ export class PermissionRequestFormComponent {
     const moduleConfig = this._configService.PERMISSION_REQUEST ?? {};
     this.shouldDisplayAcknowledgement = !!moduleConfig.REQUIRE_TERMS_ACKNOWLEDGEMENT;
     this._setupValidators();
-    // this._setupAcknowledgementControl();
+    this._setupAcknowledgementControl();
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -121,7 +121,7 @@ export class PermissionRequestFormComponent {
       id_validator: [null],
       scope: [DEFAULT_SCOPE, [Validators.required]],
       sensitivity_filter: [true],
-      acknowledgeTerms: [false, Validators.requiredTrue],
+      acknowledgeTerms: [false],
       taxa: [[], Validators.required],
       taxon_search: [''],
       areas: [[], Validators.required],
@@ -153,6 +153,7 @@ export class PermissionRequestFormComponent {
     }
     control.updateValueAndValidity({ emitEvent: false });
   }
+
 
   onSubmit(): void {
     if (this.form.invalid) {

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
@@ -6,6 +6,11 @@ import {
   FormGroupDirective,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { ConfigService } from '@geonature/services/config.service';
+
+type TermsLink = {
+  href: string;
+};
 
 @Component({
   standalone: true,
@@ -16,15 +21,45 @@ import {
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
 })
 export class AcknowledgementComponent {
-  @Input() shouldDisplayAcknowledgement = false;
-  @Input() formControlName = '';
+  @Input() controlName = '';
+  termsLink: TermsLink | null = null;
+  readonly defaultTermsText = "conditions d'utilisations";
 
-  constructor(private controlContainer: ControlContainer) {}
+  constructor(
+    private controlContainer: ControlContainer,
+    private _configService: ConfigService
+  ) {
+    const moduleConfig = this._configService.PERMISSION_REQUEST ?? {};
+    this.termsLink = this._buildTermsLink(moduleConfig.TERMS_ACKNOWLEDGEMENT ?? null);
+  }
 
   get acknowledgeTermsControl(): AbstractControl | null {
-    if (!this.formControlName) {
+    if (!this.controlName) {
       return null;
     }
-    return this.controlContainer?.control?.get(this.formControlName) ?? null;
+    return this.controlContainer?.control?.get(this.controlName) ?? null;
+  }
+
+  private _buildTermsLink(termsConfig: any): TermsLink | null {
+    if (!termsConfig || typeof termsConfig !== 'object') {
+      return null;
+    }
+    const url = this._normalizeConfigValue(termsConfig.URL);
+
+    if (url) {
+      return {
+        href: url,
+      };
+    }
+
+    return null;
+  }
+
+  private _normalizeConfigValue(value: unknown): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
   }
 }

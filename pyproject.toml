@@ -10,7 +10,7 @@ readme = { file = "README.md", content-type = "text/markdown" }
 maintainers = [
   { name = "Conservatoire Botanique National Alpin", email = "geonature@cbn-alpin.fr" },
   { name = "Parcs nationaux des Écrins et des Cévennes", email = "geonature@ecrins-parcnational.fr" },
-  { name = "Natural Solutions", email = "geonature@natural-solutions.eu" }
+  { name = "Natural Solutions", email = "geonature@natural-solutions.eu" },
 ]
 license = { file = "LICENSE.txt" }
 dependencies = ["geonature >= 2.14"]

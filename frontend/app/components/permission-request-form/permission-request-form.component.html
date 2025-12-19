@@ -137,9 +137,8 @@
           </mat-card-content>
         </mat-card>
       </div>
-      <mat-card-content>
-        <acknowledgement [shouldDisplayAcknowledgement]="shouldDisplayAcknowledgement"
-          formControlName="acknowledgeTerms"></acknowledgement>
+      <mat-card-content *ngIf="shouldDisplayAcknowledgement">
+        <acknowledgement [controlName]="'acknowledgeTerms'"></acknowledgement>
       </mat-card-content>
 
     </div>

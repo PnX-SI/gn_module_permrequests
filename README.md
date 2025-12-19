@@ -93,7 +93,7 @@ du fichier `permission_request_config.toml.example` et en surcouchant les param�
 ### Paramètres
 
 - ``REQUIRE_TERMS_ACKNOWLEDGEMENT`` : permet de faire apparaitre / dissimuler dans le formulaire une coche d'acceptation des termes et conditions.
-- ``TERMS_ACKNOWLEDGMENT.TEXT`` : texte à afficher à côté de la coche en question
+- ``TERMS_ACKNOWLEDGEMENT.URL`` : URL vers les conditions d'utilisations (ouvre un nouvel onglet).
 
 > Le statut visible dans l’interface est calculé automatiquement :
 > - si la date d’expiration est strictement antérieure à la date du jour, la demande est affichée « active » ;
