@@ -1,28 +1,21 @@
 <form class="PermissionRequestForm" [formGroup]="form" (ngSubmit)="onSubmit()">
   <div class="PermissionRequestForm__fields">
-    <div class="PermissionRequestForm__intro" *ngIf="!permissionRequest">
-      <div class="PermissionRequestForm__intro-title">Préparer votre demande</div>
-      <div class="PermissionRequestForm__intro-text">
-        Décrivez votre besoin, ciblez les données concernées puis indiquez la période de validité.
-      </div>
-    </div>
-
-    <div class="PermissionRequestForm__grid">
-      <div class="PermissionRequestForm__row PermissionRequestForm__row--top">
-        <mat-card class="PermissionRequestForm__card PermissionRequestForm__card--narrow">
+    <div class="Grid">
+      <div class="Grid__row Grid__row--top">
+        <mat-card class="Card Card--narrow">
           <mat-card-header>
-            <mat-card-title><mat-icon class="CardTitle__icon">person</mat-icon>Bénéficiaire</mat-card-title>
+            <mat-card-title><mat-icon class="Card__titleIcon">person</mat-icon>Bénéficiaire</mat-card-title>
             <mat-card-subtitle>Auteur et portée de la demande.</mat-card-subtitle>
           </mat-card-header>
-          <mat-card-content class="PermissionRequestForm__card-content">
+          <mat-card-content class="Card__content">
             <div class="Field Field--inline" *ngIf="authorName">
               <div class="Field__label">Auteur</div>
               <div>{{ authorName }}</div>
             </div>
 
-            <div class="Field Field--scopeInline">
+            <div class="Field">
               <div class="Field__label">Portée</div>
-              <div class="Field__scopeOptions">
+              <div class="Field__radio">
                 <label>
                   <input type="radio" formControlName="scope" [value]="PermissionRequestScope.USER" />
                   Moi uniquement
@@ -39,11 +32,11 @@
           </mat-card-content>
         </mat-card>
 
-        <mat-card class="PermissionRequestForm__card PermissionRequestForm__card--description">
+        <mat-card class="Card Card--description">
           <mat-card-header>
-            <mat-card-title><mat-icon class="CardTitle__icon">notes</mat-icon>Description</mat-card-title>
+            <mat-card-title><mat-icon class="Card__titleIcon">notes</mat-icon>Description</mat-card-title>
           </mat-card-header>
-          <mat-card-content class="PermissionRequestForm__card-content">
+          <mat-card-content class="Card__content">
             <div class="Field Field--description">
               <textarea id="description" rows="6" formControlName="description"
                 placeholder="Décrivez le besoin ou le contexte"></textarea>
@@ -52,14 +45,14 @@
         </mat-card>
       </div>
 
-      <div class="PermissionRequestForm__row PermissionRequestForm__row--data">
-        <mat-card class="PermissionRequestForm__card PermissionRequestForm__card--validity">
+      <div class="Grid__row Grid__row--data">
+        <mat-card class="Card Card--validity">
           <mat-card-header>
-            <mat-card-title><mat-icon class="CardTitle__icon">event</mat-icon>Fenêtre de validité</mat-card-title>
+            <mat-card-title><mat-icon class="Card__titleIcon">event</mat-icon>Fenêtre de validité</mat-card-title>
             <mat-card-subtitle>Période pendant laquelle la permission est requise.</mat-card-subtitle>
           </mat-card-header>
-          <mat-card-content class="PermissionRequestForm__card-content">
-            <div class="PermissionRequestForm__dates">
+          <mat-card-content class="Card__content">
+            <div class="Dates">
               <div class="Field">
                 <label class="Field__label" for="initialization_date">
                   Date d'initialisation
@@ -90,13 +83,13 @@
           </mat-card-content>
         </mat-card>
 
-        <mat-card class="PermissionRequestForm__card PermissionRequestForm__card--data">
+        <mat-card class="Card Card--data">
           <mat-card-header>
-            <mat-card-title><mat-icon class="CardTitle__icon">layers</mat-icon>Données concernées</mat-card-title>
+            <mat-card-title><mat-icon class="Card__titleIcon">layers</mat-icon>Données concernées</mat-card-title>
             <mat-card-subtitle>Sélectionnez les taxons et zones concernés.</mat-card-subtitle>
           </mat-card-header>
-          <mat-card-content class="PermissionRequestForm__card-content">
-            <div class="PermissionRequestForm__dataset">
+          <mat-card-content class="Card__content">
+            <div class="Dataset">
               <div class="Field">
                 <label class="Field__label" for="taxa">
                   Taxons
@@ -137,11 +130,10 @@
           </mat-card-content>
         </mat-card>
       </div>
-      <mat-card-content *ngIf="shouldDisplayAcknowledgement">
-        <acknowledgement [controlName]="'acknowledgeTerms'"></acknowledgement>
-      </mat-card-content>
-
     </div>
+    <mat-card-content>
+      <acknowledgement class="Acknowledgment" *ngIf="shouldDisplayAcknowledgement" [controlName]="'acknowledgeTerms'" />
+    </mat-card-content>
   </div>
   <div class="PermissionRequestForm__actions">
 
