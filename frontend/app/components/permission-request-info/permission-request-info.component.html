@@ -2,8 +2,13 @@
   <div class="PermissionRequestInfo__row">
     <mat-card class="Card Card--narrow">
       <mat-card-header>
-        <mat-card-title><mat-icon class="Card__titleIcon">person</mat-icon>Bénéficiaire</mat-card-title>
-        <mat-card-subtitle>Auteur et portée de la demande.</mat-card-subtitle>
+        <mat-card-title>
+          <mat-icon class="Card__titleIcon">{{ sections.beneficiary.icon }}</mat-icon>
+          {{ sections.beneficiary.title }}
+        </mat-card-title>
+        <mat-card-subtitle *ngIf="sections.beneficiary.subtitle">
+          {{ sections.beneficiary.subtitle }}
+        </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content class="Card__content">
         <div class="Field Field--inline" *ngIf="permissionRequest.author">
@@ -30,11 +35,16 @@
 
     <mat-card class="Card Card--description">
       <mat-card-header>
-        <mat-card-title><mat-icon class="Card__titleIcon">notes</mat-icon>Description</mat-card-title>
+        <mat-card-title>
+          <mat-icon class="Card__titleIcon">{{ sections.description.icon }}</mat-icon>
+          {{ sections.description.title }}
+        </mat-card-title>
+        <mat-card-subtitle *ngIf="sections.description.subtitle">
+          {{ sections.description.subtitle }}
+        </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content class="Card__content">
         <div class="Field">
-          <label for="description">Description</label>
           <div id="description" class="Field__text">
             {{ permissionRequest.description || 'Non renseignée' }}
           </div>
@@ -46,8 +56,13 @@
   <div class="PermissionRequestInfo__row PermissionRequestInfo__row--data">
     <mat-card class="Card Card--validity">
       <mat-card-header>
-        <mat-card-title><mat-icon class="Card__titleIcon">event</mat-icon>Fenêtre de validité</mat-card-title>
-        <mat-card-subtitle>Période pendant laquelle la permission est requise.</mat-card-subtitle>
+        <mat-card-title>
+          <mat-icon class="Card__titleIcon">{{ sections.validity.icon }}</mat-icon>
+          {{ sections.validity.title }}
+        </mat-card-title>
+        <mat-card-subtitle *ngIf="sections.validity.subtitle">
+          {{ sections.validity.subtitle }}
+        </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content class="Card__content">
         <div class="Field">
@@ -66,8 +81,13 @@
 
     <mat-card class="Card Card--data">
       <mat-card-header>
-        <mat-card-title><mat-icon class="Card__titleIcon">layers</mat-icon>Données concernées</mat-card-title>
-        <mat-card-subtitle>Sélectionnez les taxons et zones concernés.</mat-card-subtitle>
+        <mat-card-title>
+          <mat-icon class="Card__titleIcon">{{ sections.data.icon }}</mat-icon>
+          {{ sections.data.title }}
+        </mat-card-title>
+        <mat-card-subtitle *ngIf="sections.data.subtitle">
+          {{ sections.data.subtitle }}
+        </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content class="Card__content">
         <div class="Field" *ngIf="permissionRequest.taxa?.length">

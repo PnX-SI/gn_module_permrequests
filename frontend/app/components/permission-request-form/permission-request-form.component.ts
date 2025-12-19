@@ -32,6 +32,7 @@ import {
 import { ROUTE_PATHS } from '../../gnModule.module';
 import { Taxon } from '@geonature_common/form/taxonomy/taxonomy.component';
 import { AcknowledgementComponent } from './acknowledgement/acknowledgement.component';
+import { PERMISSION_REQUEST_SECTIONS } from '../permission-request-common/permission-request-sections';
 
 type PermissionRequestFormValue = {
   description: string | null;
@@ -65,6 +66,7 @@ export class PermissionRequestFormComponent {
   isSaving = false;
   readonly shouldDisplayAcknowledgement: boolean;
   readonly PermissionRequestScope = PermissionRequestScope;
+  readonly sections = PERMISSION_REQUEST_SECTIONS;
   selectedAreasDefaultItems: Array<{ id_area: number; area_name: string; displayName: string }> =
     [];
 

@@ -12,6 +12,7 @@ import {
   PermissionRequestTaxon,
   PermissionRequestArea,
 } from '../../models/permissionRequest';
+import { PERMISSION_REQUEST_SECTIONS } from '../permission-request-common/permission-request-sections';
 
 const SCOPE_LABELS: Record<PermissionRequestScope, string> = {
   [PermissionRequestScope.USER]: 'Utilisateur',
@@ -30,6 +31,7 @@ export class PermissionRequestInfoComponent {
   public permissionRequest: PermissionRequest | null = null;
 
   readonly scopeLabels = SCOPE_LABELS;
+  readonly sections = PERMISSION_REQUEST_SECTIONS;
 
   getScopeLabel(scope: PermissionRequestScope | null): string {
     if (!scope) {
