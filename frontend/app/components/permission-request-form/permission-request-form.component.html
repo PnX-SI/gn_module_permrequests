@@ -141,7 +141,7 @@
         <div class="Field Field--inline-check PermissionRequestForm__ack" *ngIf="shouldDisplayAcknowledgement">
           <label class="Field__label">
             <input type="checkbox" formControlName="acknowledgeTerms" />
-            {{ termsAcknowledgementText }}
+            J'ai lu et j'accepte les conditions d'utilisations.
           </label>
           <div class="Field__error"
             *ngIf="acknowledgeTermsControl?.hasError('required') && acknowledgeTermsControl?.touched">

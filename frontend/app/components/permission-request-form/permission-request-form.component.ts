@@ -62,7 +62,6 @@ type PermissionRequestFormValue = {
 export class PermissionRequestFormComponent {
   isSaving = false;
   readonly shouldDisplayAcknowledgement: boolean;
-  readonly termsAcknowledgementText: string;
   readonly PermissionRequestScope = PermissionRequestScope;
   selectedAreasDefaultItems: Array<{ id_area: number; area_name: string; displayName: string }> =
     [];
@@ -79,7 +78,6 @@ export class PermissionRequestFormComponent {
   ) {
     const moduleConfig = this._configService.PERMISSION_REQUEST ?? {};
     this.shouldDisplayAcknowledgement = !!moduleConfig.REQUIRE_TERMS_ACKNOWLEDGEMENT;
-    this.termsAcknowledgementText = moduleConfig.TERMS_ACKNOWLEDGMENT.TEXT.trim();
     this._setupValidators();
     // this._setupAcknowledgementControl();
   }
