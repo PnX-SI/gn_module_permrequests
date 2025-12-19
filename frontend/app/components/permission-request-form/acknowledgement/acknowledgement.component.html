@@ -1,0 +1,9 @@
+<div class="Acknowledgment" *ngIf="shouldDisplayAcknowledgement">
+  <label class="Acknowledgment__label">
+    <input type="checkbox" [formControlName]="formControlName" />
+    J'ai lu et j'accepte les conditions d'utilisations.
+  </label>
+  <div class="Acknowledgment__error" *ngIf="acknowledgeTermsControl?.hasError('required')">
+    Vous devez accepter les conditions pour poursuivre.
+  </div>
+</div>

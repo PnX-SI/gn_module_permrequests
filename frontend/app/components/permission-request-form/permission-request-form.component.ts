@@ -31,6 +31,7 @@ import {
 } from '../../services/permissionRequest.service';
 import { ROUTE_PATHS } from '../../gnModule.module';
 import { Taxon } from '@geonature_common/form/taxonomy/taxonomy.component';
+import { AcknowledgementComponent } from './acknowledgement/acknowledgement.component';
 
 type PermissionRequestFormValue = {
   description: string | null;
@@ -57,6 +58,7 @@ type PermissionRequestFormValue = {
     MatButtonModule,
     MatCardModule,
     MatIconModule,
+    AcknowledgementComponent,
   ],
 })
 export class PermissionRequestFormComponent {

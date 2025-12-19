@@ -1,0 +1,17 @@
+.Acknowledgment {
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-start;
+  gap: 0.35rem;
+
+  &__label {
+    font-weight: 600;
+    margin-bottom: 0.1rem;
+    color: #1f2937;
+  }
+
+  &__error {
+    color: #d32f2f;
+    font-size: 0.85rem;
+  }
+}
