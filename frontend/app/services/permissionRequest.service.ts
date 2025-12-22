@@ -17,7 +17,6 @@ export interface PermissionRequestPayload {
   description: string | null;
   created_on: string | null;
   expiration_date: string;
-  id_validator?: number | null;
   scope: PermissionRequestScope;
   sensitivity_filter?: boolean;
   taxa: number[];

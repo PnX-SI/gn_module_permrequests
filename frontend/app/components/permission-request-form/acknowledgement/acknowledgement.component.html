@@ -1,14 +1,27 @@
 <div class="Acknowledgment">
   <label class="Acknowledgment__label">
-    <input type="checkbox" [formControlName]="controlName" />
+    <input
+      type="checkbox"
+      [formControlName]="controlName"
+    />
     J'ai lu et j'accepte les
     <ng-container *ngIf="termsLink; else termsText">
-      <a class="Acknowledgment__link" [href]="termsLink.href" target="_blank" rel="noopener"
-        >{{ defaultTermsText }}</a>.
+      <a
+        class="Acknowledgment__link"
+        [href]="termsLink.href"
+        target="_blank"
+        rel="noopener"
+      >
+        {{ defaultTermsText }}
+      </a>
+      .
     </ng-container>
     <ng-template #termsText>{{ defaultTermsText }}.</ng-template>
   </label>
-  <div class="Acknowledgment__error" *ngIf="acknowledgeTermsControl?.hasError('required')">
+  <div
+    class="Acknowledgment__error"
+    *ngIf="acknowledgeTermsControl?.hasError('required')"
+  >
     Vous devez accepter les conditions pour poursuivre.
   </div>
 </div>

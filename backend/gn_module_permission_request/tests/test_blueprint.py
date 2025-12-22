@@ -262,7 +262,6 @@ def test_update_permission_request_updates_fields(client, users, taxon_ids, area
         "sensitivity_filter": False,
         "taxa": [taxon_ids[1]],
         "expiration_date": new_expiration.isoformat(),
-        "id_validator": users["admin_user"].id_role,
         "areas": [area_ids[1]],
     }
 

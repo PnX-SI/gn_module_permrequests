@@ -16,6 +16,7 @@
         flex-flow: row nowrap;
         justify-content: flex-start;
         column-gap: 0.5rem;
+        align-items: center;
 
         &__Filter {
           min-width: 200px;
@@ -48,6 +49,13 @@
           }
           ::ng-deep .ng-select .ng-select-container .ng-value-container .ng-input {
             flex: 0 0 auto;
+          }
+          &--checkbox {
+            display: inline-flex;
+            gap: 0.35rem;
+            font-size: 0.9rem;
+            margin-bottom: 0 !important;
+            color: #1f1f1f;
           }
         }
 
@@ -136,6 +144,11 @@
       align-items: center;
       justify-content: flex-end;
     }
+  }
+
+  ::ng-deep .ngx-datatable .empty-row {
+    text-align: center;
+    color: #1f1f1f;
   }
 
   &__table {

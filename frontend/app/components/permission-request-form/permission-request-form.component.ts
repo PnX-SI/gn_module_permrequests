@@ -38,7 +38,6 @@ type PermissionRequestFormValue = {
   description: string | null;
   created_on: NgbDateStruct | string | null;
   expiration_date: NgbDateStruct | string | null;
-  id_validator: number | null;
   sensitivity_filter: boolean;
   scope: PermissionRequestScope;
   acknowledgeTerms: boolean;
@@ -120,7 +119,6 @@ export class PermissionRequestFormComponent {
       description: [''],
       created_on: [null],
       expiration_date: [null, [Validators.required]],
-      id_validator: [null],
       scope: [DEFAULT_SCOPE, [Validators.required]],
       sensitivity_filter: [true],
       acknowledgeTerms: [false],
@@ -156,7 +154,6 @@ export class PermissionRequestFormComponent {
     control.updateValueAndValidity({ emitEvent: false });
   }
 
-
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -174,9 +171,7 @@ export class PermissionRequestFormComponent {
       if (typeof rawValue.created_on === 'string') {
         createdOnValue = rawValue.created_on;
       } else {
-        createdOnValue = this._dateParser.format(
-          rawValue.created_on
-        ) as unknown as string;
+        createdOnValue = this._dateParser.format(rawValue.created_on) as unknown as string;
       }
     }
 
@@ -189,10 +184,6 @@ export class PermissionRequestFormComponent {
       scope: rawValue.scope,
       sensitivity_filter: !!rawValue.sensitivity_filter,
     };
-    if (rawValue.id_validator !== undefined) {
-      payload.id_validator = rawValue.id_validator;
-    }
-
     if (this.permissionRequest) {
       this._permissionRequestService
         .updatePermissionRequest(this.permissionRequest, payload)
@@ -212,10 +203,8 @@ export class PermissionRequestFormComponent {
           },
         });
     } else {
-      const createPayload = { ...payload };
-      delete createPayload.id_validator;
       this._permissionRequestService
-        .createPermissionRequest(createPayload)
+        .createPermissionRequest(payload)
         .pipe(
           finalize(() => {
             this.isSaving = false;
@@ -243,16 +232,8 @@ export class PermissionRequestFormComponent {
       return false;
     }
 
-    const {
-      description,
-      expiration_date,
-      id_validator,
-      created_on,
-      sensitivity_filter,
-      scope,
-      taxa,
-      areas,
-    } = this.form.value as PermissionRequestFormValue;
+    const { description, expiration_date, created_on, sensitivity_filter, scope, taxa, areas } =
+      this.form.value as PermissionRequestFormValue;
     const selectedTaxa = this._extractTaxaIdentifiers(taxa);
     const permissionRequestTaxa = (this.permissionRequest.taxa || []).map((taxon) => taxon.cd_nom);
     const normalizedSelectedTaxa = [...selectedTaxa].sort((a, b) => a - b);
@@ -266,17 +247,13 @@ export class PermissionRequestFormComponent {
     const permissionRequestDescription = (this.permissionRequest.description ?? '').trim();
 
     const normalizedCreatedOn = this._normalizeDateValue(created_on);
-    const permissionRequestCreatedOn = this._normalizeDateValue(
-      this.permissionRequest.created_on
-    );
+    const permissionRequestCreatedOn = this._normalizeDateValue(this.permissionRequest.created_on);
 
     const normalizedExpiration = this._normalizeDateValue(expiration_date);
     const permissionRequestExpiration = this._normalizeDateValue(
       this.permissionRequest.expiration_date
     );
 
-    const normalizedValidator = id_validator ?? null;
-    const permissionRequestValidator = this.permissionRequest.id_validator ?? null;
     const normalizedSensitivity = !!sensitivity_filter;
     const permissionRequestSensitivity = !!this.permissionRequest.sensitivity_filter;
     const normalizedScope = scope ?? DEFAULT_SCOPE;
@@ -286,7 +263,6 @@ export class PermissionRequestFormComponent {
       normalizedDescription === permissionRequestDescription &&
       normalizedCreatedOn === permissionRequestCreatedOn &&
       normalizedExpiration === permissionRequestExpiration &&
-      normalizedValidator === permissionRequestValidator &&
       normalizedSensitivity === permissionRequestSensitivity &&
       normalizedScope === permissionRequestScope &&
       normalizedSelectedTaxa.length === normalizedPermissionRequestTaxa.length &&
@@ -320,7 +296,6 @@ export class PermissionRequestFormComponent {
         description: '',
         created_on: null,
         expiration_date: null,
-        id_validator: null,
         scope: DEFAULT_SCOPE,
         sensitivity_filter: true,
         acknowledgeTerms: this.shouldDisplayAcknowledgement ? false : true,
@@ -340,7 +315,6 @@ export class PermissionRequestFormComponent {
         description: this.permissionRequest.description,
         created_on: createdOnStruct,
         expiration_date: expirationStruct,
-        id_validator: this.permissionRequest.id_validator,
         scope: this.permissionRequest.scope ?? DEFAULT_SCOPE,
         sensitivity_filter: !!this.permissionRequest.sensitivity_filter,
         acknowledgeTerms: true,

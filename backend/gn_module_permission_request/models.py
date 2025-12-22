@@ -49,8 +49,8 @@ class PermissionRequest(DB.Model):
     description = DB.Column(DB.Text, nullable=True)
     id_permission = DB.Column(
         DB.Integer,
-        DB.ForeignKey("gn_permissions.t_permissions.id_permission", ondelete="SET NULL"),
-        nullable=True,
+        DB.ForeignKey("gn_permissions.t_permissions.id_permission", ondelete="RESTRICT"),
+        nullable=False,
         unique=True,
     )
 

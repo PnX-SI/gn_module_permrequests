@@ -30,6 +30,7 @@ type FiltersFormValue = {
   status: string[] | null;
   scope: PermissionRequestScope[] | null;
   sensitivity_filter: string[] | null;
+  my_validations: boolean;
 };
 
 @Component({
@@ -59,6 +60,7 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
   readonly PROP_AREAS = 'areas';
   readonly PROP_VALIDATOR = 'validator.nom_complet';
   readonly PROP_VALIDATION_DESCRIPTION = 'validation_description';
+  readonly PROP_STATUS = 'status';
   readonly PermissionRequestScope = PermissionRequestScope;
 
   pagination: PaginationItem = DEFAULT_PAGINATION;
@@ -114,6 +116,7 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
     status: new FormControl<string[] | null>([]),
     scope: new FormControl<PermissionRequestScope[] | null>([]),
     sensitivity_filter: new FormControl<string[] | null>([]),
+    my_validations: new FormControl<boolean>(false),
   });
 
   constructor(
@@ -200,6 +203,10 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
     sensitivityFilters.forEach((value) => {
       params = params.append('sensitivity_filter', value);
     });
+
+    if (filters.my_validations) {
+      params = params.append('my_validations', 'true');
+    }
 
     this._ars.getPermissionRequests(params).subscribe((response: PermissionRequestListResponse) => {
       this.permissionRequests = response.items;

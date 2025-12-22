@@ -17,12 +17,12 @@ class Status(str, Enum):
 
 
 STATUS_ORDER = [
-    Status.REFUSED,
     Status.PENDING,
     Status.IN_PROGRESS,
-    Status.EXPIRED,
     Status.UPCOMING,
     Status.ACTIVE,
+    Status.EXPIRED,
+    Status.REFUSED,
 ]
 STATUS_ORDER_INDEX = {key: index + 1 for index, key in enumerate(STATUS_ORDER)}
 

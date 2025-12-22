@@ -197,6 +197,11 @@ def list_permission_requests(scope):
     for validated_value in request.args.getlist("validated"):
         validated_filters.append(_normalize_validated_filter(validated_value))
 
+    my_validations = _parse_boolean_param(
+        request.args.get("my_validations"),
+        "my_validations",
+    )
+
     sensitivity_filters = []
     for sensitivity_value in request.args.getlist("sensitivity_filter"):
         parsed = _parse_boolean_param(sensitivity_value, "sensitivity_filter")
@@ -336,6 +341,12 @@ def list_permission_requests(scope):
             query = query.where(
                 sa.or_(*[PermissionRequest.permission.has(clause) for clause in clauses])
             )
+
+    if my_validations:
+        current_user = g.current_user
+        if current_user is None or not hasattr(current_user, "id_role"):
+            raise Forbidden("Current user context is missing.")
+        query = query.where(PermissionRequest.id_validator == current_user.id_role)
 
     query = query.order_by(*order_by_clauses)
 
@@ -606,15 +617,14 @@ def update_permission_request(scope, id_permission_request):
     if not isinstance(payload, dict):
         raise BadRequest("A JSON object is required.")
 
-    forbidden_fields = {"status", "validated"}
+    forbidden_fields = {"status", "validated", "id_validator"}
     if forbidden_fields.intersection(payload.keys()):
-        raise BadRequest("Field 'status' cannot be updated.")
+        raise BadRequest("Fields status, validated and id_validator cannot be updated.")
 
     allowed_fields = {
         "description",
         "expiration_date",
         "created_on",
-        "id_validator",
         "taxa",
         "areas",
         "sensitivity_filter",
@@ -638,32 +648,22 @@ def update_permission_request(scope, id_permission_request):
     if "created_on" in payload:
         created_on_value = payload.get("created_on")
         if created_on_value is None:
-            if permission_request.permission is None:
-                raise InternalServerError("No permission is linked to this permission request.")
             permission_request.created_on = None
         elif not isinstance(created_on_value, str):
             raise BadRequest("created_on must be a string in YYYY-MM-DD format or null.")
         else:
             try:
-                if permission_request.permission is None:
-                    raise InternalServerError(
-                        "No permission is linked to this permission request."
-                    )
                 permission_request.created_on = datetime.strptime(
                     created_on_value, "%Y-%m-%d"
                 ).date()
             except ValueError as exc:
-                raise BadRequest(
-                    "created_on must be a valid date in YYYY-MM-DD format."
-                ) from exc
+                raise BadRequest("created_on must be a valid date in YYYY-MM-DD format.") from exc
 
     if "expiration_date" in payload:
         expiration_value = payload.get("expiration_date")
         if not isinstance(expiration_value, str):
             raise BadRequest("expiration_date must be a string in YYYY-MM-DD format.")
         try:
-            if permission_request.permission is None:
-                raise InternalServerError("No permission is linked to this permission request.")
             permission_request.expiration_date = datetime.strptime(
                 expiration_value, "%Y-%m-%d"
             ).date()
@@ -684,23 +684,13 @@ def update_permission_request(scope, id_permission_request):
         scope_value = _normalize_scope(raw_scope)
         if scope_value is None or scope_value not in ALLOWED_SCOPES:
             raise BadRequest(f"Unsupported scope value '{raw_scope}'.")
-        if permission_request.permission is None:
-            raise InternalServerError("No permission is linked to this permission request.")
         author = permission_request.author
-        if author is None:
-            raise InternalServerError("Permission request author is missing.")
         new_role_id = _resolve_permission_role(
             scope_value,
             author_role_id=author.id_role,
             author_organism_id=author.id_organisme,
         )
         permission_request.permission.id_role = new_role_id
-
-    if "id_validator" in payload:
-        id_validator_value = payload.get("id_validator")
-        if id_validator_value is not None and not isinstance(id_validator_value, int):
-            raise BadRequest("id_validator must be an integer or null.")
-        permission_request.id_validator = id_validator_value
 
     if "sensitivity_filter" in payload:
         sensitivity_value = payload.get("sensitivity_filter")
