@@ -153,7 +153,15 @@
 
   &__table {
     height: calc(100vh - 155px); // TODO Magicnumber
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
     box-shadow: none;
+    ::ng-deep .datatable-header,
+    ::ng-deep .datatable-body,
+    ::ng-deep .datatable-footer {
+      width: 100% !important;
+    }
     ::ng-deep .visible {
       height: inherit;
       .datatable-body {

@@ -17,8 +17,10 @@
     --edit-color: #333333; // Default value
     text-transform: uppercase;
     border-width: 2px;
-    font-size: 0.7rem;
-    color: var(--edit-color);
+    font-size: 0.8em;
+    font-weight: 700;
+
+    color: color-mix(in srgb, var(--edit-color) 50%, black);
     background-color: color-mix(in srgb, var(--edit-color) 50%, white);
     border: 2px solid color-mix(in srgb, var(--edit-color) 80%, black);
 
@@ -30,12 +32,6 @@
       &--#{$status} {
         --edit-color: #{$color};
       }
-    }
-    &__label {
-      color: #333;
-    }
-    &__icon {
-      color: inherit;
     }
   }
   .BadgeContainer {
