@@ -51,7 +51,7 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
   readonly PROP_ID_PERMISSION_REQUEST = 'id_permission_request';
   readonly PROP_AUTHOR = 'author.nom_complet';
   readonly PROP_DESCRIPTION = 'description';
-  readonly PROP_INITIALIZATION_DATE = 'initialization_date';
+  readonly PROP_CREATED_ON = 'created_on';
   readonly PROP_EXPIRATION_DATE = 'expiration_date';
   readonly PROP_SCOPE = 'scope';
   readonly PROP_SENSITIVITY_FILTER = 'sensitivity_filter';

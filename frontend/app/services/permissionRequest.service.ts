@@ -15,7 +15,7 @@ export interface PermissionRequestListResponse {
 export type PermissionRequestResponse = PermissionRequest;
 export interface PermissionRequestPayload {
   description: string | null;
-  initialization_date: string | null;
+  created_on: string | null;
   expiration_date: string;
   id_validator?: number | null;
   scope: PermissionRequestScope;

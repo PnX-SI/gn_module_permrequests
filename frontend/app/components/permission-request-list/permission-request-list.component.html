@@ -179,7 +179,7 @@
     </ngx-datatable-column>
     <ngx-datatable-column
       name="Début"
-      [prop]="PROP_INITIALIZATION_DATE"
+      [prop]="PROP_CREATED_ON"
       [maxWidth]="100"
     >
       <ng-template
@@ -189,7 +189,7 @@
         <ng-template
           *ngTemplateOutlet="
             cellDateTemplate;
-            context: { date: permissionRequest[PROP_INITIALIZATION_DATE] }
+            context: { date: permissionRequest[PROP_CREATED_ON] }
           "
         ></ng-template>
       </ng-template>

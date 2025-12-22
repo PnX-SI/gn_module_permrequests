@@ -70,11 +70,11 @@
           <mat-card-content class="Card__content">
             <div class="Dates">
               <div class="Field">
-                <label class="Field__label" for="initialization_date">
-                  Date d'initialisation
+                <label class="Field__label" for="created_on">
+                  Date de creation
                 </label>
-                <pnx-date id="initialization_date" [defaultToday]="false"
-                  [parentFormControl]="initializationDateControl" [noMaxDate]="true"></pnx-date>
+                <pnx-date id="created_on" [defaultToday]="false"
+                  [parentFormControl]="createdOnControl" [noMaxDate]="true"></pnx-date>
               </div>
 
               <div class="Field">
@@ -92,9 +92,9 @@
 
             <div class="Field__error" *ngIf="
                 form.errors?.invalidDate &&
-                (initializationDateControl?.touched || expirationDateControl?.touched)
+                (createdOnControl?.touched || expirationDateControl?.touched)
               ">
-              La date d'initialisation doit être antérieure à la date d'expiration.
+              La date de creation doit etre anterieure a la date d'expiration.
             </div>
           </mat-card-content>
         </mat-card>

@@ -395,9 +395,9 @@ def _create_permission_request_permissions(
     for index in range(PERMISSION_REQUEST_SAMPLE_SIZE):
         template = PERMISSION_REQUEST_TEMPLATES[index % template_count]
         id_author = random.choice(authors)
-        initialization = base_date - timedelta(days=random.randint(-40, 40))
-        expiration = initialization + timedelta(days=random.randint(1, 40))
-        created_on = datetime.combine(initialization, datetime.min.time())
+        created_on_date = base_date - timedelta(days=random.randint(-40, 40))
+        expiration = created_on_date + timedelta(days=random.randint(1, 40))
+        created_on = datetime.combine(created_on_date, datetime.min.time())
         expire_on = datetime.combine(expiration, datetime.min.time())
         scope_value = template["scope"]
         validated_value = template["validated"]

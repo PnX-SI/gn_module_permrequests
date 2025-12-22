@@ -52,7 +52,7 @@ class PermissionRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     id_permission_request = auto_field()
     id_author = auto_field()
     id_validator = auto_field()
-    initialization_date = fields.Date(attribute="initialization_date", dump_only=True)
+    created_on = fields.Date(attribute="created_on", dump_only=True)
     expiration_date = fields.Date(attribute="expiration_date", dump_only=True)
     validated = fields.Boolean(attribute="validated", allow_none=True, dump_only=True)
     validation_date = fields.DateTime(attribute="validation_date", allow_none=True, dump_only=True)
@@ -75,7 +75,7 @@ class PermissionRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     def get_status(self, obj):
         return compute_status(
             obj.validated,
-            obj.initialization_date,
+            obj.created_on,
             obj.expiration_date,
             obj.id_validator,
         )

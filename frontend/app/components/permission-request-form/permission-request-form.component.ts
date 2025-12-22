@@ -36,7 +36,7 @@ import { PERMISSION_REQUEST_SECTIONS } from '../permission-request-common/permis
 
 type PermissionRequestFormValue = {
   description: string | null;
-  initialization_date: NgbDateStruct | string | null;
+  created_on: NgbDateStruct | string | null;
   expiration_date: NgbDateStruct | string | null;
   id_validator: number | null;
   sensitivity_filter: boolean;
@@ -118,7 +118,7 @@ export class PermissionRequestFormComponent {
   private _buildForm(): FormGroup {
     const group = this._formBuilder.group({
       description: [''],
-      initialization_date: [null],
+      created_on: [null],
       expiration_date: [null, [Validators.required]],
       id_validator: [null],
       scope: [DEFAULT_SCOPE, [Validators.required]],
@@ -132,7 +132,7 @@ export class PermissionRequestFormComponent {
   }
 
   private _setupValidators(): void {
-    const initControl = this.initializationDateControl;
+    const initControl = this.createdOnControl;
     const expirationControl = this.expirationDateControl;
     if (initControl && expirationControl) {
       const baseValidator = this._formService.dateValidator(initControl, expirationControl);
@@ -169,20 +169,20 @@ export class PermissionRequestFormComponent {
       expiration_date: NgbDateStruct;
     };
 
-    let initializationValue: string | null = null;
-    if (rawValue.initialization_date) {
-      if (typeof rawValue.initialization_date === 'string') {
-        initializationValue = rawValue.initialization_date;
+    let createdOnValue: string | null = null;
+    if (rawValue.created_on) {
+      if (typeof rawValue.created_on === 'string') {
+        createdOnValue = rawValue.created_on;
       } else {
-        initializationValue = this._dateParser.format(
-          rawValue.initialization_date
+        createdOnValue = this._dateParser.format(
+          rawValue.created_on
         ) as unknown as string;
       }
     }
 
     const payload: PermissionRequestPayload = {
       description: rawValue.description?.trim() || null,
-      initialization_date: initializationValue,
+      created_on: createdOnValue,
       expiration_date: this._dateParser.format(rawValue.expiration_date) as unknown as string,
       taxa: this._extractTaxaIdentifiers(rawValue.taxa),
       areas: this._extractAreaIdentifiers(rawValue.areas),
@@ -247,7 +247,7 @@ export class PermissionRequestFormComponent {
       description,
       expiration_date,
       id_validator,
-      initialization_date,
+      created_on,
       sensitivity_filter,
       scope,
       taxa,
@@ -265,9 +265,9 @@ export class PermissionRequestFormComponent {
     const normalizedDescription = (description ?? '').trim();
     const permissionRequestDescription = (this.permissionRequest.description ?? '').trim();
 
-    const normalizedInitialization = this._normalizeDateValue(initialization_date);
-    const permissionRequestInitialization = this._normalizeDateValue(
-      this.permissionRequest.initialization_date
+    const normalizedCreatedOn = this._normalizeDateValue(created_on);
+    const permissionRequestCreatedOn = this._normalizeDateValue(
+      this.permissionRequest.created_on
     );
 
     const normalizedExpiration = this._normalizeDateValue(expiration_date);
@@ -284,7 +284,7 @@ export class PermissionRequestFormComponent {
 
     return (
       normalizedDescription === permissionRequestDescription &&
-      normalizedInitialization === permissionRequestInitialization &&
+      normalizedCreatedOn === permissionRequestCreatedOn &&
       normalizedExpiration === permissionRequestExpiration &&
       normalizedValidator === permissionRequestValidator &&
       normalizedSensitivity === permissionRequestSensitivity &&
@@ -318,7 +318,7 @@ export class PermissionRequestFormComponent {
     if (!this.permissionRequest) {
       this.form.reset({
         description: '',
-        initialization_date: null,
+        created_on: null,
         expiration_date: null,
         id_validator: null,
         scope: DEFAULT_SCOPE,
@@ -330,15 +330,15 @@ export class PermissionRequestFormComponent {
       });
       this.selectedAreasDefaultItems = [];
     } else {
-      const initializationStruct = this.permissionRequest.initialization_date
-        ? this._dateParser.parse(this.permissionRequest.initialization_date)
+      const createdOnStruct = this.permissionRequest.created_on
+        ? this._dateParser.parse(this.permissionRequest.created_on)
         : null;
       const expirationStruct = this.permissionRequest.expiration_date
         ? this._dateParser.parse(this.permissionRequest.expiration_date)
         : null;
       this.form.patchValue({
         description: this.permissionRequest.description,
-        initialization_date: initializationStruct,
+        created_on: createdOnStruct,
         expiration_date: expirationStruct,
         id_validator: this.permissionRequest.id_validator,
         scope: this.permissionRequest.scope ?? DEFAULT_SCOPE,
@@ -366,8 +366,8 @@ export class PermissionRequestFormComponent {
     return this.form.get('expiration_date');
   }
 
-  get initializationDateControl() {
-    return this.form.get('initialization_date');
+  get createdOnControl() {
+    return this.form.get('created_on');
   }
 
   get acknowledgeTermsControl() {

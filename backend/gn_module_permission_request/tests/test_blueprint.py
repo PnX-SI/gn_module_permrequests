@@ -72,7 +72,7 @@ def create_permission_request(
     author,
     *,
     description: str,
-    initialization: date | None = None,
+    created_on: date | None = None,
     expiration: date | None = None,
     validated: bool | None = None,
     sensitivity_filter: bool = True,
@@ -82,10 +82,10 @@ def create_permission_request(
     validation_description: str | None = None,
 ):
     module_id, action_id, object_id = _permission_refs()
-    if initialization is None:
-        initialization = date.today()
+    if created_on is None:
+        created_on = date.today()
     if expiration is None:
-        expiration = initialization + timedelta(days=30)
+        expiration = created_on + timedelta(days=30)
     if taxa_ids is None:
         taxa_ids = db.session.scalars(select(Taxref.cd_nom).limit(2)).all()
     taxa = _taxa_from_ids(taxa_ids)
@@ -107,7 +107,7 @@ def create_permission_request(
             sensitivity_filter=sensitivity_filter,
             validated=validated,
         )
-        permission.created_on = datetime.combine(initialization, datetime.min.time())
+        permission.created_on = datetime.combine(created_on, datetime.min.time())
         permission.expire_on = datetime.combine(expiration, datetime.min.time())
         permission.taxons_filter = list(taxa)
         permission.areas_filter = list(areas)
@@ -193,11 +193,11 @@ def test_get_permission_request_not_found(client, users):
 
 
 def test_create_permission_request_success(client, users, taxon_ids, area_ids):
-    initialization = date.today()
-    expiration = initialization + timedelta(days=90)
+    created_on = date.today()
+    expiration = created_on + timedelta(days=90)
     payload = {
         "description": "Created through API",
-        "initialization_date": initialization.isoformat(),
+        "created_on": created_on.isoformat(),
         "expiration_date": expiration.isoformat(),
         "taxa": taxon_ids[:2],
         "sensitivity_filter": True,
@@ -219,11 +219,11 @@ def test_create_permission_request_success(client, users, taxon_ids, area_ids):
 
 
 def test_create_permission_request_rejects_invalid_taxa(client, users):
-    initialization = date.today()
+    created_on = date.today()
     payload = {
         "description": "Invalid taxa",
-        "initialization_date": initialization.isoformat(),
-        "expiration_date": (initialization + timedelta(days=30)).isoformat(),
+        "created_on": created_on.isoformat(),
+        "expiration_date": (created_on + timedelta(days=30)).isoformat(),
         "taxa": [999999999],
     }
 
@@ -234,11 +234,11 @@ def test_create_permission_request_rejects_invalid_taxa(client, users):
 
 
 def test_create_permission_request_rejects_invalid_areas(client, users, taxon_ids):
-    initialization = date.today()
+    created_on = date.today()
     payload = {
         "description": "Invalid areas",
-        "initialization_date": initialization.isoformat(),
-        "expiration_date": (initialization + timedelta(days=30)).isoformat(),
+        "created_on": created_on.isoformat(),
+        "expiration_date": (created_on + timedelta(days=30)).isoformat(),
         "taxa": taxon_ids[:2],
         "areas": [999999999],
     }

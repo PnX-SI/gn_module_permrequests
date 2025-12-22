@@ -161,7 +161,7 @@ def list_permission_requests(scope):
 
     status_order_column = status_order_case(
         PermissionRequest.validated,
-        PermissionRequest.initialization_date,
+        PermissionRequest.created_on,
         PermissionRequest.expiration_date,
         PermissionRequest.id_validator,
     ).label("status_order")
@@ -171,7 +171,7 @@ def list_permission_requests(scope):
 
     orderable_columns = {
         "id_permission_request": PermissionRequest.id_permission_request,
-        "initialization_date": PermissionRequest.initialization_date,
+        "created_on": PermissionRequest.created_on,
         "expiration_date": PermissionRequest.expiration_date,
         "author.nom_complet": User.nom_complet,
         "validator.nom_complet": User.nom_complet,
@@ -279,7 +279,7 @@ def list_permission_requests(scope):
             status_filter_expression(
                 status,
                 validated_column=PermissionRequest.validated,
-                initialization_column=PermissionRequest.initialization_date,
+                created_on_column=PermissionRequest.created_on,
                 expiration_column=PermissionRequest.expiration_date,
                 id_validator_column=PermissionRequest.id_validator,
             )
@@ -394,7 +394,7 @@ def create_permission_request():
     allowed_fields = {
         "description",
         "expiration_date",
-        "initialization_date",
+        "created_on",
         "taxa",
         "areas",
         "sensitivity_filter",
@@ -403,18 +403,18 @@ def create_permission_request():
     unexpected_fields = set(payload.keys()) - allowed_fields
     if unexpected_fields:
         raise BadRequest(f"Unsupported fields provided: {', '.join(sorted(unexpected_fields))}.")
-    initialization_date = None
-    if "initialization_date" in payload:
-        initialization_value = payload.get("initialization_date")
-        if initialization_value is None:
-            initialization_date = None
-        elif not isinstance(initialization_value, str):
-            raise BadRequest("initialization_date must be a string in YYYY-MM-DD format or null.")
+    created_on = None
+    if "created_on" in payload:
+        created_on_value = payload.get("created_on")
+        if created_on_value is None:
+            created_on = None
+        elif not isinstance(created_on_value, str):
+            raise BadRequest("created_on must be a string in YYYY-MM-DD format or null.")
         else:
             try:
-                initialization_date = datetime.strptime(initialization_value, "%Y-%m-%d").date()
+                created_on = datetime.strptime(created_on_value, "%Y-%m-%d").date()
             except ValueError as exc:
-                raise BadRequest("initialization_date must follow the YYYY-MM-DD format.") from exc
+                raise BadRequest("created_on must follow the YYYY-MM-DD format.") from exc
     expiration_value = payload.get("expiration_date")
     if not isinstance(expiration_value, str):
         raise BadRequest("expiration_date is required and must be a string (YYYY-MM-DD).")
@@ -422,8 +422,8 @@ def create_permission_request():
         expiration_date = datetime.strptime(expiration_value, "%Y-%m-%d").date()
     except ValueError as exc:
         raise BadRequest("expiration_date must follow the YYYY-MM-DD format.") from exc
-    if initialization_date and initialization_date > expiration_date:
-        raise BadRequest("initialization_date must be before or equal to expiration_date.")
+    if created_on and created_on > expiration_date:
+        raise BadRequest("created_on must be before or equal to expiration_date.")
 
     description_value = payload.get("description")
     if description_value is not None and not isinstance(description_value, str):
@@ -539,8 +539,8 @@ def create_permission_request():
         )
 
     created_on_value = (
-        datetime.combine(initialization_date, datetime.min.time())
-        if initialization_date is not None
+        datetime.combine(created_on, datetime.min.time())
+        if created_on is not None
         else datetime.now()
     )
     expire_on_value = datetime.combine(expiration_date, datetime.min.time())
@@ -613,7 +613,7 @@ def update_permission_request(scope, id_permission_request):
     allowed_fields = {
         "description",
         "expiration_date",
-        "initialization_date",
+        "created_on",
         "id_validator",
         "taxa",
         "areas",
@@ -635,26 +635,26 @@ def update_permission_request(scope, id_permission_request):
     if "description" in payload:
         permission_request.description = payload.get("description")
 
-    if "initialization_date" in payload:
-        initialization_value = payload.get("initialization_date")
-        if initialization_value is None:
+    if "created_on" in payload:
+        created_on_value = payload.get("created_on")
+        if created_on_value is None:
             if permission_request.permission is None:
                 raise InternalServerError("No permission is linked to this permission request.")
-            permission_request.initialization_date = None
-        elif not isinstance(initialization_value, str):
-            raise BadRequest("initialization_date must be a string in YYYY-MM-DD format or null.")
+            permission_request.created_on = None
+        elif not isinstance(created_on_value, str):
+            raise BadRequest("created_on must be a string in YYYY-MM-DD format or null.")
         else:
             try:
                 if permission_request.permission is None:
                     raise InternalServerError(
                         "No permission is linked to this permission request."
                     )
-                permission_request.initialization_date = datetime.strptime(
-                    initialization_value, "%Y-%m-%d"
+                permission_request.created_on = datetime.strptime(
+                    created_on_value, "%Y-%m-%d"
                 ).date()
             except ValueError as exc:
                 raise BadRequest(
-                    "initialization_date must be a valid date in YYYY-MM-DD format."
+                    "created_on must be a valid date in YYYY-MM-DD format."
                 ) from exc
 
     if "expiration_date" in payload:
@@ -670,12 +670,12 @@ def update_permission_request(scope, id_permission_request):
         except ValueError as exc:
             raise BadRequest("expiration_date must be a valid date in YYYY-MM-DD format.") from exc
     if (
-        ("initialization_date" in payload or "expiration_date" in payload)
-        and permission_request.initialization_date is not None
+        ("created_on" in payload or "expiration_date" in payload)
+        and permission_request.created_on is not None
         and permission_request.expiration_date is not None
     ):
-        if permission_request.initialization_date > permission_request.expiration_date:
-            raise BadRequest("initialization_date must be before or equal to expiration_date.")
+        if permission_request.created_on > permission_request.expiration_date:
+            raise BadRequest("created_on must be before or equal to expiration_date.")
 
     if "scope" in payload:
         raw_scope = payload.get("scope")

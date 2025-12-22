@@ -11,7 +11,7 @@ import { STATUS, STATUS_LABELS, STATUS_COLORS } from '../../models/status';
 
 export interface ValidationDescriptionDialogData {
   validation_description: string | null;
-  initialization_date: string | null;
+  created_on: string | null;
   expiration_date: string | null;
   status: STATUS | null;
   cdNom: number[];
@@ -220,7 +220,7 @@ export class ValidationDescriptionDialogComponent {
     this.description = data?.validation_description ?? '';
     this.choice = this._computeInitialChoice(data);
     this.canReset = this._computeCanReset(data);
-    this.dateStatus = this._computeDateStatus(data?.initialization_date, data?.expiration_date);
+    this.dateStatus = this._computeDateStatus(data?.created_on, data?.expiration_date);
     this.dateStatusLabel = this.dateStatus ? STATUS_LABELS[this.dateStatus] : null;
     this.dateStatusColor = this.dateStatus ? STATUS_COLORS[this.dateStatus] : null;
     this.syntheseQueryParams = this._computeSyntheseQueryParams(data?.cdNom ?? []);
@@ -255,14 +255,14 @@ export class ValidationDescriptionDialogComponent {
   }
 
   private _computeDateStatus(
-    initialization_date: string | null,
+    created_on: string | null,
     expiration_date: string | null
   ): STATUS | null {
-    if (!initialization_date && !expiration_date) {
+    if (!created_on && !expiration_date) {
       return null;
     }
     const now = new Date();
-    const init = initialization_date ? new Date(initialization_date) : null;
+    const init = created_on ? new Date(created_on) : null;
     const exp = expiration_date ? new Date(expiration_date) : null;
 
     if (exp && !isNaN(exp.valueOf()) && exp < now) {

@@ -27,7 +27,7 @@ STATUS_ORDER = [
 STATUS_ORDER_INDEX = {key: index + 1 for index, key in enumerate(STATUS_ORDER)}
 
 
-def compute_status(validated, initialization_date, expiration_date, id_validator=None, today=None):
+def compute_status(validated, created_on, expiration_date, id_validator=None, today=None):
     today = today or date.today()
 
     if validated is False:
@@ -40,14 +40,14 @@ def compute_status(validated, initialization_date, expiration_date, id_validator
     # validated is True
     if expiration_date is not None and expiration_date < today:
         return Status.EXPIRED
-    if initialization_date is not None and initialization_date > today:
+    if created_on is not None and created_on > today:
         return Status.UPCOMING
     return Status.ACTIVE
 
 
 def status_order_case(
     validated_column,
-    initialization_column,
+    created_on_column,
     expiration_column,
     id_validator_column,
     current_date=None,
@@ -66,7 +66,7 @@ def status_order_case(
             STATUS_ORDER_INDEX[Status.EXPIRED],
         ),
         (
-            and_(validated_column.is_(True), initialization_column > current_date),
+            and_(validated_column.is_(True), created_on_column > current_date),
             STATUS_ORDER_INDEX[Status.UPCOMING],
         ),
         else_=STATUS_ORDER_INDEX[Status.ACTIVE],
@@ -77,7 +77,7 @@ def status_filter_expression(
     status,
     *,
     validated_column,
-    initialization_column,
+    created_on_column,
     expiration_column,
     id_validator_column,
 ):
@@ -91,11 +91,11 @@ def status_filter_expression(
     if status == Status.EXPIRED:
         return and_(validated_column.is_(True), expiration_column < current_date)
     if status == Status.UPCOMING:
-        return and_(validated_column.is_(True), initialization_column > current_date)
+        return and_(validated_column.is_(True), created_on_column > current_date)
     if status == Status.ACTIVE:
         return and_(
             validated_column.is_(True),
             or_(expiration_column.is_(None), expiration_column >= current_date),
-            or_(initialization_column.is_(None), initialization_column <= current_date),
+            or_(created_on_column.is_(None), created_on_column <= current_date),
         )
     return true()

@@ -142,13 +142,13 @@ class PermissionRequest(DB.Model):
         return False
 
     @hybrid_property
-    def initialization_date(self):
+    def created_on(self):
         if self.permission is None or self.permission.created_on is None:
             return None
         return self.permission.created_on.date()
 
-    @initialization_date.setter
-    def initialization_date(self, value):
+    @created_on.setter
+    def created_on(self, value):
         if self.permission is None:
             raise AttributeError("No permission is linked to this permission request.")
         if value is None:
@@ -158,8 +158,8 @@ class PermissionRequest(DB.Model):
         else:
             self.permission.created_on = datetime.combine(value, datetime.min.time())
 
-    @initialization_date.expression
-    def initialization_date(cls):
+    @created_on.expression
+    def created_on(cls):
         return (
             sa.select(sa.func.date(Permission.created_on))
             .where(Permission.id_permission == cls.id_permission)

@@ -129,7 +129,7 @@ export class PermissionRequestToolbarComponent {
       width: '700px',
       data: {
         validation_description: this.permissionRequest.validation_description ?? null,
-        initialization_date: this.permissionRequest.initialization_date ?? null,
+        created_on: this.permissionRequest.created_on ?? null,
         expiration_date: this.permissionRequest.expiration_date ?? null,
         status: this.permissionRequest.status ?? null,
         cdNom: this._getCdNoms(this.permissionRequest),
