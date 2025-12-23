@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { RouterModule, Params } from '@angular/router';
 import { STATUS, STATUS_LABELS, STATUS_COLORS } from '../../models/status';
+import { PermissionRequestArea } from '../../models/permissionRequest';
 
 export interface ValidationDescriptionDialogData {
   validation_description: string | null;
@@ -15,6 +16,7 @@ export interface ValidationDescriptionDialogData {
   expiration_date: string | null;
   status: STATUS | null;
   cdNom: number[];
+  areas: PermissionRequestArea[];
 }
 
 export interface ValidationDescriptionDialogResult {
@@ -223,7 +225,10 @@ export class ValidationDescriptionDialogComponent {
     this.dateStatus = this._computeDateStatus(data?.created_on, data?.expiration_date);
     this.dateStatusLabel = this.dateStatus ? STATUS_LABELS[this.dateStatus] : null;
     this.dateStatusColor = this.dateStatus ? STATUS_COLORS[this.dateStatus] : null;
-    this.syntheseQueryParams = this._computeSyntheseQueryParams(data?.cdNom ?? []);
+    this.syntheseQueryParams = this._computeSyntheseQueryParams(
+      data?.cdNom ?? [],
+      data?.areas ?? []
+    );
   }
 
   onConfirm(): void {
@@ -314,7 +319,7 @@ export class ValidationDescriptionDialogComponent {
     return hasDecision;
   }
 
-  private _computeSyntheseQueryParams(cdNoms: number[]) {
+  private _computeSyntheseQueryParams(cdNoms: number[], areas: PermissionRequestArea[]) {
     const query: Params = {};
     const uniqueCdNoms = Array.from(
       new Set(
@@ -330,6 +335,24 @@ export class ValidationDescriptionDialogComponent {
       // But it's actually a cd_ref.
       query.cd_ref = uniqueCdNoms;
     }
+    const areaParams = new Map<string, Set<string | number>>([
+      ['COM', new Set()],
+      ['DEP', new Set()],
+      ['REG', new Set()],
+    ]);
+    (areas || []).forEach((area) => {
+      if (!area || !area.type_code || !areaParams.has(area.type_code)) {
+        return;
+      }
+      if (area.id_area !== null && area.id_area !== undefined) {
+        areaParams.get(area.type_code)?.add(area.id_area);
+      }
+    });
+    areaParams.forEach((values, typeCode) => {
+      if (values.size) {
+        query[`area_${typeCode}`] = Array.from(values);
+      }
+    });
     return query;
   }
 }

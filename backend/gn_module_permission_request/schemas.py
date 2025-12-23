@@ -38,6 +38,9 @@ class PermissionRequestAreaSchema(SQLAlchemySchema):
     id_area = auto_field()
     area_name = auto_field()
     area_code = auto_field()
+    type_code = fields.Function(
+        lambda obj: getattr(getattr(obj, "area_type", None), "type_code", None)
+    )
 
 
 class PermissionRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):

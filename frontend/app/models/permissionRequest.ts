@@ -33,6 +33,7 @@ export interface PermissionRequestArea {
   id_area: number;
   area_name: string;
   area_code: string | null;
+  type_code: string | null;
 }
 
 export enum PermissionRequestScope {

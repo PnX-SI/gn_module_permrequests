@@ -133,6 +133,7 @@ export class PermissionRequestToolbarComponent {
         expiration_date: this.permissionRequest.expiration_date ?? null,
         status: this.permissionRequest.status ?? null,
         cdNom: this._getCdNoms(this.permissionRequest),
+        areas: this.permissionRequest.areas ?? [],
       },
     });
 
