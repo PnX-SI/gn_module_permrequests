@@ -2,7 +2,7 @@
 Définition des routes du module export
 """
 
-from datetime import datetime
+from datetime import datetime, date
 from flask import Blueprint, request, g
 from sqlalchemy import desc, asc, select, case
 import sqlalchemy as sa
@@ -405,7 +405,6 @@ def create_permission_request():
     allowed_fields = {
         "description",
         "expiration_date",
-        "created_on",
         "taxa",
         "areas",
         "sensitivity_filter",
@@ -414,18 +413,6 @@ def create_permission_request():
     unexpected_fields = set(payload.keys()) - allowed_fields
     if unexpected_fields:
         raise BadRequest(f"Unsupported fields provided: {', '.join(sorted(unexpected_fields))}.")
-    created_on = None
-    if "created_on" in payload:
-        created_on_value = payload.get("created_on")
-        if created_on_value is None:
-            created_on = None
-        elif not isinstance(created_on_value, str):
-            raise BadRequest("created_on must be a string in YYYY-MM-DD format or null.")
-        else:
-            try:
-                created_on = datetime.strptime(created_on_value, "%Y-%m-%d").date()
-            except ValueError as exc:
-                raise BadRequest("created_on must follow the YYYY-MM-DD format.") from exc
     expiration_value = payload.get("expiration_date")
     if not isinstance(expiration_value, str):
         raise BadRequest("expiration_date is required and must be a string (YYYY-MM-DD).")
@@ -433,8 +420,9 @@ def create_permission_request():
         expiration_date = datetime.strptime(expiration_value, "%Y-%m-%d").date()
     except ValueError as exc:
         raise BadRequest("expiration_date must follow the YYYY-MM-DD format.") from exc
-    if created_on and created_on > expiration_date:
-        raise BadRequest("created_on must be before or equal to expiration_date.")
+    created_on = date.today()
+    if created_on > expiration_date:
+        raise BadRequest("expiration_date must be on or after today's date.")
 
     description_value = payload.get("description")
     if description_value is not None and not isinstance(description_value, str):
@@ -549,11 +537,7 @@ def create_permission_request():
             "Permission object 'ALL' not found in permissions configuration."
         )
 
-    created_on_value = (
-        datetime.combine(created_on, datetime.min.time())
-        if created_on is not None
-        else datetime.now()
-    )
+    created_on_value = datetime.combine(created_on, datetime.min.time())
     expire_on_value = datetime.combine(expiration_date, datetime.min.time())
 
     permission_request = PermissionRequest(
@@ -617,14 +601,15 @@ def update_permission_request(scope, id_permission_request):
     if not isinstance(payload, dict):
         raise BadRequest("A JSON object is required.")
 
-    forbidden_fields = {"status", "validated", "id_validator"}
+    forbidden_fields = {"status", "validated", "id_validator", "created_on"}
     if forbidden_fields.intersection(payload.keys()):
-        raise BadRequest("Fields status, validated and id_validator cannot be updated.")
+        raise BadRequest(
+            "Fields status, validated, id_validator and created_on cannot be updated."
+        )
 
     allowed_fields = {
         "description",
         "expiration_date",
-        "created_on",
         "taxa",
         "areas",
         "sensitivity_filter",
@@ -644,20 +629,6 @@ def update_permission_request(scope, id_permission_request):
 
     if "description" in payload:
         permission_request.description = payload.get("description")
-
-    if "created_on" in payload:
-        created_on_value = payload.get("created_on")
-        if created_on_value is None:
-            permission_request.created_on = None
-        elif not isinstance(created_on_value, str):
-            raise BadRequest("created_on must be a string in YYYY-MM-DD format or null.")
-        else:
-            try:
-                permission_request.created_on = datetime.strptime(
-                    created_on_value, "%Y-%m-%d"
-                ).date()
-            except ValueError as exc:
-                raise BadRequest("created_on must be a valid date in YYYY-MM-DD format.") from exc
 
     if "expiration_date" in payload:
         expiration_value = payload.get("expiration_date")

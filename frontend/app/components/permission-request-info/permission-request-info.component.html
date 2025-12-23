@@ -1,7 +1,4 @@
-<div
-  class="PermissionRequestInfo"
-  *ngIf="permissionRequest"
->
+<div class="PermissionRequestInfo" *ngIf="permissionRequest">
   <div class="PermissionRequestInfo__row">
     <mat-card class="Card Card--narrow">
       <mat-card-header>
@@ -14,10 +11,7 @@
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content class="Card__content">
-        <div
-          class="Field Field--inline"
-          *ngIf="permissionRequest.author"
-        >
+        <div class="Field Field--inline" *ngIf="permissionRequest.author">
           <label for="author">Auteur</label>
           <div id="author">{{ permissionRequest.author?.nom_complet }}</div>
         </div>
@@ -27,18 +21,12 @@
           <div id="scope">{{ getScopeLabel(permissionRequest.scope) }}</div>
         </div>
 
-        <div
-          class="Field"
-          *ngIf="permissionRequest.validator"
-        >
+        <div class="Field" *ngIf="permissionRequest.validator">
           <label for="validator">Validateur</label>
           <div id="validator">{{ permissionRequest.validator?.nom_complet }}</div>
         </div>
 
-        <div
-          class="Field"
-          *ngIf="permissionRequest.validation_description"
-        >
+        <div class="Field" *ngIf="permissionRequest.validation_description">
           <label for="validation_description">Commentaire de validation</label>
           <div id="validation_description">{{ permissionRequest.validation_description }}</div>
         </div>
@@ -57,10 +45,7 @@
       </mat-card-header>
       <mat-card-content class="Card__content">
         <div class="Field">
-          <div
-            id="description"
-            class="Field__text"
-          >
+          <div id="description" class="Field__text">
             {{ permissionRequest.description || 'Non renseignée' }}
           </div>
         </div>
@@ -107,30 +92,18 @@
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content class="Card__content">
-        <div
-          class="Field"
-          *ngIf="permissionRequest.taxa?.length"
-        >
+        <div class="Field" *ngIf="permissionRequest.taxa?.length">
           <label for="taxa">Taxons</label>
-          <ul
-            id="taxa"
-            class="PermissionRequestInfo__list"
-          >
+          <ul id="taxa" class="PermissionRequestInfo__list">
             <li *ngFor="let taxon of permissionRequest.taxa; trackBy: trackByTaxon">
               {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
             </li>
           </ul>
         </div>
 
-        <div
-          class="Field"
-          *ngIf="permissionRequest.areas?.length"
-        >
+        <div class="Field" *ngIf="permissionRequest.areas?.length">
           <label for="areas">Zones géographiques</label>
-          <ul
-            id="areas"
-            class="PermissionRequestInfo__list"
-          >
+          <ul id="areas" class="PermissionRequestInfo__list">
             <li *ngFor="let area of permissionRequest.areas; trackBy: trackByArea">
               {{ area.area_name }}
               <ng-container *ngIf="area.area_code">({{ area.area_code }})</ng-container>

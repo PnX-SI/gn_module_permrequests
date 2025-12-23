@@ -197,7 +197,6 @@ def test_create_permission_request_success(client, users, taxon_ids, area_ids):
     expiration = created_on + timedelta(days=90)
     payload = {
         "description": "Created through API",
-        "created_on": created_on.isoformat(),
         "expiration_date": expiration.isoformat(),
         "taxa": taxon_ids[:2],
         "sensitivity_filter": True,
@@ -211,6 +210,7 @@ def test_create_permission_request_success(client, users, taxon_ids, area_ids):
     data = response.get_json()
     assert data["description"] == payload["description"]
     assert data["id_author"] == users["admin_user"].id_role
+    assert data["created_on"] == created_on.isoformat()
     created = db.session.get(PermissionRequest, data["id_permission_request"])
     assert created is not None
     assert created.permission is not None
@@ -222,7 +222,6 @@ def test_create_permission_request_rejects_invalid_taxa(client, users):
     created_on = date.today()
     payload = {
         "description": "Invalid taxa",
-        "created_on": created_on.isoformat(),
         "expiration_date": (created_on + timedelta(days=30)).isoformat(),
         "taxa": [999999999],
     }
@@ -237,7 +236,6 @@ def test_create_permission_request_rejects_invalid_areas(client, users, taxon_id
     created_on = date.today()
     payload = {
         "description": "Invalid areas",
-        "created_on": created_on.isoformat(),
         "expiration_date": (created_on + timedelta(days=30)).isoformat(),
         "taxa": taxon_ids[:2],
         "areas": [999999999],

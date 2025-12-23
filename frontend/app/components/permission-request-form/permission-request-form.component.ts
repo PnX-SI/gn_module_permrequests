@@ -36,7 +36,6 @@ import { PERMISSION_REQUEST_SECTIONS } from '../permission-request-common/permis
 
 type PermissionRequestFormValue = {
   description: string | null;
-  created_on: NgbDateStruct | string | null;
   expiration_date: NgbDateStruct | string | null;
   sensitivity_filter: boolean;
   scope: PermissionRequestScope;
@@ -66,6 +65,7 @@ export class PermissionRequestFormComponent {
   readonly shouldDisplayAcknowledgement: boolean;
   readonly PermissionRequestScope = PermissionRequestScope;
   readonly sections = PERMISSION_REQUEST_SECTIONS;
+  readonly today = new Date();
   selectedAreasDefaultItems: Array<{ id_area: number; area_name: string; displayName: string }> =
     [];
 
@@ -117,7 +117,6 @@ export class PermissionRequestFormComponent {
   private _buildForm(): FormGroup {
     const group = this._formBuilder.group({
       description: [''],
-      created_on: [null],
       expiration_date: [null, [Validators.required]],
       scope: [DEFAULT_SCOPE, [Validators.required]],
       sensitivity_filter: [true],
@@ -166,18 +165,8 @@ export class PermissionRequestFormComponent {
       expiration_date: NgbDateStruct;
     };
 
-    let createdOnValue: string | null = null;
-    if (rawValue.created_on) {
-      if (typeof rawValue.created_on === 'string') {
-        createdOnValue = rawValue.created_on;
-      } else {
-        createdOnValue = this._dateParser.format(rawValue.created_on) as unknown as string;
-      }
-    }
-
     const payload: PermissionRequestPayload = {
       description: rawValue.description?.trim() || null,
-      created_on: createdOnValue,
       expiration_date: this._dateParser.format(rawValue.expiration_date) as unknown as string,
       taxa: this._extractTaxaIdentifiers(rawValue.taxa),
       areas: this._extractAreaIdentifiers(rawValue.areas),
@@ -232,8 +221,8 @@ export class PermissionRequestFormComponent {
       return false;
     }
 
-    const { description, expiration_date, created_on, sensitivity_filter, scope, taxa, areas } =
-      this.form.value as PermissionRequestFormValue;
+    const { description, expiration_date, sensitivity_filter, scope, taxa, areas } = this.form
+      .value as PermissionRequestFormValue;
     const selectedTaxa = this._extractTaxaIdentifiers(taxa);
     const permissionRequestTaxa = (this.permissionRequest.taxa || []).map((taxon) => taxon.cd_nom);
     const normalizedSelectedTaxa = [...selectedTaxa].sort((a, b) => a - b);
@@ -245,9 +234,6 @@ export class PermissionRequestFormComponent {
 
     const normalizedDescription = (description ?? '').trim();
     const permissionRequestDescription = (this.permissionRequest.description ?? '').trim();
-
-    const normalizedCreatedOn = this._normalizeDateValue(created_on);
-    const permissionRequestCreatedOn = this._normalizeDateValue(this.permissionRequest.created_on);
 
     const normalizedExpiration = this._normalizeDateValue(expiration_date);
     const permissionRequestExpiration = this._normalizeDateValue(
@@ -261,7 +247,6 @@ export class PermissionRequestFormComponent {
 
     return (
       normalizedDescription === permissionRequestDescription &&
-      normalizedCreatedOn === permissionRequestCreatedOn &&
       normalizedExpiration === permissionRequestExpiration &&
       normalizedSensitivity === permissionRequestSensitivity &&
       normalizedScope === permissionRequestScope &&
@@ -294,7 +279,6 @@ export class PermissionRequestFormComponent {
     if (!this.permissionRequest) {
       this.form.reset({
         description: '',
-        created_on: null,
         expiration_date: null,
         scope: DEFAULT_SCOPE,
         sensitivity_filter: true,
