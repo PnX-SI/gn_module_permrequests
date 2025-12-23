@@ -6,17 +6,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { RouterModule, Params } from '@angular/router';
 import { STATUS, STATUS_LABELS, STATUS_COLORS } from '../../models/status';
-import { PermissionRequestArea } from '../../models/permissionRequest';
 
 export interface ValidationDescriptionDialogData {
   validation_description: string | null;
   created_on: string | null;
   expiration_date: string | null;
   status: STATUS | null;
-  cdNom: number[];
-  areas: PermissionRequestArea[];
 }
 
 export interface ValidationDescriptionDialogResult {
@@ -96,16 +92,6 @@ type ValidationChoice = 'approve' | 'reject' | 'in_progress' | null;
           class="ValidationDescriptionDialog__actions"
         >
           <div class="ValidationDescriptionDialog__actions-group">
-            <a
-              mat-stroked-button
-              color="primary"
-              [routerLink]="syntheseLink"
-              [queryParams]="syntheseQueryParams"
-              target="_blank"
-              rel="noopener"
-            >
-              Visualiser les données
-            </a>
             <button
               mat-stroked-button
               color="primary"
@@ -194,7 +180,6 @@ type ValidationChoice = 'approve' | 'reject' | 'in_progress' | null;
     MatInputModule,
     MatFormFieldModule,
     MatButtonToggleModule,
-    RouterModule,
   ],
 })
 export class ValidationDescriptionDialogComponent {
@@ -209,9 +194,6 @@ export class ValidationDescriptionDialogComponent {
     reject: { '--decision-color': STATUS_COLORS[STATUS.REFUSED] },
     inProgress: { '--decision-color': STATUS_COLORS[STATUS.IN_PROGRESS] },
   };
-  readonly syntheseLink = ['/synthese'];
-  readonly syntheseQueryParams: Params;
-
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: ValidationDescriptionDialogData,
     private _dialogRef: MatDialogRef<
@@ -225,10 +207,6 @@ export class ValidationDescriptionDialogComponent {
     this.dateStatus = this._computeDateStatus(data?.created_on, data?.expiration_date);
     this.dateStatusLabel = this.dateStatus ? STATUS_LABELS[this.dateStatus] : null;
     this.dateStatusColor = this.dateStatus ? STATUS_COLORS[this.dateStatus] : null;
-    this.syntheseQueryParams = this._computeSyntheseQueryParams(
-      data?.cdNom ?? [],
-      data?.areas ?? []
-    );
   }
 
   onConfirm(): void {
@@ -319,40 +297,4 @@ export class ValidationDescriptionDialogComponent {
     return hasDecision;
   }
 
-  private _computeSyntheseQueryParams(cdNoms: number[], areas: PermissionRequestArea[]) {
-    const query: Params = {};
-    const uniqueCdNoms = Array.from(
-      new Set(
-        (cdNoms || [])
-          .flatMap((value) => value)
-          .map((value) => Number(value))
-          .filter((value) => Number.isFinite(value))
-      )
-    ) as number[];
-    if (uniqueCdNoms.length) {
-      // In synthse, the query_params available is cd_ref.
-      // In permission request, the taxon is referenced by cd_nom because of fk behavior.
-      // But it's actually a cd_ref.
-      query.cd_ref = uniqueCdNoms;
-    }
-    const areaParams = new Map<string, Set<string | number>>([
-      ['COM', new Set()],
-      ['DEP', new Set()],
-      ['REG', new Set()],
-    ]);
-    (areas || []).forEach((area) => {
-      if (!area || !area.type_code || !areaParams.has(area.type_code)) {
-        return;
-      }
-      if (area.id_area !== null && area.id_area !== undefined) {
-        areaParams.get(area.type_code)?.add(area.id_area);
-      }
-    });
-    areaParams.forEach((values, typeCode) => {
-      if (values.size) {
-        query[`area_${typeCode}`] = Array.from(values);
-      }
-    });
-    return query;
-  }
 }

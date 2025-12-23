@@ -132,8 +132,6 @@ export class PermissionRequestToolbarComponent {
         created_on: this.permissionRequest.created_on ?? null,
         expiration_date: this.permissionRequest.expiration_date ?? null,
         status: this.permissionRequest.status ?? null,
-        cdNom: this._getCdNoms(this.permissionRequest),
-        areas: this.permissionRequest.areas ?? [],
       },
     });
 
@@ -200,16 +198,4 @@ export class PermissionRequestToolbarComponent {
       });
   }
 
-  private _getCdNoms(permissionRequest: PermissionRequest | null): number[] {
-    if (!permissionRequest?.taxa?.length) {
-      return [];
-    }
-    return Array.from(
-      new Set(
-        permissionRequest.taxa
-          .map((taxon) => taxon.cd_nom)
-          .filter((value): value is number => Number.isFinite(value))
-      )
-    );
-  }
 }

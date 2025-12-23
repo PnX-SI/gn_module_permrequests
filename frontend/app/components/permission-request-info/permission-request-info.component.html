@@ -117,6 +117,13 @@
             {{ permissionRequest.sensitivity_filter ? 'Oui' : 'Non' }}
           </div>
         </div>
+
+        <div class="Field Field--synthese" *ngIf="permissionRequest.cruved?.V">
+          <a mat-stroked-button color="primary" [routerLink]="syntheseLink" [queryParams]="syntheseQueryParams"
+            target="_blank" rel="noopener">
+            Visualiser dans la synthèse
+          </a>
+        </div>
       </mat-card-content>
     </mat-card>
   </div>
