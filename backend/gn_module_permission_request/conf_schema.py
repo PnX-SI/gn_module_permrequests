@@ -10,6 +10,14 @@ class TermsAcknowledgementSchemaConf(Schema):
 
 
 class GnModuleSchemaConf(Schema):
+    ALLOWED_SCOPES = fields.List(
+        fields.String(),
+        load_default=["USER", "ORGANISM"],
+    )
+    ALLOWED_AREA_TYPE_CODES = fields.List(
+        fields.String(),
+        load_default=["COM", "DEP", "REG"],
+    )
     REQUIRE_TERMS_ACKNOWLEDGEMENT = fields.Boolean(load_default=True)
     TERMS_ACKNOWLEDGEMENT = fields.Nested(
         TermsAcknowledgementSchemaConf,

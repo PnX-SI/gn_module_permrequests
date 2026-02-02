@@ -3,7 +3,7 @@ Définition des routes du module export
 """
 
 from datetime import datetime, date
-from flask import Blueprint, request, g
+from flask import Blueprint, request, g, current_app
 from sqlalchemy import desc, asc, select, case
 import sqlalchemy as sa
 from werkzeug.exceptions import BadRequest, NotFound, Forbidden, InternalServerError
@@ -37,10 +37,6 @@ from enum import Enum
 class SortOrder(Enum):
     ASC = "asc"
     DESC = "desc"
-
-
-ALLOWED_SCOPES = {SCOPE_USER, SCOPE_ORGANISM}
-ALLOWED_AREA_TYPE_CODES = {"COM", "DEP", "REG"}
 
 
 def _normalize_scope(value):
@@ -152,7 +148,7 @@ def _build_role_recipient_ids(*role_ids):
 def list_permission_requests(scope):
     page = request.args.get("page", default=1, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
-    orderby = request.args.get("orderby", "id_permission_request")
+    orderby = request.args.get("orderby", "created_on")
     sort = request.args.get("sort", SortOrder.ASC, SortOrder)
     if page <= 0:
         raise BadRequest(f"Invalid page {page} requested")
@@ -186,10 +182,12 @@ def list_permission_requests(scope):
         except ValueError as exc:
             raise BadRequest(f"Unsupported status value '{status_value}'.") from exc
 
+    module_config = current_app.config[MODULE_CODE]
+    allowed_scopes = {scope.strip().upper() for scope in module_config.get("ALLOWED_SCOPES")}
     scope_filters = []
     for scope_value in request.args.getlist("scope"):
         normalized_scope = _normalize_scope(scope_value)
-        if normalized_scope not in ALLOWED_SCOPES:
+        if normalized_scope not in allowed_scopes:
             raise BadRequest(f"Unsupported scope value '{scope_value}'.")
         scope_filters.append(normalized_scope)
 
@@ -431,7 +429,8 @@ def create_permission_request():
     scope_value = _normalize_scope(payload.get("scope", SCOPE_USER))
     if scope_value is None:
         raise BadRequest("scope must be provided as a string.")
-    if scope_value not in ALLOWED_SCOPES:
+    allowed_scopes = current_app.config[MODULE_CODE].get("ALLOWED_SCOPES")
+    if scope_value not in allowed_scopes:
         raise BadRequest(f"Unsupported scope value '{scope_value}'.")
 
     taxa_ids = payload.get("taxa")
@@ -481,17 +480,18 @@ def create_permission_request():
         raise BadRequest(
             f"Some area identifiers are invalid or unknown: {', '.join(map(str, missing_areas))}."
         )
+    allowed_area_type_codes = current_app.config[MODULE_CODE].get("ALLOWED_AREA_TYPE_CODES")
     invalid_area_types = sorted(
         {
             area_id
             for area_id in normalized_area_ids
             if area_id in areas_by_id
             and getattr(areas_by_id[area_id].area_type, "type_code", None)
-            not in ALLOWED_AREA_TYPE_CODES
+            not in allowed_area_type_codes
         }
     )
     if invalid_area_types:
-        allowed_codes = ", ".join(sorted(ALLOWED_AREA_TYPE_CODES))
+        allowed_codes = ", ".join(sorted(allowed_area_type_codes))
         raise BadRequest(
             f"Areas must belong to one of the allowed types ({allowed_codes}). Invalid areas: {', '.join(map(str, invalid_area_types))}."
         )
@@ -653,7 +653,8 @@ def update_permission_request(scope, id_permission_request):
         if not isinstance(raw_scope, str):
             raise BadRequest("scope must be provided as a string.")
         scope_value = _normalize_scope(raw_scope)
-        if scope_value is None or scope_value not in ALLOWED_SCOPES:
+        allowed_scopes = current_app.config[MODULE_CODE].get("ALLOWED_SCOPES")
+        if scope_value is None or scope_value not in allowed_scopes:
             raise BadRequest(f"Unsupported scope value '{raw_scope}'.")
         author = permission_request.author
         new_role_id = _resolve_permission_role(
@@ -720,17 +721,18 @@ def update_permission_request(scope, id_permission_request):
             raise BadRequest(
                 f"Some area identifiers are invalid or unknown: {', '.join(map(str, missing_area_ids))}."
             )
+        allowed_area_type_codes = current_app.config[MODULE_CODE].get("ALLOWED_AREA_TYPE_CODES")
         invalid_area_types = sorted(
             {
                 area_id
                 for area_id in normalized_area_ids
                 if area_id in areas_by_id
                 and getattr(areas_by_id[area_id].area_type, "type_code", None)
-                not in ALLOWED_AREA_TYPE_CODES
+                not in allowed_area_type_codes
             }
         )
         if invalid_area_types:
-            allowed_codes = ", ".join(sorted(ALLOWED_AREA_TYPE_CODES))
+            allowed_codes = ", ".join(sorted(allowed_area_type_codes))
             raise BadRequest(
                 f"Areas must belong to one of the allowed types ({allowed_codes}). Invalid areas: {', '.join(map(str, invalid_area_types))}."
             )

@@ -26,11 +26,6 @@ Ce module permet d'ajouter des fonctionnalités de demandes de permission à des
 
 Ce module s'articule autour du concept de demande de permission.
 
-
-
-
-
-
 Un utilisateur pourra via ce module effectuer une demande de permission à des données. Sa demande sera caractérisée par 3 types d'informations:
 
 - un ou plusieurs groupe taxonomique auxquels il souhaite avoir la permission d'accéder
@@ -92,10 +87,13 @@ du fichier `permission_request_config.toml.example` et en surcouchant les param�
 
 ### Paramètres
 
+- ``ALLOWED_SCOPES`` : liste des scopes autorisés pour les demandes (par défaut ``["USER", "ORGANISM"]``).
+- ``ALLOWED_AREA_TYPE_CODES`` : liste des types de zones autorisés (par défaut ``["COM", "DEP", "REG"]``).
 - ``REQUIRE_TERMS_ACKNOWLEDGEMENT`` : permet de faire apparaitre / dissimuler dans le formulaire une coche d'acceptation des termes et conditions.
 - ``TERMS_ACKNOWLEDGEMENT.URL`` : URL vers les conditions d'utilisations (ouvre un nouvel onglet).
 
 > Le statut visible dans l’interface est calculé automatiquement :
+>
 > - si la date d’expiration est strictement antérieure à la date du jour, la demande est affichée « active » ;
 > - sinon, elle apparaît comme « expirée ».
 
