@@ -416,17 +416,8 @@ export class PermissionRequestFormComponent {
       this._resetTaxonSearchControl();
       return;
     }
-    const label =
-      item.lb_nom || item.nom_valide || item.search_name || item.nom_complet || `${item.cd_nom}`;
-    const updatedTaxa = [
-      ...currentTaxa,
-      {
-        cd_nom: cd_ref,
-        lb_nom: label,
-        displayName: label,
-      },
-    ];
-    this.taxaControl?.setValue(updatedTaxa);
+    currentTaxa.push(item);
+    this.taxaControl?.setValue(currentTaxa);
     this.taxaControl?.markAsDirty();
     this.taxaControl?.markAsTouched();
     this.taxaControl?.updateValueAndValidity({ emitEvent: false });

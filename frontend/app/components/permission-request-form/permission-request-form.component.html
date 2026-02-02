@@ -117,12 +117,12 @@
                 <label class="Field__label" for="taxa">
                   Taxons
                 </label>
-                <pnx-taxonomy id="taxa" [parentFormControl]="taxonSearchControl" displayedLabel="lb_nom" charNumber="3"
-                  listLength="20" (onChange)="onTaxonSelected($event)"></pnx-taxonomy>
+                <pnx-taxonomy id="taxa" [parentFormControl]="taxonSearchControl" charNumber="3" listLength="20"
+                  (onChange)="onTaxonSelected($event)"></pnx-taxonomy>
                 <div class="Field__selectedTaxa" *ngIf="taxaControl?.value?.length">
                   <ul>
                     <li *ngFor="let taxon of taxaControl?.value">
-                      {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
+                      <span [innerHtml]="taxon.search_name"></span>
                       <button type="button" mat-icon-button color="warn" (click)="removeTaxon(taxon.cd_nom)"
                         matTooltip="Retirer ce taxon" aria-label="Retirer ce taxon">
                         <mat-icon>close</mat-icon>
