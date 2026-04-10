@@ -2,35 +2,69 @@
 requires = ["setuptools>=61.0", "setuptools_scm>=8.0"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
-where = ["backend"]
-
 [project]
 name = "gn_module_permrequests"
-description = "Module GeoNature de demande de permissions."
-requires-python = ">=3.9"
-dependencies = ["geonature >= 2.14"]
 dynamic = ["version"]
+description = "Module GeoNature de demande de permissions."
+readme = { file = "README.md", content-type = "text/markdown" }
 maintainers = [
   { name = "Conservatoire Botanique National Alpin", email = "geonature@cbn-alpin.fr" },
   { name = "Parcs nationaux des Écrins et des Cévennes", email = "geonature@ecrins-parcnational.fr" },
+  { name = "Natural Solutions", email = "geonature@natural-solutions.eu" },
 ]
-
-[project.urls]
-Repository = "https://github.com/PnX-SI/gn_module_permrequests/"
+license = { file = "LICENSE.txt" }
+dependencies = ["geonature >= 2.14"]
+urls = { Repository = "https://github.com/PnX-SI/gn_module_permrequests/" }
+requires-python = ">=3.9"
 
 [project.entry-points.gn_module]
 code = "gn_module_permrequests:MODULE_CODE"
 label = "gn_module_permrequests:MODULE_LABEL"
+picto = "gn_module_permrequests:MODULE_PICTO"
 blueprint = "gn_module_permrequests.blueprint:blueprint"
+config_schema = "gn_module_permrequests.config_schema:PermissionsRequestsConfigSchema"
 migrations = "gn_module_permrequests:migrations"
 alembic_branch = "gn_module_permrequests:ALEMBIC_BRANCH"
-config_schema = "gn_module_permrequests.config_schema:PermissionsRequestsConfigSchema"
 
+[tool.setuptools]
+package-dir = { "" = "backend" }
 
-[tool.black]
-line-length = 100
+[tool.setuptools.dynamic]
+version = { file = "VERSION" }
+
+[tool.setuptools.packages.find]
+where = ["backend"]
+
+[tool.setuptools.package-data]
+"gn_module_permrequests" = ["templates/**", "static/**"]
+"gn_module_permrequests.migrations" = ["data/*.sql"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["backend"]
 
 [tool.coverage.run]
-source = ["backend/gn_module_permrequests/"]
+source = ["gn_module_permrequests"]
 omit = ["*/tests/*", "*/migrations/*"]
+
+[tool.black]
+line-length = 99
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | node_modules
+    | venv
+    | dependencies
+  )/
+)
+'''

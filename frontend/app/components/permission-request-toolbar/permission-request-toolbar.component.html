@@ -1,0 +1,57 @@
+<div
+  class="PermissionRequestToolbar"
+  *ngIf="permissionRequest"
+>
+  <button
+    class="Edit"
+    [ngClass]="permissionRequest?.status ? 'Edit--' + permissionRequest.status : ''"
+    [disabled]="validationRequestPending"
+    mat-stroked-button
+    matTooltip="Editer"
+    (click)="openValidationDialog()"
+    *ngIf="withValidate && permissionRequest?.cruved?.V; else displayStatus"
+  >
+    <span class="Edit__label">{{ STATUS_LABELS[permissionRequest.status] }}</span>
+    <mat-icon class="Edit__icon">edit</mat-icon>
+  </button>
+  <ng-template #displayStatus>
+    <button
+      class="Edit Edit--disabled"
+      mat-stroked-button
+      [ngClass]="permissionRequest?.status ? 'Edit--' + permissionRequest.status : ''"
+      disabled
+    >
+      <span class="Edit__label">{{ STATUS_LABELS[permissionRequest.status] }}</span>
+    </button>
+  </ng-template>
+  <button
+    *ngIf="permissionRequest && withEdit"
+    [disabled]="!permissionRequest.cruved.U"
+    color="primary"
+    mat-icon-button
+    matTooltip="Editer"
+    [routerLink]="[editRouterLink]"
+  >
+    <mat-icon>edit</mat-icon>
+  </button>
+  <button
+    *ngIf="permissionRequest && withInfo"
+    [disabled]="!permissionRequest.cruved.R"
+    color="primary"
+    mat-icon-button
+    matTooltip="Voir"
+    [routerLink]="[infoRouterLink]"
+  >
+    <mat-icon>info</mat-icon>
+  </button>
+  <button
+    *ngIf="permissionRequest && withDelete"
+    [disabled]="!permissionRequest.cruved.D"
+    color="warn"
+    mat-icon-button
+    matTooltip="Supprimer"
+    (click)="deletePermissionRequest()"
+  >
+    <mat-icon>delete</mat-icon>
+  </button>
+</div>

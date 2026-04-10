@@ -1,0 +1,217 @@
+.PermissionRequestList {
+  height: 100%;
+  width: 100%;
+  .Toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+
+    &__filters {
+      display: flex;
+      align-items: center;
+      .FiltersForm {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-start;
+        column-gap: 0.5rem;
+        align-items: center;
+
+        &__Filter {
+          min-width: 200px;
+          ::ng-deep .ng-select-container .ng-value-container {
+            display: flex;
+            flex-flow: row nowrap;
+            gap: 0.25rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            scrollbar-width: none; /* Firefox */
+            padding-top: 0 !important;
+          }
+          ::ng-deep .ng-select-container .ng-value-container::-webkit-scrollbar {
+            display: none; /* WebKit */
+          }
+
+          ::ng-deep .ng-select-container .ng-value-container .ng-placeholder {
+            top: auto;
+            padding-bottom: 0;
+          }
+
+          ::ng-deep .ng-select .ng-value {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 0;
+          }
+          ::ng-deep .ng-select-container .ng-value-container .ng-value {
+            margin-bottom: 0 !important;
+          }
+          ::ng-deep .ng-select .ng-select-container .ng-value-container .ng-input {
+            flex: 0 0 auto;
+          }
+          &--checkbox {
+            display: inline-flex;
+            gap: 0.35rem;
+            font-size: 0.9rem;
+            margin-bottom: 0 !important;
+            color: #1f1f1f;
+          }
+        }
+
+        .Multiselect {
+          color: #219653 !important;
+
+          ::ng-deep .ng-value-container {
+            max-height: 200px;
+            overflow: auto;
+          }
+
+          ::ng-deep .ng-select-disabled > .ng-select-container {
+            background-color: #dcdcdc !important;
+            max-height: 200px;
+          }
+
+          ::ng-deep .ng-input {
+            opacity: 0 !important;
+          }
+
+          ::ng-deep .ng-value {
+            max-width: 90%;
+            padding-left: 5px;
+            padding-right: 5px;
+          }
+
+          &--hightlightValue {
+            ::ng-deep .ng-value {
+              background-color: #219653 !important;
+              color: #fff !important;
+            }
+          }
+
+          &--multiple {
+            ::ng-deep .ng-value {
+              display: flex;
+              flex-flow: row nowrap;
+              justify-content: center;
+              .ng-value-icon {
+                align-self: center;
+              }
+              .ng-value-icon:hover {
+                background-color: #219653 !important;
+                color: #156035 !important;
+              }
+              .ng-value-label {
+                word-wrap: whitespace;
+                white-space: normal;
+              }
+            }
+          }
+
+          ::ng-deep .ng-option:hover,
+          ::ng-deep .ng-option.ng-option-selected:hover {
+            background-color: #f5f5f5 !important;
+          }
+
+          ::ng-deep .ng-option.ng-option-selected {
+            background-color: #effcf4 !important;
+          }
+
+          .MultiselectOptionItem {
+            display: flex;
+            flex: row nowrap;
+            column-gap: 10px;
+            align-items: center;
+            input[type='checkbox'] {
+              accent-color: #219653 !important;
+            }
+
+            &__text {
+              max-width: 80%;
+              word-wrap: break-all;
+              white-space: normal;
+            }
+          }
+        }
+      }
+    }
+
+    &__spacer {
+      flex-grow: 2;
+    }
+    &__actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+  }
+
+  ::ng-deep .ngx-datatable .empty-row {
+    text-align: center;
+    color: #1f1f1f;
+  }
+
+  &__table {
+    height: calc(100vh - 155px); // TODO Magicnumber
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    box-shadow: none;
+    ::ng-deep .datatable-header,
+    ::ng-deep .datatable-body,
+    ::ng-deep .datatable-footer {
+      width: 100% !important;
+    }
+    ::ng-deep .visible {
+      height: inherit;
+      .datatable-body {
+        height: 87% !important;
+        overflow-y: scroll;
+        overflow-x: hidden;
+      }
+    }
+    &--nowrap {
+      ::ng-deep .datatable-header-cell,
+      ::ng-deep .datatable-body-cell,
+      ::ng-deep .datatable-row-center .datatable-body-cell {
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+      }
+      ::ng-deep .datatable-body-cell .datatable-body-cell-label {
+        display: block;
+        width: 100%;
+      }
+    }
+  }
+}
+
+.Taxa {
+  &List {
+    margin: 0;
+    padding-left: 1.2rem;
+    list-style: disc;
+
+    &--single {
+      list-style: none;
+      li {
+        list-style: none;
+      }
+    }
+  }
+}
+
+.Areas {
+  &List {
+    margin: 0;
+    padding-left: 1.2rem;
+    list-style: disc;
+
+    &--single {
+      list-style: none;
+      li {
+        list-style: none;
+      }
+    }
+  }
+}
