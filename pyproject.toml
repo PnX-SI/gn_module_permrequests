@@ -9,8 +9,8 @@ description = "Module GeoNature de demande de permissions."
 readme = { file = "README.md", content-type = "text/markdown" }
 maintainers = [
   { name = "Conservatoire Botanique National Alpin", email = "geonature@cbn-alpin.fr" },
-  { name = "Parcs nationaux des Écrins et des Cévennes", email = "geonature@ecrins-parcnational.fr" },
   { name = "Natural Solutions", email = "geonature@natural-solutions.eu" },
+  { name = "Parcs nationaux des Écrins et des Cévennes", email = "geonature@ecrins-parcnational.fr" },
 ]
 license = { file = "LICENSE.txt" }
 dependencies = ["geonature >= 2.14"]
@@ -22,7 +22,7 @@ code = "gn_module_permrequests:MODULE_CODE"
 label = "gn_module_permrequests:MODULE_LABEL"
 picto = "gn_module_permrequests:MODULE_PICTO"
 blueprint = "gn_module_permrequests.blueprint:blueprint"
-config_schema = "gn_module_permrequests.config_schema:PermissionsRequestsConfigSchema"
+config_schema = "gn_module_permrequests.config_schema:PermrequestsConfigSchema"
 migrations = "gn_module_permrequests:migrations"
 alembic_branch = "gn_module_permrequests:ALEMBIC_BRANCH"
 
@@ -37,7 +37,7 @@ where = ["backend"]
 
 [tool.setuptools.package-data]
 "gn_module_permrequests" = ["templates/**", "static/**"]
-"gn_module_permrequests.migrations" = ["data/*.sql"]
+"gn_module_permrequests.migrations" = ["**"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"

@@ -1,3 +1,4 @@
-MODULE_CODE = "PERMISSIONS_REQUESTS"
-MODULE_LABEL = "Demandes de permissions"
-ALEMBIC_BRANCH = "permissions_requests"
+MODULE_CODE = "PERMREQUESTS"
+MODULE_PICTO = "fa-th-list"
+MODULE_LABEL = "Demande de permission"
+ALEMBIC_BRANCH = "permrequests"

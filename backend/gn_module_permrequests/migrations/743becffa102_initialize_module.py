@@ -1,4 +1,4 @@
-"""init model
+"""Initialize mod
 
 Revision ID: 743becffa102
 Revises: 743becffa102
@@ -9,12 +9,17 @@ Create Date: 2023-03-27 11:54:34.602380
 from alembic import op
 import sqlalchemy as sa
 
-MODULE_CODE = "PERMISSION_REQUEST"
+from gn_module_permrequests import MODULE_CODE, ALEMBIC_BRANCH
+
+
+# revision identifiers, used by Alembic.
+revision = "743becffa102"
+down_revision = None
+branch_labels = (ALEMBIC_BRANCH,)
+depends_on = ("707390c722fe",)
+
 SCHEMA_NAME = f"pr_{MODULE_CODE.lower()}"
-TABLE_NAME = f"t_{MODULE_CODE.lower()}"
-PRIMARY_KEY = "id_permission_request"
-COR_PERMISSION_REQUEST_TAXA_TABLE = f"cor_{MODULE_CODE.lower()}_taxa"
-COR_PERMISSION_REQUEST_PERMISSIONS_TABLE = f"cor_{MODULE_CODE.lower()}_permissions"
+TABLE_NAME = "t_permission_requests"
 
 NOTIFICATION_SCHEMA = "gn_notifications"
 NOTIFICATION_CATEGORY_DEFINITIONS = [
@@ -93,31 +98,79 @@ NOTIFICATION_CATEGORY_DEFINITIONS = [
         "db_content": (
             "{{ user.nom_complet }} a mis à jour pour la demande de permission n°{{ permission_request.id_permission_request }}"
             "{% if permission_request.validation_description is defined %}"
-            "{{ permission_request.validation_description }}"
+            " — {{ permission_request.validation_description }}"
             "{% endif %}"
         ),
     },
 ]
 
 
-# revision identifiers, used by Alembic.
-revision = "743becffa102"
-down_revision = None
-branch_labels = ("permission_request",)
-depends_on = None
-
-
 def upgrade():
-    # #########################################################################
-    # Schema pr_permission_request
-    # #########################################################################
-    conn = op.get_bind()
+    print("-> Upgrading permission requests module infos...")
+    update_module_infos()
+    print("-> Creating module schema and tables...")
+    create_module_schema_tables()
+    print("-> Adding module permissions...")
+    add_module_permissions()
+    print("-> Adding module notifications...")
+    add_module_notifications()
+    print("-> Module upgrade complete!")
+    print_post_installation_steps()
+
+def print_post_installation_steps():
+    print("\n" + "="*80)
+    print("Post-migration steps:")
+    print("1. Grant all permissions to an admin group (e.g., 'Grp_admin'):")
+    print("   geonature permissions supergrant --group --nom Grp_admin")
+    print("\n2. Assign default permissions to your users group for the "
+          f"'{MODULE_CODE}' module in the GeoNature admin interface:")
+
+    # --- Table formatting ---
+    header = ["Action", "Object", "Scope filter"]
+    rows = [
+        ["'Create'", "'ALL'", "'-'"],
+        ["'Read'", "'ALL'", "'My data'"],
+        ["'Update'", "'ALL'", "'My data'"],
+        ["'Delete'", "'ALL'", "'My data'"],
+    ]
+    col_widths = [max(len(str(item)) for item in col) for col in zip(header, *rows)]
+    row_format = "   ".join([f"{{:<{width}}}" for width in col_widths])
+
+    print("\n   " + row_format.format(*header))
+    print("   " + row_format.format(*["-"*w for w in col_widths]))
+    for row in rows:
+        print("   " + row_format.format(*row))
+    print("="*80 + "\n")
+
+def update_module_infos():
+    operation = sa.sql.text(
+        """
+        UPDATE gn_commons.t_modules
+        SET
+            module_label = :label,
+            module_desc = :description,
+            module_doc_url = :docUrl
+        WHERE module_code = :code ;
+        """
+    )
+    op.get_bind().execute(
+        operation,
+        {
+            "code": MODULE_CODE,
+            "label": "Demandes d'accès",
+            "description": "Module de gestion des demandes de permission d'accès "
+                "aux données sensibles de la Synthese.",
+            "docUrl": "https://github.com/PnX-SI/gn_module_permrequests",
+        },
+    )
+
+def create_module_schema_tables():
     op.execute(sa.text(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_NAME}"))
 
     op.create_table(
         TABLE_NAME,
         sa.Column(
-            PRIMARY_KEY,
+            "id_permission_request",
             sa.Integer(),
             primary_key=True,
             autoincrement=True,
@@ -141,107 +194,55 @@ def upgrade():
             nullable=True,
         ),
         sa.Column("validation_description", sa.Text(), nullable=True),
+        sa.Column("validation_date", sa.DateTime(), nullable=True),
         sa.Column("description", sa.Text(), nullable=True),
+        # TODO: use a new table to store several permissions per request
         sa.Column(
             "id_permission",
             sa.Integer(),
             sa.ForeignKey(
                 "gn_permissions.t_permissions.id_permission",
                 name=f"fk_{TABLE_NAME}_id_permission",
-                ondelete="SET NULL",
+                ondelete="RESTRICT",
             ),
-            nullable=True,
+            nullable=False,
             unique=True,
         ),
         schema=SCHEMA_NAME,
     )
 
-    ## ########################################################################
-    ## Module permissions
-    ## ########################################################################
-    op.execute(
-        f"""
-      INSERT INTO
-          gn_permissions.t_permissions_available (
-              id_module,
-              id_object,
-              id_action,
-              label,
-              scope_filter
-          )
-      SELECT
-          m.id_module,
-          o.id_object,
-          a.id_action,
-          v.label,
-          v.scope_filter
-      FROM
-          (
-              VALUES
-                  ('{MODULE_CODE}', 'ALL', 'C', False, 'Créer des requêtes de permission')
-                  ,('{MODULE_CODE}', 'ALL', 'R', True, 'Voir les requêtes de permission')
-                  ,('{MODULE_CODE}', 'ALL', 'U', True, 'Modifier les requêtes de permission')
-                  ,('{MODULE_CODE}', 'ALL', 'V', True, 'Valider les requêtes de permission')
-                  ,('{MODULE_CODE}', 'ALL', 'D', True, 'Supprimer des requêtes de permission')
-          ) AS v (module_code, object_code, action_code, scope_filter, label)
-      JOIN
-          gn_commons.t_modules m ON m.module_code = v.module_code
-      JOIN
-          gn_permissions.t_objects o ON o.code_object = v.object_code
-      JOIN
-          gn_permissions.bib_actions a ON a.code_action = v.action_code
-      """
-    )
-
-    ## ########################################################################
-    ## Module permissions
-    ## ########################################################################
-
-    module_id = conn.execute(
-        sa.text(
-            """
-            SELECT id_module
-            FROM gn_commons.t_modules
-            WHERE module_code = :module_code
-            """
-        ),
-        {"module_code": MODULE_CODE},
-    ).scalar()
-    if module_id is None:
-        raise RuntimeError(
-            "PERMISSION_REQUEST module must be registered before running this migration."
+def add_module_permissions():
+    op.execute(f"""
+        INSERT INTO gn_permissions.t_permissions_available (
+            id_module,
+            id_object,
+            id_action,
+            label,
+            scope_filter
         )
+        SELECT
+            m.id_module,
+            o.id_object,
+            a.id_action,
+            v.label,
+            v.scope_filter
+        FROM (
+            VALUES
+                ('{MODULE_CODE}', 'ALL', 'C', False, 'Créer des demandes de permission'),
+                ('{MODULE_CODE}', 'ALL', 'R', True, 'Voir les demandes de permission'),
+                ('{MODULE_CODE}', 'ALL', 'U', True, 'Modifier les demandes de permission'),
+                ('{MODULE_CODE}', 'ALL', 'V', True, 'Valider les demandes de permission'),
+                ('{MODULE_CODE}', 'ALL', 'D', True, 'Supprimer des demandes de permission')
+            ) AS v (module_code, object_code, action_code, scope_filter, label)
+            JOIN gn_commons.t_modules AS m
+                ON m.module_code = v.module_code
+            JOIN gn_permissions.t_objects AS o
+                ON o.code_object = v.object_code
+            JOIN gn_permissions.bib_actions AS a
+                ON a.code_action = v.action_code
+    """)
 
-    object_id = conn.execute(
-        sa.text(
-            """
-            SELECT id_object
-            FROM gn_permissions.t_objects
-            WHERE code_object = :object_code
-            """
-        ),
-        {"object_code": "ALL"},
-    ).scalar()
-    if object_id is None:
-        raise RuntimeError("Permission object 'ALL' is required to configure notifications.")
-
-    def get_action_id(action_code):
-        action_id = conn.execute(
-            sa.text(
-                """
-                SELECT id_action
-                FROM gn_permissions.bib_actions
-                WHERE code_action = :action_code
-                """
-            ),
-            {"action_code": action_code},
-        ).scalar()
-        if action_id is None:
-            raise RuntimeError(
-                f"Permission action '{action_code}' is required to configure notifications."
-            )
-        return action_id
-
+def add_module_notifications():
     category_values = []
     template_values = []
     rule_values = []
@@ -251,8 +252,8 @@ def upgrade():
                 "code": definition["code"],
                 "label": definition["label"],
                 "description": definition["description"],
-                "id_module": module_id,
-                "id_object": object_id,
+                "id_module": get_module_id(MODULE_CODE),
+                "id_object": get_object_id("ALL"),
                 "id_action": get_action_id(definition["action_code"]),
             }
         )
@@ -284,6 +285,8 @@ def upgrade():
                 },
             ]
         )
+
+    conn = op.get_bind()
 
     if category_values:
         conn.execute(
@@ -325,10 +328,72 @@ def upgrade():
         )
 
 
+def get_module_id(module_code):
+    conn = op.get_bind()
+    module_id = conn.execute(
+        sa.text(
+            """
+            SELECT id_module
+            FROM gn_commons.t_modules
+            WHERE module_code = :module_code
+            """
+        ),
+        {"module_code": module_code},
+    ).scalar()
+    if module_id is None:
+        raise RuntimeError(
+            f"{module_code} module must be registered before running this migration."
+        )
+    return module_id
+
+def get_object_id(object_code):
+    conn = op.get_bind()
+    object_id = conn.execute(
+        sa.text(
+            """
+            SELECT id_object
+            FROM gn_permissions.t_objects
+            WHERE code_object = :object_code
+            """
+        ),
+        {"object_code": object_code},
+    ).scalar()
+    if object_id is None:
+        raise RuntimeError(
+            f"Permission object '{object_code}' is required to configure notifications."
+        )
+    return object_id
+
+def get_action_id(action_code):
+    conn = op.get_bind()
+    action_id = conn.execute(
+        sa.text(
+            """
+            SELECT id_action
+            FROM gn_permissions.bib_actions
+            WHERE code_action = :action_code
+            """
+        ),
+        {"action_code": action_code},
+    ).scalar()
+    if action_id is None:
+        raise RuntimeError(
+            f"Permission action '{action_code}' is required to configure notifications."
+        )
+    return action_id
+
+
 def downgrade():
-    # #########################################################################
-    # Notifications clean-up
-    # #########################################################################
+    print("-> Downgrading permission requests module...")
+    remove_module_notifications()
+    print("-> Removing module permissions...")
+    remove_module_permissions()
+    print("-> Dropping module schema and tables...")
+    drop_module_schema_tables()
+    print("-> Module downgrade complete.")
+
+
+def remove_module_notifications():
     conn = op.get_bind()
     for definition in NOTIFICATION_CATEGORY_DEFINITIONS:
         conn.execute(
@@ -359,19 +424,9 @@ def downgrade():
             {"code": definition["code"]},
         )
 
-    # #########################################################################
-    # Remove existing permission initiated by the module
-    # #########################################################################
-    module_id = conn.execute(
-        sa.text(
-            """
-            SELECT id_module
-            FROM gn_commons.t_modules
-            WHERE module_code = :module_code
-            """
-        ),
-        {"module_code": MODULE_CODE},
-    ).scalar()
+def remove_module_permissions():
+    conn = op.get_bind()
+    module_id = get_module_id(MODULE_CODE)
 
     permission_ids_query = f"""
         SELECT id_permission
@@ -398,8 +453,8 @@ def downgrade():
     conn.execute(
         sa.text(
             f"""
-            DELETE FROM gn_permissions.t_permissions
-            WHERE id_permission IN ({permission_ids_query})
+            DELETE FROM {SCHEMA_NAME}.{TABLE_NAME}
+            WHERE id_permission IS NOT NULL
             """
         )
     )
@@ -440,8 +495,6 @@ def downgrade():
             {"module_id": module_id},
         )
 
-    # #########################################################################
-    # Schema pr_permission_request
-    # #########################################################################
+def drop_module_schema_tables():
     op.drop_table(TABLE_NAME, schema=SCHEMA_NAME)
     op.execute(sa.text(f"DROP SCHEMA IF EXISTS {SCHEMA_NAME} CASCADE"))

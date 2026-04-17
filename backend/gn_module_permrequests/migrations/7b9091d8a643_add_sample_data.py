@@ -1,4 +1,4 @@
-"""Add demo permission requests data
+"""Add module samples data
 
 Revision ID: 7b9091d8a643
 Revises: 743becffa102
@@ -12,16 +12,17 @@ from datetime import date, datetime, timedelta
 from alembic import op
 import sqlalchemy as sa
 
+from gn_module_permrequests import MODULE_CODE, ALEMBIC_BRANCH
+
 # revision identifiers, used by Alembic.
 revision = "7b9091d8a643"
 down_revision = None
-branch_labels = ("permission_request_samples",)
-depends_on = "c0c83e1f1f16"
+branch_labels = (f"{ALEMBIC_BRANCH}-samples",)
+depends_on = "743becffa102"
 
-MODULE_CODE = "PERMISSION_REQUEST"
 SYNTHESIS_MODULE_CODE = "SYNTHESE"
 SCHEMA_NAME = f"pr_{MODULE_CODE.lower()}"
-TABLE_NAME = f"t_{MODULE_CODE.lower()}"
+TABLE_NAME = "t_permission_requests"
 PRIMARY_KEY = "id_permission_request"
 
 ORGANISM_NAME = "ar_sample__organisme"

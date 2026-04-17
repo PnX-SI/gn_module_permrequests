@@ -8,33 +8,27 @@
     - [Paramètres](#paramètres)
   - [Administration du module](#administration-du-module)
 
-Ce module permet de générer de façon générique des interfaces de saisie correspondant à des protocoles de suivi.
-Par "suivi", on entend un protocole dont le point d'entrée est un site géographique, sur lequel on va revenir régulièrement effectuer des visites. Il se distingue par sa structure du module "Occtax" dont l'objectif est de faire de la saisie de données opportunistes ou d'inventaire (sans revenir régulièrement sur le même site de suivi).
-
-Le module est articulé autour du concept
-
-- les sites : l'objet géographique de suivi (qui peuvent être regroupés par groupes de sites)
-- les visites : une visite est effectuée sur un site (date, observateurs)
-- les observations : observations faites durant la visite (espèces)
-
-Les 3 niveaux que sont les sites, les visites et les observations sont fournis avec un tronc commun (les champs génériques) qui peuvent être complétés par des champs spécifiques à chaque protocole. Ces champs spécifiques sont définis par des fichiers de configuration JSON.
-Pour chaque sous-module, correspondant à un protocole spécifique de suivi, il est ainsi possible d'ajouter dynamiquement des champs de différents types (liste, nomenclature, booléen, date, radio, observateurs, texte, taxonomie...). Ceux-ci peuvent être obligatoires ou non, affichés ou non et avoir des valeurs par défaut (voir doc détaillée : [Création d'un sous-module](docs/sous_module.md)).
-
 ## Présentation
 
-Ce module permet d'ajouter des fonctionnalités de demandes de permission à des données au sein de l'application GeoNature.
+Ce module permet d'ajouter des fonctionnalités de demandes de permission à des données au sein de
+l'application GeoNature.
+Pour l'instant, ces données concernent les observations **sensibles** du module Synthese et leur
+accès en consultation et export de manière précise.
 
 Ce module s'articule autour du concept de demande de permission.
 
-Un utilisateur pourra via ce module effectuer une demande de permission à des données. Sa demande sera caractérisée par 3 types d'informations:
+Un utilisateur avec des permissions de consultation pourra via ce module effectuer une demande de
+permission à des données. Sa demande sera caractérisée par 3 types d'informations:
 
 - un ou plusieurs groupe taxonomique auxquels il souhaite avoir la permission d'accéder
 - un périmètre géographique recouvrant les données auxquelles il souhaite avoir la permission d'accéder
 - une plage temporelle représentant la période de permission aux données
 
-Si la demande est acceptée, l'utilisateur pourra accéder à toutes les données taxonmiques données dans le périmètre géogrpahique fourni, durant la plage temporelle demandée.
+Si la demande est acceptée par un validateur, l'utilisateur pourra accéder à toutes les données
+taxonomiques données dans le périmètre géographique fourni, durant la plage temporelle demandée.
 
-Un validateur pourra accéder aux différentes demandes en cours, et traiter les différentes demandes de validation.
+Un validateur et pourra accéder aux différentes demandes en cours, et traiter les différentes
+demandes de validation.
 
 ## Installation du module
 
@@ -68,7 +62,10 @@ sudo systemctl restart geonature-worker
 deactivate
 ```
 
-Il vous faut désormais attribuer des permissions aux groupes ou utilisateurs que vous souhaitez, pour qu'ils puissent accéder et utiliser le module (voir <https://docs.geonature.fr/admin-manual.html#gestion-des-droits>). Si besoin une commande permet d'attribuer automatiquement toutes les permissions dans tous les modules à un groupe ou utilisateur administrateur.
+Il vous faut désormais attribuer des permissions aux groupes ou utilisateurs que vous souhaitez,
+pour qu'ils puissent accéder et utiliser le module (voir <https://docs.geonature.fr/admin-manual.html#gestion-des-droits>).
+Si besoin une commande permet d'attribuer automatiquement toutes les permissions dans tous
+les modules à un groupe ou utilisateur administrateur.
 
 ### Mise à jour du module
 
@@ -82,8 +79,16 @@ Pour mettre à jour le modue Monitoring, suivre la documentation de [mise à jou
 >
 
 Dans le cas de ce module, vous pouvez modifier la configuration du module en créant un fichier
-`permission_request_config.toml` dans le dossier `config` de GeoNature, en vous inspirant
-du fichier `permission_request_config.toml.example` et en surcouchant les paramètres que vous souhaitez.
+`permrequests_config.toml` dans le dossier `config/` de GeoNature, en vous inspirant
+du fichier [`permrequests_config.sample.toml`](config/permrequests_config.sample.toml) présent dans ce module et en surcouchant
+les paramètres que vous souhaitez.
+
+Vous pouvez laisser seulement les paramètres que vous avez modifié dans ce fichier et supprimer
+les autres.
+
+Il est également envisageable de laisser votre fichier `permresquests_config.toml` dans le
+dossier `config/` de ce module puis de créer un lien symbolique vers celui-ci depuis le dossier `config/` de
+GeoNature.
 
 ### Paramètres
 
@@ -98,3 +103,8 @@ du fichier `permission_request_config.toml.example` et en surcouchant les param�
 > - sinon, elle apparaît comme « expirée ».
 
 ## Administration du module
+
+## Développement du module
+
+Ce module utilise un fichier `pyproject.toml` pour centraliser toutes les informations d'installation
+et de développement. Privilégier toujours ce fichier à l'utilisation de fichiers supplémentaires.

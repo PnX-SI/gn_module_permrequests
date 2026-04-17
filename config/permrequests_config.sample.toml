@@ -1,0 +1,13 @@
+# Sample of configuration file for the permrequests module.
+#
+#  This file should be copied to geonature/config/permrequests_config.toml and edited to fit your
+# needs of the deployment.
+# Alternatively, you could copy this file in current directory and use a symbolic link in
+# geonature/config/ directory.
+
+REQUIRE_TERMS_ACKNOWLEDGEMENT = true
+ALLOWED_SCOPES = ["USER", "ORGANISM"]
+ALLOWED_AREA_TYPE_CODES = ["COM", "DEP", "REG"]
+
+[TERMS_ACKNOWLEDGEMENT]
+# URL = "https://exemple.org/conditions"
