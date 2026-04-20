@@ -19,7 +19,8 @@ branch_labels = (ALEMBIC_BRANCH,)
 depends_on = ("707390c722fe",)
 
 SCHEMA_NAME = f"pr_{MODULE_CODE.lower()}"
-TABLE_NAME = "t_permission_requests"
+REQUEST_TABLE = "t_requests"
+PERMISSION_LINKS_TABLE = "cor_request_permission"
 
 NOTIFICATION_SCHEMA = "gn_notifications"
 NOTIFICATION_CATEGORY_DEFINITIONS = [
@@ -168,9 +169,9 @@ def create_module_schema_tables():
     op.execute(sa.text(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_NAME}"))
 
     op.create_table(
-        TABLE_NAME,
+        REQUEST_TABLE,
         sa.Column(
-            "id_permission_request",
+            "id_request",
             sa.Integer(),
             primary_key=True,
             autoincrement=True,
@@ -180,7 +181,7 @@ def create_module_schema_tables():
             sa.Integer(),
             sa.ForeignKey(
                 "utilisateurs.t_roles.id_role",
-                name=f"fk_{TABLE_NAME}_id_author",
+                name=f"fk_{REQUEST_TABLE}_id_author",
             ),
             nullable=False,
         ),
@@ -189,25 +190,39 @@ def create_module_schema_tables():
             sa.Integer(),
             sa.ForeignKey(
                 "utilisateurs.t_roles.id_role",
-                name=f"fk_{TABLE_NAME}_id_validator",
+                name=f"fk_{REQUEST_TABLE}_id_validator",
             ),
             nullable=True,
         ),
         sa.Column("validation_description", sa.Text(), nullable=True),
         sa.Column("validation_date", sa.DateTime(), nullable=True),
         sa.Column("description", sa.Text(), nullable=True),
-        # TODO: use a new table to store several permissions per request
+        schema=SCHEMA_NAME,
+    )
+
+    op.create_table(
+        PERMISSION_LINKS_TABLE,
+        sa.Column(
+            "id_request",
+            sa.Integer(),
+            sa.ForeignKey(
+                f"{SCHEMA_NAME}.{REQUEST_TABLE}.id_request",
+                name=f"fk_{PERMISSION_LINKS_TABLE}_id_request",
+                ondelete="CASCADE",
+            ),
+            nullable=False,
+        ),
         sa.Column(
             "id_permission",
             sa.Integer(),
             sa.ForeignKey(
                 "gn_permissions.t_permissions.id_permission",
-                name=f"fk_{TABLE_NAME}_id_permission",
-                ondelete="RESTRICT",
+                name=f"fk_{PERMISSION_LINKS_TABLE}_id_permission",
+                ondelete="CASCADE",
             ),
             nullable=False,
-            unique=True,
         ),
+        sa.PrimaryKeyConstraint("id_request", "id_permission", name=f"pk_{PERMISSION_LINKS_TABLE}"),
         schema=SCHEMA_NAME,
     )
 
@@ -430,8 +445,7 @@ def remove_module_permissions():
 
     permission_ids_query = f"""
         SELECT id_permission
-        FROM {SCHEMA_NAME}.{TABLE_NAME}
-        WHERE id_permission IS NOT NULL
+        FROM {SCHEMA_NAME}.{PERMISSION_LINKS_TABLE}
     """
 
     conn.execute(
@@ -453,8 +467,7 @@ def remove_module_permissions():
     conn.execute(
         sa.text(
             f"""
-            DELETE FROM {SCHEMA_NAME}.{TABLE_NAME}
-            WHERE id_permission IS NOT NULL
+            DELETE FROM {SCHEMA_NAME}.{PERMISSION_LINKS_TABLE}
             """
         )
     )
@@ -496,5 +509,6 @@ def remove_module_permissions():
         )
 
 def drop_module_schema_tables():
-    op.drop_table(TABLE_NAME, schema=SCHEMA_NAME)
+    op.drop_table(PERMISSION_LINKS_TABLE, schema=SCHEMA_NAME)
+    op.drop_table(REQUEST_TABLE, schema=SCHEMA_NAME)
     op.execute(sa.text(f"DROP SCHEMA IF EXISTS {SCHEMA_NAME} CASCADE"))
