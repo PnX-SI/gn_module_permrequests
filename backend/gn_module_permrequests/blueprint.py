@@ -3,6 +3,7 @@ Définition des routes du module export
 """
 
 from datetime import datetime, date
+from enum import Enum
 from flask import Blueprint, request, g, current_app
 from sqlalchemy import desc, asc, select, case
 import sqlalchemy as sa
@@ -31,7 +32,6 @@ blueprint = Blueprint("permission_request", __name__, cli_group="permission_requ
 permission_requests_schema = PermissionRequestSchema(many=True)
 permission_request_schema = PermissionRequestSchema()
 
-from enum import Enum
 
 
 class SortOrder(Enum):
@@ -219,7 +219,7 @@ def list_permission_requests(scope):
 
     if needs_permission_join:
         permission_alias = aliased(Permission)
-        query = query.outerjoin(permission_alias, PermissionRequest.permission)
+        query = query.outerjoin(permission_alias, PermissionRequest.permissions)
 
     needs_scope_join = orderby == "scope" or bool(scope_filters)
     if needs_scope_join:
@@ -316,7 +316,7 @@ def list_permission_requests(scope):
         else:
             clauses = [Permission.sensitivity_filter.is_(value) for value in sensitivity_set]
             query = query.where(
-                sa.or_(*[PermissionRequest.permission.has(clause) for clause in clauses])
+                sa.or_(*[PermissionRequest.permissions.has(clause) for clause in clauses])
             )
 
     if validated_filters:
@@ -337,7 +337,7 @@ def list_permission_requests(scope):
                 else:
                     clauses.append(Permission.validated.is_(validated_value))
             query = query.where(
-                sa.or_(*[PermissionRequest.permission.has(clause) for clause in clauses])
+                sa.or_(*[PermissionRequest.permissions.has(clause) for clause in clauses])
             )
 
     if my_validations:
@@ -529,6 +529,12 @@ def create_permission_request():
     if read_action_id is None:
         raise InternalServerError("Read action (code 'R') not found in permissions configuration.")
 
+    export_action_id = db.session.scalars(
+        select(PermAction.id_action).where(PermAction.code_action == "E")
+    ).one_or_none()
+    if export_action_id is None:
+        raise InternalServerError("Export action (code 'E') not found in permissions configuration.")
+
     object_id = db.session.scalars(
         select(PermObject.id_object).where(PermObject.code_object == "ALL")
     ).one_or_none()
@@ -546,7 +552,8 @@ def create_permission_request():
         description=description_value,
     )
 
-    permission = Permission(
+    # Create read permission
+    read_permission = Permission(
         id_role=permission_role_id,
         id_action=read_action_id,
         id_module=module_id,
@@ -557,17 +564,38 @@ def create_permission_request():
         expire_on=expire_on_value,
         validated=None,
     )
-    permission.taxons_filter = list(taxa_list)
-    permission.areas_filter = list(areas_list)
+    read_permission.taxons_filter = list(taxa_list)
+    read_permission.areas_filter = list(areas_list)
 
-    permission_request.permission = permission
+    permission_request.permissions.append(read_permission)
 
-    desired_validated = permission.validated
+    # Create export permission
+    export_permission = Permission(
+        id_role=permission_role_id,
+        id_action=export_action_id,
+        id_module=module_id,
+        id_object=object_id,
+        scope_value=None,
+        sensitivity_filter=sensitivity_filter_value,
+        created_on=created_on_value,
+        expire_on=expire_on_value,
+        validated=None,
+    )
+    export_permission.taxons_filter = list(taxa_list)
+    export_permission.areas_filter = list(areas_list)
+
+    permission_request.permissions.append(export_permission)
 
     db.session.add(permission_request)
+
+    # WARNING: force NULL (=None) to all permissions validated field
+    desired_validated = None
     db.session.flush()
-    if permission.validated != desired_validated:
-        permission.validated = desired_validated
+    if read_permission.validated != desired_validated:
+        read_permission.validated = desired_validated
+
+    if export_permission.validated != desired_validated:
+        export_permission.validated = desired_validated
 
     db.session.commit()
 
@@ -662,13 +690,14 @@ def update_permission_request(scope, id_permission_request):
             author_role_id=author.id_role,
             author_organism_id=author.id_organisme,
         )
-        permission_request.permission.id_role = new_role_id
+        for p in permission_request.permissions:
+            p.id_role = new_role_id
 
     if "sensitivity_filter" in payload:
         sensitivity_value = payload.get("sensitivity_filter")
         if not isinstance(sensitivity_value, bool):
             raise BadRequest("sensitivity_filter must be a boolean value.")
-        if permission_request.permission is None:
+        if not permission_request.permissions:
             raise InternalServerError("No permission is linked to this permission request.")
         permission_request.sensitivity_filter = sensitivity_value
 
@@ -693,7 +722,7 @@ def update_permission_request(scope, id_permission_request):
             raise BadRequest(
                 f"Some taxa identifiers are invalid or unknown: {', '.join(map(str, missing_taxa))}."
             )
-        if permission_request.permission is None:
+        if not permission_request.permissions:
             raise InternalServerError("No permission is linked to this permission request.")
         permission_request.taxa = [taxa_by_id[taxon_id] for taxon_id in normalized_taxa_ids]
 
@@ -736,12 +765,10 @@ def update_permission_request(scope, id_permission_request):
             raise BadRequest(
                 f"Areas must belong to one of the allowed types ({allowed_codes}). Invalid areas: {', '.join(map(str, invalid_area_types))}."
             )
-        if permission_request.permission is None:
+        if not permission_request.permissions:
             raise InternalServerError("No permission is linked to this permission request.")
-        permission_request.permission.areas_filter = [
-            areas_by_id[area_id] for area_id in normalized_area_ids
-        ]
-
+        for p in permission_request.permissions:
+            p.areas_filter = [areas_by_id[area_id] for area_id in normalized_area_ids]
     db.session.commit()
 
     notification_role_ids = _build_role_recipient_ids(
@@ -836,7 +863,7 @@ def update_validated(scope, id_permission_request):
     if current_user is None or not hasattr(current_user, "id_role"):
         raise Forbidden("Current user context is missing.")
 
-    if permission_request.permission is None:
+    if not permission_request.permissions:
         raise InternalServerError("No permission is linked to this permission request.")
 
     reset_payload = len(payload) == 0

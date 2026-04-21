@@ -17,12 +17,25 @@ SCOPE_USER = "USER"
 SCOPE_ORGANISM = "ORGANISM"
 
 
+cor_request_permission = DB.Table(
+    "cor_request_permission",
+    DB.Model.metadata,
+    DB.Column(
+        "id_request", DB.Integer, DB.ForeignKey(f"{SCHEMA_NAME}.t_requests.id_request")
+    ),
+    DB.Column(
+        "id_permission", DB.Integer, DB.ForeignKey("gn_permissions.t_permissions.id_permission")
+    ),
+    schema=SCHEMA_NAME,
+)
+
+
 class PermissionRequest(DB.Model):
-    __tablename__ = "t_permission_requests"
+    __tablename__ = "t_requests"
     __table_args__ = {"schema": SCHEMA_NAME}
 
     id_permission_request = DB.Column(
-        "id_permission_request",
+        "id_request",
         DB.Integer,
         primary_key=True,
         autoincrement=True,
@@ -42,12 +55,6 @@ class PermissionRequest(DB.Model):
     validation_description = DB.Column(DB.Text, nullable=True)
     validation_date = DB.Column(DB.DateTime, nullable=True)
     description = DB.Column(DB.Text, nullable=True)
-    id_permission = DB.Column(
-        DB.Integer,
-        DB.ForeignKey("gn_permissions.t_permissions.id_permission", ondelete="RESTRICT"),
-        nullable=False,
-        unique=True,
-    )
 
     author = DB.relationship(
         User,
@@ -59,12 +66,12 @@ class PermissionRequest(DB.Model):
         foreign_keys=[id_validator],
         lazy="joined",
     )
-    permission = DB.relationship(
+    permissions = DB.relationship(
         Permission,
+        secondary=cor_request_permission,
         cascade="all, delete-orphan",
         single_parent=True,
         lazy="joined",
-        backref=DB.backref("permission_requests", uselist=False),
     )
 
     @classmethod
@@ -138,87 +145,98 @@ class PermissionRequest(DB.Model):
 
     @hybrid_property
     def created_on(self):
-        if self.permission is None or self.permission.created_on is None:
+        if not self.permissions or self.permissions[0].created_on is None:
             return None
-        return self.permission.created_on.date()
+        return self.permissions[0].created_on.date()
 
     @created_on.setter
     def created_on(self, value):
-        if self.permission is None:
+        if not self.permissions:
             raise AttributeError("No permission is linked to this permission request.")
-        if value is None:
-            self.permission.created_on = None
-        elif isinstance(value, datetime):
-            self.permission.created_on = value
-        else:
-            self.permission.created_on = datetime.combine(value, datetime.min.time())
+        new_date = None
+        if isinstance(value, datetime):
+            new_date = value
+        elif value is not None:
+            new_date = datetime.combine(value, datetime.min.time())
+        for p in self.permissions:
+            p.created_on = new_date
 
     @created_on.expression
     def created_on(cls):
         return (
             sa.select(sa.func.date(Permission.created_on))
-            .where(Permission.id_permission == cls.id_permission)
+            .join(cor_request_permission)
+            .where(cor_request_permission.c.id_request == cls.id_permission_request)
+            .limit(1)
             .scalar_subquery()
         )
 
     @hybrid_property
     def expiration_date(self):
-        if self.permission is None or self.permission.expire_on is None:
+        if not self.permissions or self.permissions[0].expire_on is None:
             return None
-        expire_on = self.permission.expire_on
+        expire_on = self.permissions[0].expire_on
         return expire_on.date()
 
     @expiration_date.setter
     def expiration_date(self, value):
-        if self.permission is None:
+        if not self.permissions:
             raise AttributeError("No permission is linked to this permission request.")
-        if value is None:
-            self.permission.expire_on = None
-        elif isinstance(value, datetime):
-            self.permission.expire_on = value
-        else:
-            self.permission.expire_on = datetime.combine(value, datetime.min.time())
+        new_date = None
+        if isinstance(value, datetime):
+            new_date = value
+        elif value is not None:
+            new_date = datetime.combine(value, datetime.min.time())
+        for p in self.permissions:
+            p.expire_on = new_date
 
     @expiration_date.expression
     def expiration_date(cls):
         return (
             sa.select(sa.func.date(Permission.expire_on))
-            .where(Permission.id_permission == cls.id_permission)
+            .join(cor_request_permission)
+            .where(cor_request_permission.c.id_request == cls.id_permission_request)
+            .limit(1)
             .scalar_subquery()
         )
 
     @hybrid_property
     def validated(self):
-        if self.permission is None:
+        if not self.permissions:
             return None
-        return self.permission.validated
+        return self.permissions[0].validated
 
     @validated.setter
     def validated(self, value):
-        if self.permission is None:
+        if not self.permissions:
             raise AttributeError("No permission is linked to this permission request.")
-        previous = self.permission.validated
+        previous = self.permissions[0].validated if self.permissions else None
         if previous != value:
             self.validation_date = datetime.now()
-        self.permission.validated = value
+        for p in self.permissions:
+            p.validated = value
 
     @validated.expression
     def validated(cls):
         return (
             sa.select(Permission.validated)
-            .where(Permission.id_permission == cls.id_permission)
+            .join(cor_request_permission)
+            .where(cor_request_permission.c.id_request == cls.id_permission_request)
+            .limit(1)
             .scalar_subquery()
         )
 
     @property
     def scope(self):
-        if self.permission is None or self.permission.id_role is None or self.id_author is None:
+        if not self.permissions or self.permissions[0].id_role is None or self.id_author is None:
             return None
 
-        if self.permission.id_role == self.id_author:
+        permission = self.permissions[0]
+
+        if permission.id_role == self.id_author:
             return SCOPE_USER
 
-        role = self.permission.role
+        role = permission.role
         author = self.author
         if (
             role is not None
@@ -233,34 +251,40 @@ class PermissionRequest(DB.Model):
 
     @hybrid_property
     def sensitivity_filter(self):
-        if self.permission is None:
+        if not self.permissions:
             return None
-        return self.permission.sensitivity_filter
+        return self.permissions[0].sensitivity_filter
 
     @sensitivity_filter.setter
     def sensitivity_filter(self, value):
-        if self.permission is None:
+        if not self.permissions:
             raise AttributeError("No permission is linked to this permission request.")
         if value is None:
             raise ValueError("sensitivity_filter cannot be null.")
-        self.permission.sensitivity_filter = bool(value)
+        bool_value = bool(value)
+        for p in self.permissions:
+            p.sensitivity_filter = bool_value
 
     @sensitivity_filter.expression
     def sensitivity_filter(cls):
         return (
             sa.select(Permission.sensitivity_filter)
-            .where(Permission.id_permission == cls.id_permission)
+            .join(cor_request_permission)
+            .where(cor_request_permission.c.id_request == cls.id_permission_request)
+            .limit(1)
             .scalar_subquery()
         )
 
     @property
     def taxa(self):
-        if self.permission is None:
+        if not self.permissions:
             return []
-        return self.permission.taxons_filter
+        # Assuming all permissions have the same taxa filter
+        return self.permissions[0].taxons_filter
 
     @taxa.setter
     def taxa(self, value):
-        if self.permission is None:
+        if not self.permissions:
             raise AttributeError("No permission is linked to this permission request.")
-        self.permission.taxons_filter = value
+        for p in self.permissions:
+            p.taxons_filter = value
