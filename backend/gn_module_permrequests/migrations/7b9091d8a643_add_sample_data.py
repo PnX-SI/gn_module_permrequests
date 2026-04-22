@@ -22,8 +22,10 @@ depends_on = "743becffa102"
 
 SYNTHESIS_MODULE_CODE = "SYNTHESE"
 SCHEMA_NAME = f"pr_{MODULE_CODE.lower()}"
-TABLE_NAME = "t_permission_requests"
-PRIMARY_KEY = "id_permission_request"
+
+REQUEST_TABLE = "t_requests"
+REQUEST_TABLE_PK = "id_request"
+PERMISSION_LINKS_TABLE = "cor_request_permission"
 
 ORGANISM_NAME = "ar_sample__organisme"
 ORGANISM_UUID = "9f3aa4ef-5cef-48ce-9d7a-c8456252ed5f"
@@ -69,6 +71,7 @@ GROUP_ROLE_DEFINITION = {
     "nom_role": "Groupe ar_sample__organisme",
 }
 
+# Requester and validator scope matrices for this module permissions
 REQUESTER_SCOPE_MATRIX = {"C": 2, "R": 2, "U": 1, "D": 1}
 VALIDATOR_SCOPE_MATRIX = {"C": None, "R": None, "U": None, "V": None, "D": None}
 
@@ -374,12 +377,57 @@ def _grant_module_permissions(conn, module_id, object_id, action_ids, role_id, s
         _insert_permission(conn, payload)
 
 
-def _create_permission_request_permissions(
+def _insert_request(conn, id_author, validator, index):
+    id_request = conn.execute(
+        sa.text(
+            f"""
+            INSERT INTO {SCHEMA_NAME}.{REQUEST_TABLE} (
+                id_author,
+                id_validator,
+                validation_description,
+                description
+            ) VALUES (
+                :id_author,
+                :id_validator,
+                :validation_description,
+                :description
+            )
+            RETURNING {REQUEST_TABLE_PK}
+            """
+        ),
+        {
+            "id_author": id_author,
+            "id_validator": validator,
+            "validation_description": (
+                f"Commentaire de validation #{index + 1}"
+                if validator is not None and random.random() < 0.5
+                else None
+            ),
+            "description": f"{PERMISSION_REQUEST_DESCRIPTION_PREFIX}{index + 1}",
+        },
+    ).scalar()
+    return id_request
+
+
+def _insert_permission_request_links(conn, id_request, permission_ids):
+    for permission_id in permission_ids:
+        conn.execute(
+            sa.text(
+                f"""
+                INSERT INTO {SCHEMA_NAME}.{PERMISSION_LINKS_TABLE} (id_request, id_permission)
+                VALUES (:id_request, :id_permission)
+                """
+            ),
+            {"id_request": id_request, "id_permission": permission_id},
+        )
+
+
+def _create_permissions_requests(
     conn,
     authors,
     validator_ids,
     group_role_id,
-    read_action_id,
+    synthesis_actions_ids,
     synthese_module_id,
     object_id,
     area_ids,
@@ -404,52 +452,29 @@ def _create_permission_request_permissions(
         validated_value = template["validated"]
         validator = random.choice(validator_ids) if validated_value is not None else None
         permission_role_id = group_role_id if scope_value == "ORGANISM" else id_author
-        permission_id = _insert_permission(
-            conn,
-            {
-                "id_role": permission_role_id,
-                "id_action": read_action_id,
-                "id_module": synthese_module_id,
-                "id_object": object_id,
-                "scope_value": None,
-                "sensitivity_filter": random.choice([True, False]),
-                "created_on": created_on,
-                "expire_on": expire_on,
-                "validated": validated_value,
-            },
-        )
-        _assign_permission_filters(conn, permission_id, area_ids, taxon_ids)
 
-        conn.execute(
-            sa.text(
-                f"""
-                INSERT INTO {SCHEMA_NAME}.{TABLE_NAME} (
-                    id_author,
-                    id_validator,
-                    validation_description,
-                    description,
-                    id_permission
-                ) VALUES (
-                    :id_author,
-                    :id_validator,
-                    :validation_description,
-                    :description,
-                    :id_permission
-                )
-                """
-            ),
-            {
-                "id_author": id_author,
-                "id_validator": validator,
-                "validation_description": (
-                    f"Commentaire de validation #{index + 1}"
-                    if validator is not None and random.random() < 0.5
-                    else None
-                ),
-                "description": f"{PERMISSION_REQUEST_DESCRIPTION_PREFIX}{index + 1}",
-                "id_permission": permission_id,
-            },
-        )
+        all_permission_ids = []
+        for action_id in synthesis_actions_ids.values():
+            permission_id = _insert_permission(
+                conn,
+                {
+                    "id_role": permission_role_id,
+                    "id_action": action_id,
+                    "id_module": synthese_module_id,
+                    "id_object": object_id,
+                    "scope_value": None,
+                    "sensitivity_filter": random.choice([True, False]),
+                    "created_on": created_on,
+                    "expire_on": expire_on,
+                    "validated": validated_value,
+                },
+            )
+            _assign_permission_filters(conn, permission_id, area_ids, taxon_ids)
+            all_permission_ids.append(permission_id)
+
+        id_request = _insert_request(conn, id_author, validator, index)
+
+        _insert_permission_request_links(conn, id_request, all_permission_ids)
 
 
 def upgrade():
@@ -461,7 +486,7 @@ def upgrade():
         conn,
         set(REQUESTER_SCOPE_MATRIX.keys()) | set(VALIDATOR_SCOPE_MATRIX.keys()),
     )
-    synthesis_read_action_id = _get_action_ids(conn, {"R"})["R"]
+    synthesis_actions_ids = _get_action_ids(conn, {"R", "E"})
 
     organism_id = _ensure_sample_organism(conn)
 
@@ -474,9 +499,10 @@ def upgrade():
     group_role_id = _ensure_group_role(conn, organism_id)
 
     area_ids = _fetch_area_ids(conn, limit=20)
-    taxon_ids = _fetch_taxa_ids(conn, limit=40)
     if not area_ids:
         raise RuntimeError("Unable to fetch reference areas for sample permission requests.")
+
+    taxon_ids = _fetch_taxa_ids(conn, limit=40)
     if not taxon_ids:
         raise RuntimeError("Unable to fetch reference taxa for sample permission requests.")
 
@@ -499,12 +525,12 @@ def upgrade():
             VALIDATOR_SCOPE_MATRIX,
         )
 
-    _create_permission_request_permissions(
+    _create_permissions_requests(
         conn,
         requester_ids,
         validator_ids,
         group_role_id,
-        synthesis_read_action_id,
+        synthesis_actions_ids,
         synthese_module_id,
         object_id,
         area_ids,
@@ -512,7 +538,7 @@ def upgrade():
     )
 
 
-def _delete_permission_ids(conn, permission_ids):
+def _delete_permissions(conn, permission_ids):
     for permission_id in permission_ids:
         conn.execute(
             sa.text(
@@ -564,14 +590,17 @@ def _fetch_sample_role_ids(conn):
     return role_ids
 
 
-def _cleanup_permission_requests(conn):
+def _cleanup_permissions_requests(conn):
     rows = (
         conn.execute(
             sa.text(
                 f"""
-            SELECT {PRIMARY_KEY} AS id_permission_request, id_permission
-            FROM {SCHEMA_NAME}.{TABLE_NAME}
-            WHERE description LIKE :prefix
+            SELECT DISTINCT
+                l.id_request,
+                l.id_permission
+            FROM {SCHEMA_NAME}.{REQUEST_TABLE} AS r
+                JOIN {SCHEMA_NAME}.{PERMISSION_LINKS_TABLE} AS l USING ({REQUEST_TABLE_PK})
+            WHERE r.description LIKE :prefix
             """
             ),
             {"prefix": f"{PERMISSION_REQUEST_DESCRIPTION_PREFIX}%"},
@@ -579,21 +608,24 @@ def _cleanup_permission_requests(conn):
         .mappings()
         .all()
     )
-    permission_ids = [row["id_permission"] for row in rows if row["id_permission"] is not None]
 
-    for row in rows:
-        conn.execute(
-            sa.text(
-                f"""
-                DELETE FROM {SCHEMA_NAME}.{TABLE_NAME}
-                WHERE {PRIMARY_KEY} = :id_permission_request
-                """
-            ),
-            {"id_permission_request": row["id_permission_request"]},
-        )
+    # NOTE: cascading deletes rows in cor_request_permission
 
-    if permission_ids:
-        _delete_permission_ids(conn, permission_ids)
+    # Delete requests
+    request_ids = [row["id_request"] for row in rows]
+    conn.execute(
+        sa.text(
+            f"""
+            DELETE FROM {SCHEMA_NAME}.{REQUEST_TABLE}
+            WHERE {REQUEST_TABLE_PK} = ANY(:request_ids)
+            """
+        ),
+        {"request_ids": request_ids},
+    )
+
+    # Delete permissions
+    permission_ids = [row["id_permission"] for row in rows]
+    _delete_permissions(conn, permission_ids)
 
 
 def _cleanup_module_permissions(conn, role_ids):
@@ -626,8 +658,21 @@ def _cleanup_module_permissions(conn, role_ids):
         ).scalars()
         permission_ids = list(permission_rows)
         if permission_ids:
-            _delete_permission_ids(conn, permission_ids)
+            _delete_permissions(conn, permission_ids)
 
+
+def _delete_notifications(conn, role_ids):
+    sample_role_values = [role_id for role_id in role_ids.values() if role_id is not None]
+    if sample_role_values:
+        conn.execute(
+            sa.text(
+                """
+                DELETE FROM gn_notifications.t_notifications
+                WHERE id_role = ANY(:role_ids)
+                """
+            ),
+            {"role_ids": sample_role_values},
+        )
 
 def _delete_sample_roles(conn, role_ids):
     for role_id in role_ids.values():
@@ -646,7 +691,7 @@ def _delete_sample_organism(conn):
     conn.execute(
         sa.text(
             """
-            DELETE FROM utilisateurs.bib_organismes o
+            DELETE FROM utilisateurs.bib_organismes AS o
             WHERE o.nom_organisme = :name
               AND NOT EXISTS (
                   SELECT 1
@@ -658,22 +703,11 @@ def _delete_sample_organism(conn):
         {"name": ORGANISM_NAME},
     )
 
-
 def downgrade():
     conn = op.get_bind()
-    _cleanup_permission_requests(conn)
+    _cleanup_permissions_requests(conn)
     role_ids = _fetch_sample_role_ids(conn)
-    sample_role_values = [role_id for role_id in role_ids.values() if role_id is not None]
-    if sample_role_values:
-        conn.execute(
-            sa.text(
-                """
-                DELETE FROM gn_notifications.t_notifications
-                WHERE id_role = ANY(:role_ids)
-                """
-            ),
-            {"role_ids": sample_role_values},
-        )
+    _delete_notifications(conn, role_ids)
     _cleanup_module_permissions(conn, role_ids)
     _delete_sample_roles(conn, role_ids)
     _delete_sample_organism(conn)
