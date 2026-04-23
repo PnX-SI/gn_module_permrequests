@@ -1,0 +1,54 @@
+{
+    /*
+    * This tsconfig file is specifically for the IDE (VSCode) and the "type verify" function.
+    * It inherits the configuration from the main application to ensure consistency.
+    */
+    "extends": "../../geonature/frontend/tsconfig.json",
+    "compilerOptions": {
+        "ignoreDeprecations": "6.0",
+        /*
+        * 'baseUrl' and 'rootDir' are the keys. They are defined relative to the location
+        * of this tsconfig.json file.
+        * We go up one level to the common root directory.
+        */
+        "rootDir": "../..",
+        "baseUrl": "../../geonature/frontend",
+        "preserveSymlinks": true,
+
+        /*
+        * We redefine the aliases so they resolve correctly from our new 'baseUrl'.
+        * These paths must match those in the main tsconfig.app.json file.
+        */
+        "paths": {
+            "@geonature_common/*": [
+                "src/app/GN2CommonModule/*"
+            ],
+            "@geonature/*": [
+                "src/app/*"
+            ],
+            "@geonature_config/*": [
+                "src/conf/*"
+            ],
+            "@librairies/*": [
+                "node_modules/*"
+            ],
+            "*": [
+                "node_modules/*"
+            ]
+        }
+    },
+    /*
+    * We explicitly include both the module files AND the main application files
+    * so that TypeScript has a complete overview of the project.
+    */
+    "include": [
+        "app/**/*.ts",
+        "../../geonature/frontend/src/**/*.ts",
+        "../../geonature/frontend/external_modules/**/*.ts"
+    ],
+    "exclude": [
+        "../../geonature/frontend/src/test.ts",
+        "../../geonature/frontend/src/**/*.spec.ts",
+        "../../geonature/frontend/node_modules"
+    ]
+}
