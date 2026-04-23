@@ -12,7 +12,7 @@ import {
   NgbTypeaheadSelectItemEvent,
 } from '@ng-bootstrap/ng-bootstrap';
 
-import { finalize } from 'rxjs/operators';
+import { finalize } from '@librairies/rxjs/operators';
 
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { FormService } from '@geonature_common/form/form.service';
@@ -30,7 +30,7 @@ import {
   PermissionRequestService,
 } from '../../services/permissionRequest.service';
 import { ROUTE_PATHS } from '../../gnModule.module';
-import { Taxon } from '@geonature_common/form/taxonomy/taxonomy.component';
+import { Taxon, TaxonomyComponent } from '@geonature_common/form/taxonomy/taxonomy.component';
 import { AcknowledgementComponent } from './acknowledgement/acknowledgement.component';
 import { PERMISSION_REQUEST_SECTIONS } from '../permission-request-common/permission-request-sections';
 
@@ -58,11 +58,14 @@ type PermissionRequestFormValue = {
     MatCardModule,
     MatIconModule,
     AcknowledgementComponent,
+    TaxonomyComponent
   ],
 })
 export class PermissionRequestFormComponent {
   isSaving = false;
   readonly shouldDisplayAcknowledgement: boolean;
+  readonly shouldDisplaySensitivityFilter: boolean;
+  readonly sensitivityFilterDefaultValue: boolean;
   readonly PermissionRequestScope = PermissionRequestScope;
   readonly sections = PERMISSION_REQUEST_SECTIONS;
   readonly today = new Date();
@@ -81,6 +84,8 @@ export class PermissionRequestFormComponent {
   ) {
     const moduleConfig = this._configService.PERMREQUESTS ?? {};
     this.shouldDisplayAcknowledgement = !!moduleConfig.REQUIRE_TERMS_ACKNOWLEDGEMENT;
+    this.shouldDisplaySensitivityFilter = !!moduleConfig.SENSITIVITY_FILTER.DISPLAY_ENABLED;
+    this.sensitivityFilterDefaultValue = !!moduleConfig.SENSITIVITY_FILTER.DEFAULT_VALUE;
     this._setupValidators();
     this._setupAcknowledgementControl();
   }
@@ -119,7 +124,7 @@ export class PermissionRequestFormComponent {
       description: [''],
       expiration_date: [null, [Validators.required]],
       scope: [DEFAULT_SCOPE, [Validators.required]],
-      sensitivity_filter: [true],
+      sensitivity_filter: [this.sensitivityFilterDefaultValue],
       acknowledgeTerms: [false],
       taxa: [[], Validators.required],
       taxon_search: [''],
@@ -281,7 +286,7 @@ export class PermissionRequestFormComponent {
         description: '',
         expiration_date: null,
         scope: DEFAULT_SCOPE,
-        sensitivity_filter: true,
+        sensitivity_filter: this.sensitivityFilterDefaultValue,
         acknowledgeTerms: this.shouldDisplayAcknowledgement ? false : true,
         taxa: [],
         taxon_search: '',
