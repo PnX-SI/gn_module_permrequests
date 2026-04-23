@@ -27,11 +27,13 @@
             overflow-x: auto;
             overflow-y: hidden;
             white-space: nowrap;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
+            /* Firefox */
             padding-top: 0 !important;
           }
           ::ng-deep .ng-select-container .ng-value-container::-webkit-scrollbar {
-            display: none; /* WebKit */
+            display: none;
+            /* WebKit */
           }
 
           ::ng-deep .ng-select-container .ng-value-container .ng-placeholder {

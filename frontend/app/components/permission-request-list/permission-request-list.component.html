@@ -1,125 +1,280 @@
 <div class="PermissionRequestList">
   <div class="Toolbar card-header">
     <div class="Toolbar__filters">
-      <form [formGroup]="filtersForm" class="FiltersForm FiltersForm--horizontal">
-        <ng-select class="FiltersForm__Filter Multiselect" id="filter-status" [items]="statusOptions" bindLabel="label"
-          bindValue="value" [clearable]="true" placeholder="Statut" formControlName="status" [multiple]="true"
-          [closeOnSelect]="false" groupBy="group" [selectableGroup]="true" [selectableGroupAsModel]="false">
-          <ng-template ng-optgroup-tmp let-item="item" let-item$="item$" let-index="index">
+      <form
+        [formGroup]="filtersForm"
+        class="FiltersForm FiltersForm--horizontal"
+      >
+        <ng-select
+          class="FiltersForm__Filter Multiselect"
+          id="filter-status"
+          [items]="statusOptions"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="true"
+          placeholder="Statut"
+          formControlName="status"
+          [multiple]="true"
+          [closeOnSelect]="false"
+          groupBy="group"
+          [selectableGroup]="true"
+          [selectableGroupAsModel]="false"
+        >
+          <ng-template
+            ng-optgroup-tmp
+            let-item="item"
+            let-item$="item$"
+            let-index="index"
+          >
             <div class="MultiselectOptionItem">
-              <input class="MultiselectOptionItem__checkbox" id="status-group-{{ index }}" type="checkbox"
-                [ngModel]="item$.selected" [ngModelOptions]="{ standalone: true }" />
+              <input
+                class="MultiselectOptionItem__checkbox"
+                id="status-group-{{ index }}"
+                type="checkbox"
+                [ngModel]="item$.selected"
+                [ngModelOptions]="{ standalone: true }"
+              />
               <div class="MultiselectOptionItem__text">{{ item.group || item.label }}</div>
             </div>
           </ng-template>
-          <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
+          <ng-template
+            ng-option-tmp
+            let-item="item"
+            let-item$="item$"
+            let-index="index"
+          >
             <div class="MultiselectOptionItem">
-              <input class="MultiselectOptionItem__checkbox" id="status-item-{{ index }}" type="checkbox"
-                [ngModel]="item$.selected" [ngModelOptions]="{ standalone: true }" />
+              <input
+                class="MultiselectOptionItem__checkbox"
+                id="status-item-{{ index }}"
+                type="checkbox"
+                [ngModel]="item$.selected"
+                [ngModelOptions]="{ standalone: true }"
+              />
               <div class="MultiselectOptionItem__text">{{ item.label }}</div>
             </div>
           </ng-template>
         </ng-select>
-        <ng-select class="FiltersForm__Filter" id="filter-scope" [items]="scopeOptions" bindLabel="label"
-          bindValue="value" [clearable]="true" placeholder="Portée" formControlName="scope" [multiple]="true"
-          [closeOnSelect]="false"></ng-select>
-        <ng-select class="FiltersForm__Filter" id="filter-sensitive" [items]="sensitivityOptions" bindLabel="label"
-          bindValue="value" [clearable]="true" placeholder="Données sensibles" formControlName="sensitivity_filter"
-          [multiple]="true" [closeOnSelect]="false"></ng-select>
+        <ng-select
+          class="FiltersForm__Filter"
+          id="filter-scope"
+          [items]="scopeOptions"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="true"
+          placeholder="Portée"
+          formControlName="scope"
+          [multiple]="true"
+          [closeOnSelect]="false"
+        ></ng-select>
+        <ng-select
+          class="FiltersForm__Filter"
+          id="filter-sensitive"
+          [items]="sensitivityOptions"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="true"
+          placeholder="Données sensibles"
+          formControlName="sensitivity_filter"
+          [multiple]="true"
+          [closeOnSelect]="false"
+        ></ng-select>
         <label class="FiltersForm__Filter FiltersForm__Filter--checkbox">
-          <input type="checkbox" formControlName="my_validations" />
+          <input
+            type="checkbox"
+            formControlName="my_validations"
+          />
           Mes validations
         </label>
       </form>
     </div>
     <div class="Toolbar__spacer"></div>
-    <div class="Toolbar__actions" *ngIf="canCreatePermissionRequest">
-      <button mat-flat-button color="primary" [routerLink]="newPermissionRequestLink">
+    <div
+      class="Toolbar__actions"
+      *ngIf="canCreatePermissionRequest"
+    >
+      <button
+        mat-flat-button
+        color="primary"
+        [routerLink]="newPermissionRequestLink"
+      >
         Nouvelle demande
       </button>
     </div>
   </div>
-  <ng-template #cellDateTemplate let-date="date">
+  <ng-template
+    #cellDateTemplate
+    let-date="date"
+  >
     {{ renderDate(date) }}
   </ng-template>
 
-  <ng-template #cellNumberTemplate let-value="value">
+  <ng-template
+    #cellNumberTemplate
+    let-value="value"
+  >
     {{ value ? value : '-' }}
   </ng-template>
 
-  <ng-template #cellNameTemplate let-value="value">
+  <ng-template
+    #cellNameTemplate
+    let-value="value"
+  >
     {{ value | titlecase }}
   </ng-template>
 
-  <ng-template #cellBooleanTemplate let-value="value">
+  <ng-template
+    #cellBooleanTemplate
+    let-value="value"
+  >
     {{ value ? 'Oui' : 'Non' }}
   </ng-template>
 
-  <ng-template #cellScopeTemplate let-value="value">
+  <ng-template
+    #cellScopeTemplate
+    let-value="value"
+  >
     {{ renderScope(value) }}
   </ng-template>
 
-  <ng-template #cellDefaultTemplate let-value="value">
+  <ng-template
+    #cellDefaultTemplate
+    let-value="value"
+  >
     {{ value }}
   </ng-template>
 
-  <ngx-datatable class="PermissionRequestList__table material striped PermissionRequestList__table--nowrap"
-    [rows]="permissionRequests" columnMode="force" [draggable]="false" (page)="onChangePage($event)" footerHeight="auto"
-    headerHeight="auto" [externalPaging]="true" [count]="pagination.totalItems" [limit]="pagination.perPage"
-    rowHeight="auto" [externalSorting]="true" (sort)="onSort($event)"
+  <ngx-datatable
+    class="PermissionRequestList__table material striped PermissionRequestList__table--nowrap"
+    [rows]="permissionRequests"
+    columnMode="force"
+    [draggable]="false"
+    (page)="onChangePage($event)"
+    footerHeight="auto"
+    headerHeight="auto"
+    [externalPaging]="true"
+    [count]="pagination.totalItems"
+    [limit]="pagination.perPage"
+    rowHeight="auto"
+    [externalSorting]="true"
+    (sort)="onSort($event)"
     [sorts]="[{ prop: sort.sortBy, dir: sort.sortOrder }]"
-    [messages]="{ emptyMessage: 'Aucune demande de permission' }">
-    <ngx-datatable-column name="Id" [prop]="PROP_ID_PERMISSION_REQUEST" [maxWidth]="50">
-      <ng-template ngx-datatable-cell-template let-permissionRequest="row">
-        <ng-template *ngTemplateOutlet="
+    [messages]="{ emptyMessage: 'Aucune demande de permission' }"
+  >
+    <ngx-datatable-column
+      name="Id"
+      [prop]="PROP_ID_PERMISSION_REQUEST"
+      [maxWidth]="50"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="
             cellNumberTemplate;
             context: { value: permissionRequest[PROP_ID_PERMISSION_REQUEST] }
-          "></ng-template>
+          "
+        ></ng-template>
       </ng-template>
     </ngx-datatable-column>
-    <ngx-datatable-column name="Auteur" [prop]="PROP_AUTHOR" [maxWidth]="150">
-      <ng-template ngx-datatable-cell-template let-permissionRequest="row">
-        <ng-template *ngTemplateOutlet="
+    <ngx-datatable-column
+      name="Auteur"
+      [prop]="PROP_AUTHOR"
+      [maxWidth]="150"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="
             cellNameTemplate;
             context: { value: permissionRequest.author.nom_complet }
-          "></ng-template>
+          "
+        ></ng-template>
       </ng-template>
     </ngx-datatable-column>
-    <ngx-datatable-column name="Création" [prop]="PROP_CREATED_ON" [maxWidth]="100">
-      <ng-template ngx-datatable-cell-template let-permissionRequest="row">
-        <ng-template *ngTemplateOutlet="
+    <ngx-datatable-column
+      name="Création"
+      [prop]="PROP_CREATED_ON"
+      [maxWidth]="100"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="
             cellDateTemplate;
             context: { date: permissionRequest[PROP_CREATED_ON] }
-          "></ng-template>
+          "
+        ></ng-template>
       </ng-template>
     </ngx-datatable-column>
-    <ngx-datatable-column name="Expiration" [prop]="PROP_EXPIRATION_DATE" [maxWidth]="100">
-      <ng-template ngx-datatable-cell-template let-permissionRequest="row">
-        <ng-template *ngTemplateOutlet="
+    <ngx-datatable-column
+      name="Expiration"
+      [prop]="PROP_EXPIRATION_DATE"
+      [maxWidth]="100"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="
             cellDateTemplate;
             context: { date: permissionRequest[PROP_EXPIRATION_DATE] }
-          "></ng-template>
+          "
+        ></ng-template>
       </ng-template>
     </ngx-datatable-column>
-    <ngx-datatable-column name="Portée" [prop]="PROP_SCOPE" [maxWidth]="100">
-      <ng-template ngx-datatable-cell-template let-permissionRequest="row">
+    <ngx-datatable-column
+      name="Portée"
+      [prop]="PROP_SCOPE"
+      [maxWidth]="100"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
         <ng-template
-          *ngTemplateOutlet="cellScopeTemplate; context: { value: permissionRequest[PROP_SCOPE] }"></ng-template>
+          *ngTemplateOutlet="cellScopeTemplate; context: { value: permissionRequest[PROP_SCOPE] }"
+        ></ng-template>
       </ng-template>
     </ngx-datatable-column>
-    <ngx-datatable-column name="Sensibilité" [prop]="PROP_SENSITIVITY_FILTER" [maxWidth]="100">
-      <ng-template ngx-datatable-cell-template let-permissionRequest="row">
-        <ng-template *ngTemplateOutlet="
+    <ngx-datatable-column
+      name="Sensibilité"
+      [prop]="PROP_SENSITIVITY_FILTER"
+      [maxWidth]="100"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="
             cellBooleanTemplate;
             context: { value: permissionRequest[PROP_SENSITIVITY_FILTER] }
-          "></ng-template>
+          "
+        ></ng-template>
       </ng-template>
     </ngx-datatable-column>
 
-    <ngx-datatable-column name="Groupe(s) Taxonomique(s)" [prop]="PROP_TAXA" [sortable]="false">
-      <ng-template ngx-datatable-cell-template let-permissionRequest="row">
+    <ngx-datatable-column
+      name="Groupe(s) Taxonomique(s)"
+      [prop]="PROP_TAXA"
+      [sortable]="false"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
         <div class="Taxa">
-          <ul class="TaxaList" [class.TaxaList--single]="permissionRequest.taxa?.length === 1">
+          <ul
+            class="TaxaList"
+            [class.TaxaList--single]="permissionRequest.taxa?.length === 1"
+          >
             <li *ngFor="let taxon of permissionRequest.taxa || []">
               {{ taxon.cd_nom }} : {{ taxon.lb_nom }}
             </li>
@@ -127,10 +282,20 @@
         </div>
       </ng-template>
     </ngx-datatable-column>
-    <ngx-datatable-column name="Zone(s) géographiques" [prop]="PROP_AREAS" [sortable]="false">
-      <ng-template ngx-datatable-cell-template let-permissionRequest="row">
+    <ngx-datatable-column
+      name="Zone(s) géographiques"
+      [prop]="PROP_AREAS"
+      [sortable]="false"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
         <div class="Areas">
-          <ul class="AreasList" [class.AreasList--single]="permissionRequest.areas?.length === 1">
+          <ul
+            class="AreasList"
+            [class.AreasList--single]="permissionRequest.areas?.length === 1"
+          >
             <li *ngFor="let area of permissionRequest.areas || []">
               {{ area.area_name }}
               <ng-container *ngIf="area.area_code">({{ area.area_code }})</ng-container>
@@ -139,19 +304,38 @@
         </div>
       </ng-template>
     </ngx-datatable-column>
-    <ngx-datatable-column name="Validateur" [prop]="PROP_VALIDATOR" [maxWidth]="150">
-      <ng-template ngx-datatable-cell-template let-permissionRequest="row">
-        <ng-template *ngTemplateOutlet="
+    <ngx-datatable-column
+      name="Validateur"
+      [prop]="PROP_VALIDATOR"
+      [maxWidth]="150"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <ng-template
+          *ngTemplateOutlet="
             cellNameTemplate;
             context: { value: permissionRequest.validator?.nom_complet }
-          "></ng-template>
+          "
+        ></ng-template>
       </ng-template>
     </ngx-datatable-column>
-    <ngx-datatable-column name="" [prop]="PROP_STATUS" [width]="400" [canAutoResize]="false">
-      <ng-template ngx-datatable-cell-template let-permissionRequest="row">
-        <permission-request-toolbar [permissionRequest]="permissionRequest"
+    <ngx-datatable-column
+      name=""
+      [prop]="PROP_STATUS"
+      [width]="400"
+      [canAutoResize]="false"
+    >
+      <ng-template
+        ngx-datatable-cell-template
+        let-permissionRequest="row"
+      >
+        <permission-request-toolbar
+          [permissionRequest]="permissionRequest"
           (deleted)="onPermissionRequestDeleted($event)"
-          (updated)="onPermissionRequestUpdated($event)"></permission-request-toolbar>
+          (updated)="onPermissionRequestUpdated($event)"
+        ></permission-request-toolbar>
       </ng-template>
     </ngx-datatable-column>
   </ngx-datatable>

@@ -26,7 +26,14 @@ const SCOPE_LABELS: Record<PermissionRequestScope, string> = {
   selector: 'permission-request-info',
   templateUrl: 'permission-request-info.component.html',
   styleUrls: ['./permission-request-info.component.scss'],
-  imports: [CommonModule, GN2CommonModule, MatCardModule, MatIconModule, MatButtonModule, RouterModule],
+  imports: [
+    CommonModule,
+    GN2CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    RouterModule,
+  ],
 })
 export class PermissionRequestInfoComponent {
   @Input()

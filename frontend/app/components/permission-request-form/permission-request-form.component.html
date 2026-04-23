@@ -1,4 +1,8 @@
-<form class="PermissionRequestForm" [formGroup]="form" (ngSubmit)="onSubmit()">
+<form
+  class="PermissionRequestForm"
+  [formGroup]="form"
+  (ngSubmit)="onSubmit()"
+>
   <div class="PermissionRequestForm__fields">
     <div class="Grid">
       <div class="Grid__row Grid__row--top">
@@ -13,7 +17,10 @@
             </mat-card-subtitle>
           </mat-card-header>
           <mat-card-content class="Card__content">
-            <div class="Field Field--inline" *ngIf="authorName">
+            <div
+              class="Field Field--inline"
+              *ngIf="authorName"
+            >
               <div class="Field__label">Auteur</div>
               <div>{{ authorName }}</div>
             </div>
@@ -22,15 +29,26 @@
               <div class="Field__label">Portée</div>
               <div class="Field__radio">
                 <label>
-                  <input type="radio" formControlName="scope" [value]="PermissionRequestScope.USER" />
+                  <input
+                    type="radio"
+                    formControlName="scope"
+                    [value]="PermissionRequestScope.USER"
+                  />
                   Moi uniquement
                 </label>
                 <label>
-                  <input type="radio" formControlName="scope" [value]="PermissionRequestScope.ORGANISM" />
+                  <input
+                    type="radio"
+                    formControlName="scope"
+                    [value]="PermissionRequestScope.ORGANISM"
+                  />
                   Mon organisme
                 </label>
               </div>
-              <div class="Field__error" *ngIf="scopeControl?.hasError('required') && scopeControl?.touched">
+              <div
+                class="Field__error"
+                *ngIf="scopeControl?.hasError('required') && scopeControl?.touched"
+              >
                 La portée est obligatoire.
               </div>
             </div>
@@ -49,8 +67,12 @@
           </mat-card-header>
           <mat-card-content class="Card__content">
             <div class="Field Field--description">
-              <textarea id="description" rows="6" formControlName="description"
-                placeholder="Décrivez le besoin ou le contexte"></textarea>
+              <textarea
+                id="description"
+                rows="6"
+                formControlName="description"
+                placeholder="Décrivez le besoin ou le contexte"
+              ></textarea>
             </div>
           </mat-card-content>
         </mat-card>
@@ -70,32 +92,43 @@
           <mat-card-content class="Card__content">
             <div class="Dates">
               <div class="Field">
-                <label class="Field__label">
-                  Date de creation
-                </label>
+                <label class="Field__label">Date de creation</label>
                 <label>
-                  {{ (permissionRequest?.created_on || today) | date: 'dd/MM/yyyy' }}
+                  {{ permissionRequest?.created_on || today | date: 'dd/MM/yyyy' }}
                 </label>
               </div>
 
               <div class="Field">
-                <label class="Field__label" for="expiration_date">
+                <label
+                  class="Field__label"
+                  for="expiration_date"
+                >
                   Date d'expiration
                 </label>
-                <pnx-date id="expiration_date" [defaultToday]="true" [parentFormControl]="expirationDateControl"
-                  [noMaxDate]="true"></pnx-date>
-                <div class="Field__error" *ngIf="
+                <pnx-date
+                  id="expiration_date"
+                  [defaultToday]="true"
+                  [parentFormControl]="expirationDateControl"
+                  [noMaxDate]="true"
+                ></pnx-date>
+                <div
+                  class="Field__error"
+                  *ngIf="
                     expirationDateControl?.hasError('required') && expirationDateControl?.touched
-                  ">
+                  "
+                >
                   La date d'expiration est obligatoire.
                 </div>
               </div>
             </div>
 
-            <div class="Field__error" *ngIf="
+            <div
+              class="Field__error"
+              *ngIf="
                 form.errors?.invalidDate &&
                 (createdOnControl?.touched || expirationDateControl?.touched)
-              ">
+              "
+            >
               La date de creation doit etre anterieure a la date d'expiration.
             </div>
           </mat-card-content>
@@ -114,39 +147,69 @@
           <mat-card-content class="Card__content">
             <div class="Dataset">
               <div class="Field">
-                <label class="Field__label" for="taxa">
+                <label
+                  class="Field__label"
+                  for="taxa"
+                >
                   Taxons
                 </label>
-                <pnx-taxonomy id="taxa" [parentFormControl]="taxonSearchControl" charNumber="3" listLength="20"
-                  (onChange)="onTaxonSelected($event)"></pnx-taxonomy>
-                <div class="Field__selectedTaxa" *ngIf="taxaControl?.value?.length">
+                <pnx-taxonomy
+                  id="taxa"
+                  [parentFormControl]="taxonSearchControl"
+                  charNumber="3"
+                  listLength="20"
+                  (onChange)="onTaxonSelected($event)"
+                ></pnx-taxonomy>
+                <div
+                  class="Field__selectedTaxa"
+                  *ngIf="taxaControl?.value?.length"
+                >
                   <ul>
                     <li *ngFor="let taxon of taxaControl?.value">
                       <span [innerHtml]="taxon.search_name"></span>
-                      <button type="button" mat-icon-button color="warn" (click)="removeTaxon(taxon.cd_nom)"
-                        matTooltip="Retirer ce taxon" aria-label="Retirer ce taxon">
+                      <button
+                        type="button"
+                        mat-icon-button
+                        color="warn"
+                        (click)="removeTaxon(taxon.cd_nom)"
+                        matTooltip="Retirer ce taxon"
+                        aria-label="Retirer ce taxon"
+                      >
                         <mat-icon>close</mat-icon>
                       </button>
                     </li>
                   </ul>
                 </div>
-                <div class="Field__error" *ngIf="taxaControl?.hasError('required') && taxaControl?.touched">
+                <div
+                  class="Field__error"
+                  *ngIf="taxaControl?.hasError('required') && taxaControl?.touched"
+                >
                   Vous devez sélectionner au moins un taxon.
                 </div>
               </div>
 
               <div class="Field">
-                <label class="Field__label" for="areas">
+                <label
+                  class="Field__label"
+                  for="areas"
+                >
                   Zones géographiques
                 </label>
-                <pnx-areas id="areas" [typeCodes]="['COM', 'DEP', 'REG']" [parentFormControl]="areasControl"
+                <pnx-areas
+                  id="areas"
+                  [typeCodes]="['COM', 'DEP', 'REG']"
+                  [parentFormControl]="areasControl"
                   [defaultItems]="selectedAreasDefaultItems"
-                  (onSelectionChange)="onAreasSelectionChange($event)"></pnx-areas>
+                  (onSelectionChange)="onAreasSelectionChange($event)"
+                ></pnx-areas>
               </div>
             </div>
             <div class="Field Field--inline-check">
               <label class="Field__label">
-                <input type="checkbox" formControlName="sensitivity_filter" />
+                <input
+                  type="checkbox"
+                  formControlName="sensitivity_filter"
+                />
                 Inclure les données sensibles
               </label>
             </div>
@@ -155,16 +218,29 @@
       </div>
     </div>
     <mat-card-content>
-      <acknowledgement class="Acknowledgment" *ngIf="shouldDisplayAcknowledgement" [controlName]="'acknowledgeTerms'" />
+      <acknowledgement
+        class="Acknowledgment"
+        *ngIf="shouldDisplayAcknowledgement"
+        [controlName]="'acknowledgeTerms'"
+      />
     </mat-card-content>
   </div>
   <div class="PermissionRequestForm__actions">
-    <button type="button" mat-stroked-button color="primary" (click)="onReset()"
-      [disabled]="form.pristine || isSaving || isSameAsPermissionRequest">
+    <button
+      type="button"
+      mat-stroked-button
+      color="primary"
+      (click)="onReset()"
+      [disabled]="form.pristine || isSaving || isSameAsPermissionRequest"
+    >
       Réinitialiser
     </button>
-    <button type="submit" mat-flat-button color="primary"
-      [disabled]="form.invalid || form.pristine || isSaving || isSameAsPermissionRequest">
+    <button
+      type="submit"
+      mat-flat-button
+      color="primary"
+      [disabled]="form.invalid || form.pristine || isSaving || isSameAsPermissionRequest"
+    >
       Enregistrer
     </button>
   </div>

@@ -296,5 +296,4 @@ export class ValidationDescriptionDialogComponent {
       data?.status === STATUS.EXPIRED;
     return hasDecision;
   }
-
 }
