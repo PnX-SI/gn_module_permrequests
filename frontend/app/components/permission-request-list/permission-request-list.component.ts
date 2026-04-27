@@ -1,9 +1,20 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { RouterModule } from '@angular/router';
+
 import { NgSelectModule } from '@ng-select/ng-select';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
+
+import { ModuleService } from '@geonature/services/module.service';
+import { GN2CommonModule } from '@geonature_common/GN2Common.module';
+import { CruvedStoreService } from '@geonature_common/service/cruved-store.service';
+import { I18nService } from '@geonature/shared/translate/i18n-service';
+
 import { DEFAULT_PAGINATION, PaginationItem } from '../../models/paginationItem';
 import { SORT_ORDER, SortItem } from '../../models/sortItem';
 import {
@@ -16,15 +27,9 @@ import {
   PermissionRequestService,
 } from '../../services/permissionRequest.service';
 import { PermissionRequestToolbarComponent } from '../permission-request-toolbar/permission-request-toolbar.component';
-import { GN2CommonModule } from '@geonature_common/GN2Common.module';
-import { MatButtonModule } from '@angular/material/button';
-import { ModuleService } from '@geonature/services/module.service';
-import { CruvedStoreService } from '@geonature_common/service/cruved-store.service';
 import { ROUTE_PATHS } from '../../gnModule.module';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { canCreatePermission } from '../../guards/can-create.guard';
-import { STATUS, STATUS_LABELS } from '../../models/status';
+import { STATUS } from '../../models/status';
 
 type FiltersFormValue = {
   status: string[] | null;
@@ -79,37 +84,32 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
     [PermissionRequestScope.ORGANISM]: 'Organisme',
   };
 
-  private readonly VALIDATED_STATUS_GROUP_LABEL = 'Validée';
-
   statusOptions = [
-    { value: STATUS.PENDING, label: STATUS_LABELS[STATUS.PENDING] },
-    { value: STATUS.IN_PROGRESS, label: STATUS_LABELS[STATUS.IN_PROGRESS] },
-    { value: STATUS.REFUSED, label: STATUS_LABELS[STATUS.REFUSED] },
+    { value: STATUS.PENDING },
+    { value: STATUS.IN_PROGRESS },
+    { value: STATUS.REFUSED },
     {
       value: STATUS.UPCOMING,
-      label: STATUS_LABELS[STATUS.UPCOMING],
-      group: this.VALIDATED_STATUS_GROUP_LABEL,
+      group: STATUS.VALIDATED,
     },
     {
       value: STATUS.ACTIVE,
-      label: STATUS_LABELS[STATUS.ACTIVE],
-      group: this.VALIDATED_STATUS_GROUP_LABEL,
+      group: STATUS.VALIDATED,
     },
     {
       value: STATUS.EXPIRED,
-      label: STATUS_LABELS[STATUS.EXPIRED],
-      group: this.VALIDATED_STATUS_GROUP_LABEL,
+      group: STATUS.VALIDATED,
     },
   ];
 
   scopeOptions = [
-    { value: PermissionRequestScope.USER, label: 'Utilisateur' },
-    { value: PermissionRequestScope.ORGANISM, label: 'Organisme' },
+    { value: PermissionRequestScope.USER },
+    { value: PermissionRequestScope.ORGANISM },
   ];
 
   sensitivityOptions = [
-    { value: 'true', label: 'Oui' },
-    { value: 'false', label: 'Non' },
+    { value: 'TRUE' },
+    { value: 'FALSE' },
   ];
 
   filtersForm = new FormGroup({
@@ -122,8 +122,12 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
   constructor(
     private _ars: PermissionRequestService,
     private _moduleService: ModuleService,
-    private _cruvedStore: CruvedStoreService
-  ) {}
+    private _cruvedStore: CruvedStoreService,
+    private _i18nService: I18nService,
+    private _translateService: TranslateService,
+  ) {
+    this._i18nService.initializeModuleTranslateService(this._translateService);
+  }
 
   ngOnInit() {
     this.canCreatePermissionRequest = canCreatePermission(

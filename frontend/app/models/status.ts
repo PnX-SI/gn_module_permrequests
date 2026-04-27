@@ -5,16 +5,8 @@ export enum STATUS {
   EXPIRED = 'EXPIRED',
   UPCOMING = 'UPCOMING',
   ACTIVE = 'ACTIVE',
+  VALIDATED = 'VALIDATED',
 }
-
-export const STATUS_LABELS: Record<STATUS, string> = {
-  [STATUS.REFUSED]: 'Refusée',
-  [STATUS.PENDING]: 'Non traitée',
-  [STATUS.IN_PROGRESS]: 'En cours',
-  [STATUS.EXPIRED]: 'Expirée',
-  [STATUS.UPCOMING]: 'A venir',
-  [STATUS.ACTIVE]: 'Active',
-};
 
 export const STATUS_COLORS: Record<STATUS, string> = {
   [STATUS.REFUSED]: '#FF5722',
@@ -23,4 +15,5 @@ export const STATUS_COLORS: Record<STATUS, string> = {
   [STATUS.EXPIRED]: '#FF9800',
   [STATUS.UPCOMING]: '#30a5ff',
   [STATUS.ACTIVE]: '#8BC34A',
+  [STATUS.VALIDATED]: '#4CAF50',
 };

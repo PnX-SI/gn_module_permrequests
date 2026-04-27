@@ -6,7 +6,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { STATUS, STATUS_LABELS, STATUS_COLORS } from '../../models/status';
+
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+import { I18nService } from '@geonature/shared/translate/i18n-service';
+
+import { STATUS, STATUS_COLORS } from '../../models/status';
 
 export interface ValidationDescriptionDialogData {
   validation_description: string | null;
@@ -29,11 +34,14 @@ type ValidationChoice = 'approve' | 'reject' | 'in_progress' | null;
   template: `
     <div class="card">
       <div class="card-header">
-        <h1 mat-dialog-title>Valider la demande de permission</h1>
+        <h1 mat-dialog-title>{{ 'Permrequests.ValidationDialog.Title' | translate }}</h1>
       </div>
+
       <div class="card-body">
         <div mat-dialog-content>
-          <p class="ValidationDescriptionDialog__intro">Statut de validation</p>
+          <h2 class="ValidationDescriptionDialog__intro h4">
+            {{ 'Permrequests.ValidationDialog.Status.Title' | translate }}
+          </h2>
           <mat-button-toggle-group
             class="ValidationDescriptionDialog__toggle"
             [(ngModel)]="choice"
@@ -45,47 +53,57 @@ type ValidationChoice = 'approve' | 'reject' | 'in_progress' | null;
               [ngStyle]="decisionStyles.approve"
               [value]="'approve'"
             >
-              Valider
+              {{ 'Permrequests.ValidationDialog.Status.Approve' | translate }}
             </mat-button-toggle>
             <mat-button-toggle
               class="DecisionToggle DecisionToggle--in-progress"
               [ngStyle]="decisionStyles.inProgress"
               [value]="'in_progress'"
             >
-              En cours
+              {{ 'Permrequests.ValidationDialog.Status.InProgress' | translate }}
             </mat-button-toggle>
             <mat-button-toggle
               class="DecisionToggle DecisionToggle--reject"
               [ngStyle]="decisionStyles.reject"
               [value]="'reject'"
             >
-              Refuser
+              {{ 'Permrequests.ValidationDialog.Status.Refuse' | translate }}
             </mat-button-toggle>
           </mat-button-toggle-group>
           <div class="ValidationDescriptionDialog__status-hint-wrapper">
             <p
-              *ngIf="choice === 'approve' && dateStatusLabel"
+              *ngIf="choice === 'approve' && dateStatus"
               class="ValidationDescriptionDialog__status-hint"
               [ngStyle]="{ color: dateStatusColor }"
             >
-              Cette demande sera considérée comme "{{ dateStatusLabel }}".
+              {{
+                'Permrequests.ValidationDialog.Status.ApprovedHint'
+                  | translate: {
+                    date_status_label :
+                    'Permrequests.Enums.Status.' + dateStatus | translate
+                  }
+              }}
             </p>
           </div>
-          <p>Message à transmettre lors de cette validation</p>
+
+          <h2 class="h4">
+            {{ 'Permrequests.ValidationDialog.Message.Title' | translate }}
+          </h2>
           <mat-form-field
             appearance="fill"
             class="ValidationDescriptionDialog__field"
           >
-            <mat-label>Message (optionnel)</mat-label>
+            <mat-label>{{ 'Permrequests.ValidationDialog.Message.Label' | translate }}</mat-label>
             <textarea
               matInput
               rows="6"
               [(ngModel)]="description"
-              placeholder="Renseignez un commentaire"
+              placeholder="{{ 'Permrequests.ValidationDialog.Message.Placeholder' | translate }}"
             ></textarea>
           </mat-form-field>
         </div>
       </div>
+
       <div class="card-footer">
         <div
           mat-dialog-actions
@@ -99,7 +117,7 @@ type ValidationChoice = 'approve' | 'reject' | 'in_progress' | null;
               (click)="onReset()"
               [disabled]="!canReset"
             >
-              Réinitialiser
+              {{ 'Permrequests.ValidationDialog.Actions.Reset' | translate }}
             </button>
           </div>
           <div class="ValidationDescriptionDialog__actions-group">
@@ -108,7 +126,7 @@ type ValidationChoice = 'approve' | 'reject' | 'in_progress' | null;
               type="button"
               (click)="onCancel()"
             >
-              Annuler
+              {{ 'Permrequests.ValidationDialog.Actions.Cancel' | translate }}
             </button>
             <button
               mat-flat-button
@@ -117,7 +135,7 @@ type ValidationChoice = 'approve' | 'reject' | 'in_progress' | null;
               (click)="onConfirm()"
               [disabled]="!choice"
             >
-              Valider
+              {{ 'Permrequests.ValidationDialog.Actions.Validate' | translate }}
             </button>
           </div>
         </div>
@@ -180,6 +198,7 @@ type ValidationChoice = 'approve' | 'reject' | 'in_progress' | null;
     MatInputModule,
     MatFormFieldModule,
     MatButtonToggleModule,
+    TranslateModule,
   ],
 })
 export class ValidationDescriptionDialogComponent {
@@ -187,7 +206,6 @@ export class ValidationDescriptionDialogComponent {
   choice: ValidationChoice;
   readonly canReset: boolean;
   readonly dateStatus: STATUS | null;
-  readonly dateStatusLabel: string | null;
   readonly dateStatusColor: string | null;
   readonly decisionStyles = {
     approve: { '--decision-color': STATUS_COLORS[STATUS.ACTIVE] },
@@ -195,17 +213,19 @@ export class ValidationDescriptionDialogComponent {
     inProgress: { '--decision-color': STATUS_COLORS[STATUS.IN_PROGRESS] },
   };
   constructor(
+    private _i18nService: I18nService,
+    private _translateService: TranslateService,
     @Inject(MAT_DIALOG_DATA) public data: ValidationDescriptionDialogData,
     private _dialogRef: MatDialogRef<
       ValidationDescriptionDialogComponent,
       ValidationDescriptionDialogResult | undefined
     >
   ) {
+    this._i18nService.initializeModuleTranslateService(this._translateService);
     this.description = data?.validation_description ?? '';
     this.choice = this._computeInitialChoice(data);
     this.canReset = this._computeCanReset(data);
     this.dateStatus = this._computeDateStatus(data?.created_on, data?.expiration_date);
-    this.dateStatusLabel = this.dateStatus ? STATUS_LABELS[this.dateStatus] : null;
     this.dateStatusColor = this.dateStatus ? STATUS_COLORS[this.dateStatus] : null;
   }
 

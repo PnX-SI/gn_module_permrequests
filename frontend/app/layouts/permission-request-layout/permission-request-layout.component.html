@@ -7,14 +7,18 @@
           [routerLink]="homeRouterLink"
         >
           <mat-icon>chevron_left</mat-icon>
-          Retour
+          {{ 'Permrequests.Breadcrumb.Actions.Return' | translate }}
         </button>
       </div>
       <div class="Header__center">
         <div *ngIf="permissionRequest; else newPermissionRequest">
-          Permission Request #{{ permissionRequest.id_permission_request }}
+          {{ 'Permrequests.Breadcrumb.Titles.Edit' | translate:permissionRequest }}
         </div>
-        <ng-template #newPermissionRequest><div>New Permission Request</div></ng-template>
+        <ng-template #newPermissionRequest>
+          <div>
+            {{ 'Permrequests.Breadcrumb.Titles.Create' | translate }}
+          </div>
+        </ng-template>
       </div>
       <div class="Header__right">
         <permission-request-toolbar

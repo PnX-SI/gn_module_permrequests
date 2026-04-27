@@ -1,0 +1,28 @@
+{
+    "Permrequests": {
+        "Form": {
+            "Beneficiary": {
+                "Title": "Beneficiary",
+                "Subtitle": "Author and scope of the request.",
+                "Author": "Author",
+                "Scope": {
+                    "Title": "Scope",
+                    "User": "Me only",
+                    "Organism": "My organism",
+                    "Required": "Scope is required."
+                }
+            },
+            "Description": {
+                "Title": "Description"
+            },
+            "Validity": {
+                "Title": "Validity window",
+                "Subtitle": "Period during which the permission is required."
+            },
+            "Data": {
+                "Title": "Data concerned",
+                "Subtitle": "Select the concerned taxa and areas."
+            }
+        }
+    }
+}

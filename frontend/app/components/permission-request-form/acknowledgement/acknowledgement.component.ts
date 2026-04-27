@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
@@ -6,7 +6,12 @@ import {
   FormGroupDirective,
   ReactiveFormsModule,
 } from '@angular/forms';
+
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 import { ConfigService } from '@geonature/services/config.service';
+import { I18nService } from '@geonature/shared/translate/i18n-service';
+
 
 type TermsLink = {
   href: string;
@@ -17,7 +22,7 @@ type TermsLink = {
   selector: 'acknowledgement',
   templateUrl: './acknowledgement.component.html',
   styleUrls: ['./acknowledgement.component.scss'],
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule],
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
 })
 export class AcknowledgementComponent {
@@ -27,10 +32,13 @@ export class AcknowledgementComponent {
 
   constructor(
     private controlContainer: ControlContainer,
-    private _configService: ConfigService
+    private _configService: ConfigService,
+    private _i18nService: I18nService,
+    private _translateService: TranslateService,
   ) {
     const moduleConfig = this._configService.PERMREQUESTS ?? {};
     this.termsLink = this._buildTermsLink(moduleConfig.TERMS_ACKNOWLEDGEMENT ?? null);
+    this._i18nService.initializeModuleTranslateService(this._translateService);
   }
 
   get acknowledgeTermsControl(): AbstractControl | null {

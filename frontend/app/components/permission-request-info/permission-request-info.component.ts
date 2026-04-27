@@ -5,7 +5,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { Params, RouterModule } from '@angular/router';
 
+import { TranslateService } from '@ngx-translate/core';
+
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
+import { I18nService } from '@geonature/shared/translate/i18n-service';
 
 import {
   PermissionRequest,
@@ -43,6 +46,13 @@ export class PermissionRequestInfoComponent {
   readonly sections = PERMISSION_REQUEST_SECTIONS;
   readonly syntheseLink = ['/synthese'];
 
+  constructor(
+    private _i18nService: I18nService,
+    private _translateService: TranslateService
+  ) {
+    this._i18nService.initializeModuleTranslateService(this._translateService);
+  }
+
   getScopeLabel(scope: PermissionRequestScope | null): string {
     if (!scope) {
       return this.scopeLabels[DEFAULT_SCOPE];
@@ -74,7 +84,7 @@ export class PermissionRequestInfoComponent {
       )
     ) as number[];
     if (uniqueCdNoms.length) {
-      // In synthse, the query_params available is cd_ref.
+      // In synthese, the query_params available is cd_ref.
       // In permission request, the taxon is referenced by cd_nom because of fk behavior.
       // But it's actually a cd_ref.
       query.cd_ref = uniqueCdNoms;

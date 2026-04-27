@@ -9,10 +9,9 @@
           class="FiltersForm__Filter Multiselect"
           id="filter-status"
           [items]="statusOptions"
-          bindLabel="label"
           bindValue="value"
           [clearable]="true"
-          placeholder="Statut"
+          placeholder="{{ 'Permrequests.List.Filters.Labels.Status' | translate }}"
           formControlName="status"
           [multiple]="true"
           [closeOnSelect]="false"
@@ -34,7 +33,13 @@
                 [ngModel]="item$.selected"
                 [ngModelOptions]="{ standalone: true }"
               />
-              <div class="MultiselectOptionItem__text">{{ item.group || item.label }}</div>
+              <div class="MultiselectOptionItem__text">
+                {{
+                  ('Permrequests.Enums.Status.' + item.group | translate)
+                  ||
+                  ('Permrequests.Enums.Status.' + item.value | translate)
+                }}
+              </div>
             </div>
           </ng-template>
           <ng-template
@@ -51,7 +56,9 @@
                 [ngModel]="item$.selected"
                 [ngModelOptions]="{ standalone: true }"
               />
-              <div class="MultiselectOptionItem__text">{{ item.label }}</div>
+              <div class="MultiselectOptionItem__text">
+                {{ 'Permrequests.Enums.Status.' + item.value | translate }}
+              </div>
             </div>
           </ng-template>
         </ng-select>
@@ -59,14 +66,17 @@
           class="FiltersForm__Filter"
           id="filter-scope"
           [items]="scopeOptions"
-          bindLabel="label"
           bindValue="value"
           [clearable]="true"
-          placeholder="Portée"
+          placeholder="{{ 'Permrequests.List.Filters.Labels.Scope'  | translate }}"
           formControlName="scope"
           [multiple]="true"
           [closeOnSelect]="false"
-        ></ng-select>
+        >
+          <ng-template ng-option-tmp  ng-label-tmp let-item="item">
+            {{ 'Permrequests.Enums.Scope.' + item.value | translate }}
+          </ng-template>
+        </ng-select>
         <ng-select
           class="FiltersForm__Filter"
           id="filter-sensitive"
@@ -74,17 +84,21 @@
           bindLabel="label"
           bindValue="value"
           [clearable]="true"
-          placeholder="Données sensibles"
+          placeholder="{{ 'Permrequests.List.Filters.Labels.Sensitivity' | translate }}"
           formControlName="sensitivity_filter"
           [multiple]="true"
           [closeOnSelect]="false"
-        ></ng-select>
+        >
+          <ng-template ng-option-tmp  ng-label-tmp let-item="item">
+            {{ 'Permrequests.Enums.Sensitivity.' + item.value | translate }}
+          </ng-template>
+        </ng-select>
         <label class="FiltersForm__Filter FiltersForm__Filter--checkbox">
           <input
             type="checkbox"
             formControlName="my_validations"
           />
-          Mes validations
+          {{ 'Permrequests.List.Filters.Labels.MyValidations' | translate }}
         </label>
       </form>
     </div>
@@ -98,7 +112,7 @@
         color="primary"
         [routerLink]="newPermissionRequestLink"
       >
-        Nouvelle demande
+        {{ 'Permrequests.List.Actions.Create' | translate }}
       </button>
     </div>
   </div>
@@ -162,7 +176,7 @@
     [messages]="{ emptyMessage: 'Aucune demande de permission' }"
   >
     <ngx-datatable-column
-      name="Id"
+      name="{{ 'Permrequests.List.Columns.Id' | translate }}"
       [prop]="PROP_ID_PERMISSION_REQUEST"
       [maxWidth]="50"
     >
@@ -179,7 +193,7 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
-      name="Auteur"
+      name="{{ 'Permrequests.List.Columns.Author' | translate }}"
       [prop]="PROP_AUTHOR"
       [maxWidth]="150"
     >
@@ -196,7 +210,7 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
-      name="Création"
+      name="{{ 'Permrequests.List.Columns.CreationDate' | translate }}"
       [prop]="PROP_CREATED_ON"
       [maxWidth]="100"
     >
@@ -213,7 +227,7 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
-      name="Expiration"
+      name="{{ 'Permrequests.List.Columns.ExpirationDate' | translate }}"
       [prop]="PROP_EXPIRATION_DATE"
       [maxWidth]="100"
     >
@@ -230,7 +244,7 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
-      name="Portée"
+      name="{{ 'Permrequests.List.Columns.Scope' | translate }}"
       [prop]="PROP_SCOPE"
       [maxWidth]="100"
     >
@@ -244,7 +258,7 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
-      name="Sensibilité"
+      name="{{ 'Permrequests.List.Columns.Sensitivity' | translate }}"
       [prop]="PROP_SENSITIVITY_FILTER"
       [maxWidth]="100"
     >
@@ -262,7 +276,7 @@
     </ngx-datatable-column>
 
     <ngx-datatable-column
-      name="Groupe(s) Taxonomique(s)"
+      name="{{ 'Permrequests.List.Columns.Taxa' | translate }}"
       [prop]="PROP_TAXA"
       [sortable]="false"
     >
@@ -283,7 +297,7 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
-      name="Zone(s) géographiques"
+      name="{{ 'Permrequests.List.Columns.Areas' | translate }}"
       [prop]="PROP_AREAS"
       [sortable]="false"
     >
@@ -305,7 +319,7 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
-      name="Validateur"
+      name="{{ 'Permrequests.List.Columns.Validator' | translate }}"
       [prop]="PROP_VALIDATOR"
       [maxWidth]="150"
     >
@@ -322,7 +336,7 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
-      name=""
+      name="{{ 'Permrequests.List.Columns.Status' | translate }}"
       [prop]="PROP_STATUS"
       [width]="400"
       [canAutoResize]="false"

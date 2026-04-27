@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,14 +11,16 @@ import {
   NgbDateStruct,
   NgbTypeaheadSelectItemEvent,
 } from '@ng-bootstrap/ng-bootstrap';
-
 import { finalize } from '@librairies/rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { FormService } from '@geonature_common/form/form.service';
+import { Taxon } from '@geonature_common/form/taxonomy/taxonomy.component';
 import { ModuleService } from '@geonature/services/module.service';
 import { ConfigService } from '@geonature/services/config.service';
 import { AuthService } from '@geonature/components/auth/auth.service';
+import { I18nService } from '@geonature/shared/translate/i18n-service';
 
 import {
   PermissionRequest,
@@ -30,7 +32,6 @@ import {
   PermissionRequestService,
 } from '../../services/permissionRequest.service';
 import { ROUTE_PATHS } from '../../gnModule.module';
-import { Taxon, TaxonomyComponent } from '@geonature_common/form/taxonomy/taxonomy.component';
 import { AcknowledgementComponent } from './acknowledgement/acknowledgement.component';
 import { PERMISSION_REQUEST_SECTIONS } from '../permission-request-common/permission-request-sections';
 
@@ -58,7 +59,6 @@ type PermissionRequestFormValue = {
     MatCardModule,
     MatIconModule,
     AcknowledgementComponent,
-    TaxonomyComponent
   ],
 })
 export class PermissionRequestFormComponent {
@@ -80,7 +80,9 @@ export class PermissionRequestFormComponent {
     private _moduleService: ModuleService,
     private _configService: ConfigService,
     private _router: Router,
-    private _authService: AuthService
+    private _authService: AuthService,
+    private _translateService: TranslateService,
+    private _i18nService: I18nService
   ) {
     const moduleConfig = this._configService.PERMREQUESTS ?? {};
     this.shouldDisplayAcknowledgement = !!moduleConfig.REQUIRE_TERMS_ACKNOWLEDGEMENT;
@@ -88,6 +90,7 @@ export class PermissionRequestFormComponent {
     this.sensitivityFilterDefaultValue = !!moduleConfig.SENSITIVITY_FILTER.DEFAULT_VALUE;
     this._setupValidators();
     this._setupAcknowledgementControl();
+    this._i18nService.initializeModuleTranslateService(this._translateService);
   }
 
   // //////////////////////////////////////////////////////////////////////////

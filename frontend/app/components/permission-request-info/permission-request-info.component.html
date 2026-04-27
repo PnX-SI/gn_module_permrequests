@@ -7,10 +7,10 @@
       <mat-card-header>
         <mat-card-title>
           <mat-icon class="Card__titleIcon">{{ sections.beneficiary.icon }}</mat-icon>
-          {{ sections.beneficiary.title }}
+          {{ 'Permrequests.Form.Beneficiary.Title' | translate }}
         </mat-card-title>
-        <mat-card-subtitle *ngIf="sections.beneficiary.subtitle">
-          {{ sections.beneficiary.subtitle }}
+        <mat-card-subtitle>
+          {{ 'Permrequests.Form.Beneficiary.Subtitle' | translate }}
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content class="Card__content">
@@ -18,12 +18,16 @@
           class="Field Field--inline"
           *ngIf="permissionRequest.author"
         >
-          <label for="author">Auteur</label>
+          <label for="author">
+             {{ 'Permrequests.Form.Beneficiary.Author' | translate }}
+          </label>
           <div id="author">{{ permissionRequest.author?.nom_complet }}</div>
         </div>
 
         <div class="Field Field--inline">
-          <label for="scope">Portée</label>
+          <label for="scope">
+            {{ 'Permrequests.Form.Beneficiary.Scope.Label' | translate }}
+          </label>
           <div id="scope">{{ getScopeLabel(permissionRequest.scope) }}</div>
         </div>
 
@@ -31,7 +35,9 @@
           class="Field"
           *ngIf="permissionRequest.validator"
         >
-          <label for="validator">Validateur</label>
+          <label for="validator">
+            {{ 'Permrequests.Form.Validation.Validator' | translate }}
+          </label>
           <div id="validator">{{ permissionRequest.validator?.nom_complet }}</div>
         </div>
 
@@ -39,7 +45,9 @@
           class="Field"
           *ngIf="permissionRequest.validation_description"
         >
-          <label for="validation_description">Commentaire de validation</label>
+          <label for="validation_description">
+            {{ 'Permrequests.Form.Validation.Comment' | translate }}
+          </label>
           <div id="validation_description">{{ permissionRequest.validation_description }}</div>
         </div>
       </mat-card-content>
@@ -49,10 +57,10 @@
       <mat-card-header>
         <mat-card-title>
           <mat-icon class="Card__titleIcon">{{ sections.description.icon }}</mat-icon>
-          {{ sections.description.title }}
+          {{ 'Permrequests.Form.Description.Title' | translate }}
         </mat-card-title>
-        <mat-card-subtitle *ngIf="sections.description.subtitle">
-          {{ sections.description.subtitle }}
+        <mat-card-subtitle>
+          {{ 'Permrequests.Form.Description.Subtitle' | translate }}
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content class="Card__content">
@@ -61,7 +69,7 @@
             id="description"
             class="Field__text"
           >
-            {{ permissionRequest.description || 'Non renseignée' }}
+            {{ permissionRequest.description || 'Permrequests.Form.Description.Empty' | translate }}
           </div>
         </div>
       </mat-card-content>
@@ -73,22 +81,22 @@
       <mat-card-header>
         <mat-card-title>
           <mat-icon class="Card__titleIcon">{{ sections.validity.icon }}</mat-icon>
-          {{ sections.validity.title }}
+          {{ 'Permrequests.Form.Validity.Title' | translate }}
         </mat-card-title>
-        <mat-card-subtitle *ngIf="sections.validity.subtitle">
-          {{ sections.validity.subtitle }}
+        <mat-card-subtitle>
+          {{ 'Permrequests.Form.Validity.Subtitle' | translate }}
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content class="Card__content">
         <div class="Field">
-          <label for="created_on">Date de creation</label>
+          <label for="created_on">{{ 'Permrequests.Form.Validity.CreationDate' | translate }}</label>
           <div id="created_on">
             {{ permissionRequest.created_on | date: 'dd/MM/yyyy' }}
           </div>
         </div>
 
         <div class="Field">
-          <label for="expiration_date">Date d'expiration</label>
+          <label for="expiration_date">{{ 'Permrequests.Form.Validity.ExpirationDate' | translate }}</label>
           <div id="expiration_date">
             {{ permissionRequest.expiration_date | date: 'dd/MM/yyyy' }}
           </div>
@@ -100,10 +108,10 @@
       <mat-card-header>
         <mat-card-title>
           <mat-icon class="Card__titleIcon">{{ sections.data.icon }}</mat-icon>
-          {{ sections.data.title }}
+          {{ 'Permrequests.Form.Data.Title' | translate }}
         </mat-card-title>
-        <mat-card-subtitle *ngIf="sections.data.subtitle">
-          {{ sections.data.subtitle }}
+        <mat-card-subtitle>
+          {{ 'Permrequests.Form.Data.Subtitle' | translate }}
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content class="Card__content">
@@ -111,7 +119,7 @@
           class="Field"
           *ngIf="permissionRequest.taxa?.length"
         >
-          <label for="taxa">Taxons</label>
+          <label for="taxa">{{ 'Permrequests.Form.Data.TaxaField.Label' | translate }}</label>
           <ul
             id="taxa"
             class="PermissionRequestInfo__list"
@@ -126,7 +134,7 @@
           class="Field"
           *ngIf="permissionRequest.areas?.length"
         >
-          <label for="areas">Zones géographiques</label>
+          <label for="areas">{{ 'Permrequests.Form.Data.AreaField.Label' | translate }}</label>
           <ul
             id="areas"
             class="PermissionRequestInfo__list"
@@ -139,9 +147,15 @@
         </div>
 
         <div class="Field Field--inline">
-          <label for="sensitivity_filter">Données sensibles visibles</label>
+          <label for="sensitivity_filter">
+            {{ 'Permrequests.Form.Data.Sensitivity.Label' | translate }}
+          </label>
           <div id="sensitivity_filter">
-            {{ permissionRequest.sensitivity_filter ? 'Oui' : 'Non' }}
+            {{
+              permissionRequest.sensitivity_filter
+              ? ('Permrequests.Form.Data.Sensitivity.Yes' | translate)
+              : ('Permrequests.Form.Data.Sensitivity.No' | translate)
+            }}
           </div>
         </div>
 
@@ -157,7 +171,7 @@
             target="_blank"
             rel="noopener"
           >
-            Visualiser dans la synthèse
+            {{ 'Permrequests.Form.Data.ShowData' | translate }}
           </a>
         </div>
       </mat-card-content>

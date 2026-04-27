@@ -1,0 +1,145 @@
+{
+    "Permrequests": {
+        "Breadcrumb": {
+            "Actions": {
+                "Return": "Retour"
+            },
+            "Titles": {
+                "Create": "Nouvelle demande de permission",
+                "Edit": "Demande de permission #{{id_permission_request}}",
+                "Details": "Détails de la demande de permission"
+            }
+        },
+        "Enums": {
+            "Scope" : {
+                "ORGANISM": "Organisme",
+                "USER": "Utilisateur"
+            },
+            "Sensitivity": {
+                "TRUE": "Oui",
+                "FALSE": "Non"
+            },
+            "Status": {
+                "ACTIVE": "Active",
+                "APPROVED": "Approuvée",
+                "EXPIRED": "Expirée",
+                "IN_PROGRESS": "En cours",
+                "PENDING": "En attente",
+                "REFUSED": "Refusée",
+                "UPCOMING": "À venir",
+                "VALIDATED": "Validée"
+            }
+        },
+        "Form": {
+            "Actions": {
+                "Submit": "Enregistrer",
+                "Reset": "Réinitialiser"
+            },
+            "Acknowledgment": {
+                "Terms": {
+                    "WithLink": "J'ai lu et j'accepte les <a class=\"{{classCss}}\" href=\"{{href}}\" target=\"{{target}}\" rel=\"{{rel}}\">conditions d'utilisations</a>.",
+                    "TextOnly": "J'ai lu et j'accepte les conditions d'utilisations."
+                },
+                "Required": "Vous devez accepter les conditions d'utilisations pour soumettre la demande."
+            },
+            "Beneficiary": {
+                "Title": "Bénéficiaire",
+                "Subtitle": "Auteur et portée de la demande.",
+                "Author": "Auteur",
+                "Scope": {
+                    "Label": "Portée",
+                    "Organism": "Mon organisme",
+                    "Required": "La portée est obligatoire.",
+                    "User": "Moi uniquement"
+                }
+            },
+            "Data": {
+                "Title": "Données concernées",
+                "Subtitle": "Taxons et zones géographiques concernées.",
+                "TaxaField": {
+                    "Label": "Taxons",
+                    "Required": "Vous devez sélectionner au moins un taxon.",
+                    "Remove": "Retirer ce taxon"
+                },
+                "AreaField": {
+                    "Label": "Zones géographiques"
+                },
+                "Sensitivity": {
+                    "Label": "Inclure les données sensibles",
+                    "Yes": "Oui",
+                    "No": "Non"
+                },
+                "ShowData": "Visualiser les données concernées"
+            },
+            "Description": {
+                "Title": "Description",
+                "Subtitle": "",
+                "Empty": "Non renseigné !",
+                "Placeholder": "Décrivez le besoin ou le contexte."
+            },
+            "Validation": {
+                "Comment": "Commentaire de validation",
+                "Validator": "Validateur"
+            },
+            "Validity": {
+                "Title": "Fenêtre de validité",
+                "Subtitle": "Période pendant laquelle la permission est requise.",
+                "CreationDate": "Date de création",
+                "ExpirationDate": "Date d'expiration",
+                "Required": "La date d'expiration est obligatoire.",
+                "invalidDate": "La date de création doit être antérieure à la date d'expiration."
+            }
+        },
+        "List": {
+            "Actions": {
+                "Create": "Nouvelle demande",
+                "Delete": "Supprimer",
+                "Read": "Voir",
+                "Update": "Éditer"
+            },
+            "Columns": {
+                "Areas": "Zone(s) géographique(s)",
+                "Author": "Auteur",
+                "CreationDate": "Créée le",
+                "ExpirationDate": "Expire le",
+                "Id": "ID",
+                "Scope": "Portée",
+                "Sensitivity": "Sensibilité",
+                "Status": "Statut",
+                "Taxa": "Groupe(s) Taxonomique(s)",
+                "Validator": "Validateur"
+            },
+            "EmptyState": {
+                "Message": "Aucune demande de permission trouvée."
+            },
+            "Filters": {
+                "Labels": {
+                    "MyValidations": "Mes validations",
+                    "Scope": "Portée",
+                    "Sensitivity": "Sensibilité",
+                    "Status": "Statut"
+                }
+            }
+        },
+        "ValidationDialog": {
+            "Actions": {
+                "Cancel": "Annuler",
+                "Reset": "Réinitialiser",
+                "Validate": "Valider"
+            },
+            "Status": {
+                "Title": "Statut de validation",
+                "Approve": "Valider",
+                "ApprovedHint": "Cette demande sera considérée comme « {{ date_status_label }} ».",
+                "InProgress": "En cours",
+                "Refuse": "Refuser"
+            },
+            "Message": {
+                "Title": "Message à transmettre lors de cette validation",
+                "Label":"Message (optionnel)",
+                "Placeholder": "Saisissez un message à transmettre au demandeur (ex: conditions d'utilisation particulières, explications sur le refus...)"
+            },
+            "Title": "Valider la demande de permission"
+        }
+    }
+}

@@ -1,9 +1,15 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Routes, RouterModule } from '@angular/router';
-import { HttpClientXsrfModule } from '@angular/common/http';
-import { GN2CommonModule } from '@geonature_common/GN2Common.module';
+import { HttpClientXsrfModule, HttpClient } from '@angular/common/http';
+
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
+
+import { GN2CommonModule } from '@geonature_common/GN2Common.module';
+import { ConfigService } from '@geonature/services/config.service';
+import { I18nService } from '@geonature/shared/translate/i18n-service';
+import { CustomTranslateLoader } from '@geonature/shared/translate/custom-loader';
 
 import { PermissionRequestService } from './services/permissionRequest.service';
 import { ListPageComponent } from './pages/list/list.component';
@@ -53,6 +59,10 @@ export const routes: Routes = [
   },
 ];
 
+export function createTranslateLoader(http: HttpClient, config: ConfigService) {
+  return new CustomTranslateLoader(http, config, { moduleName: 'permrequests' });
+}
+
 @NgModule({
   imports: [
     HttpClientXsrfModule.withOptions({
@@ -63,13 +73,33 @@ export const routes: Routes = [
     GN2CommonModule,
     NgbModule,
     RouterModule.forChild(routes),
+    // I18n
+    TranslateModule.forChild({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: createTranslateLoader,
+        deps: [HttpClient, ConfigService],
+      },
+      isolate: true,
+      extend: true,
+    }),
     // Module pages
     EditPageComponent,
     InfoPageComponent,
     NewPageComponent,
     ListPageComponent,
   ],
+  declarations: [],
   providers: [PermissionRequestService, PermissionRequestResolver],
   bootstrap: [],
 })
-export class GeonatureModule {}
+export class GeonatureModule {
+  constructor(
+    private translateService: TranslateService,
+    private i18nService: I18nService
+  ) {
+    // Workaround to force translation loaded for LazyModule.
+    // See: https://github.com/ngx-translate/core/issues/1302
+    this.i18nService.initializeModuleTranslateService(this.translateService);
+  }
+}

@@ -2,8 +2,11 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 
+import { TranslateService } from '@ngx-translate/core';
+
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { ModuleService } from '@geonature/services/module.service';
+import { I18nService } from '@geonature/shared/translate/i18n-service';
 
 import { PermissionRequest } from '../../models/permissionRequest';
 import { ModuleLayoutComponent } from '../module-layout/module-layout.component';
@@ -52,6 +55,10 @@ export class PermissionRequestLayoutComponent {
 
   constructor(
     private _modules: ModuleService,
-    private _router: Router
-  ) {}
+    private _router: Router,
+    private _i18nService: I18nService,
+    private _translateService: TranslateService
+  ) {
+    this._i18nService.initializeModuleTranslateService(this._translateService);
+  }
 }

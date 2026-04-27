@@ -10,10 +10,10 @@
           <mat-card-header>
             <mat-card-title>
               <mat-icon class="Card__titleIcon">{{ sections.beneficiary.icon }}</mat-icon>
-              {{ sections.beneficiary.title }}
+              {{ 'Permrequests.Form.Beneficiary.Title' | translate }}
             </mat-card-title>
-            <mat-card-subtitle *ngIf="sections.beneficiary.subtitle">
-              {{ sections.beneficiary.subtitle }}
+            <mat-card-subtitle>
+              {{ 'Permrequests.Form.Beneficiary.Subtitle' | translate }}
             </mat-card-subtitle>
           </mat-card-header>
           <mat-card-content class="Card__content">
@@ -21,12 +21,12 @@
               class="Field Field--inline"
               *ngIf="authorName"
             >
-              <div class="Field__label">Auteur</div>
+              <div class="Field__label">{{ 'Permrequests.Form.Beneficiary.Author' | translate }}</div>
               <div>{{ authorName }}</div>
             </div>
 
             <div class="Field">
-              <div class="Field__label">Portée</div>
+              <div class="Field__label">{{ 'Permrequests.Form.Beneficiary.Scope.Label' | translate }}</div>
               <div class="Field__radio">
                 <label>
                   <input
@@ -34,7 +34,7 @@
                     formControlName="scope"
                     [value]="PermissionRequestScope.USER"
                   />
-                  Moi uniquement
+                  {{ 'Permrequests.Form.Beneficiary.Scope.User' | translate }}
                 </label>
                 <label>
                   <input
@@ -42,14 +42,14 @@
                     formControlName="scope"
                     [value]="PermissionRequestScope.ORGANISM"
                   />
-                  Mon organisme
+                  {{ 'Permrequests.Form.Beneficiary.Scope.Organism' | translate }}
                 </label>
               </div>
               <div
                 class="Field__error"
                 *ngIf="scopeControl?.hasError('required') && scopeControl?.touched"
               >
-                La portée est obligatoire.
+                {{ 'Permrequests.Form.Beneficiary.Scope.Required' | translate }}
               </div>
             </div>
           </mat-card-content>
@@ -59,10 +59,10 @@
           <mat-card-header>
             <mat-card-title>
               <mat-icon class="Card__titleIcon">{{ sections.description.icon }}</mat-icon>
-              {{ sections.description.title }}
+              {{ 'Permrequests.Form.Description.Title' | translate }}
             </mat-card-title>
-            <mat-card-subtitle *ngIf="sections.description.subtitle">
-              {{ sections.description.subtitle }}
+            <mat-card-subtitle>
+              {{ 'Permrequests.Form.Description.Subtitle' | translate }}
             </mat-card-subtitle>
           </mat-card-header>
           <mat-card-content class="Card__content">
@@ -71,7 +71,7 @@
                 id="description"
                 rows="6"
                 formControlName="description"
-                placeholder="Décrivez le besoin ou le contexte"
+                placeholder="{{ 'Permrequests.Form.Description.Placeholder' | translate }}"
               ></textarea>
             </div>
           </mat-card-content>
@@ -83,16 +83,18 @@
           <mat-card-header>
             <mat-card-title>
               <mat-icon class="Card__titleIcon">{{ sections.validity.icon }}</mat-icon>
-              {{ sections.validity.title }}
+              {{ 'Permrequests.Form.Validity.Title' | translate }}
             </mat-card-title>
-            <mat-card-subtitle *ngIf="sections.validity.subtitle">
-              {{ sections.validity.subtitle }}
+            <mat-card-subtitle>
+              {{ 'Permrequests.Form.Validity.Subtitle' | translate }}
             </mat-card-subtitle>
           </mat-card-header>
           <mat-card-content class="Card__content">
             <div class="Dates">
               <div class="Field">
-                <label class="Field__label">Date de creation</label>
+                <label class="Field__label">
+                  {{ 'Permrequests.Form.Validity.CreationDate' | translate }}
+                </label>
                 <label>
                   {{ permissionRequest?.created_on || today | date: 'dd/MM/yyyy' }}
                 </label>
@@ -103,7 +105,7 @@
                   class="Field__label"
                   for="expiration_date"
                 >
-                  Date d'expiration
+                  {{ 'Permrequests.Form.Validity.ExpirationDate' | translate }}
                 </label>
                 <pnx-date
                   id="expiration_date"
@@ -117,7 +119,7 @@
                     expirationDateControl?.hasError('required') && expirationDateControl?.touched
                   "
                 >
-                  La date d'expiration est obligatoire.
+                  {{ 'Permrequests.Form.Validity.Required' | translate }}
                 </div>
               </div>
             </div>
@@ -129,7 +131,7 @@
                 (createdOnControl?.touched || expirationDateControl?.touched)
               "
             >
-              La date de creation doit etre anterieure a la date d'expiration.
+              {{ 'Permrequests.Form.Validity.invalidDate' | translate }}
             </div>
           </mat-card-content>
         </mat-card>
@@ -138,10 +140,10 @@
           <mat-card-header>
             <mat-card-title>
               <mat-icon class="Card__titleIcon">{{ sections.data.icon }}</mat-icon>
-              {{ sections.data.title }}
+              {{ 'Permrequests.Form.Data.Title' | translate }}
             </mat-card-title>
-            <mat-card-subtitle *ngIf="sections.data.subtitle">
-              {{ sections.data.subtitle }}
+            <mat-card-subtitle>
+              {{ 'Permrequests.Form.Data.Subtitle' | translate }}
             </mat-card-subtitle>
           </mat-card-header>
           <mat-card-content class="Card__content">
@@ -151,7 +153,7 @@
                   class="Field__label"
                   for="taxa"
                 >
-                  Taxons
+                  {{ 'Permrequests.Form.Data.TaxaField.Label' | translate }}
                 </label>
                 <pnx-taxonomy
                   id="taxa"
@@ -172,8 +174,8 @@
                         mat-icon-button
                         color="warn"
                         (click)="removeTaxon(taxon.cd_nom)"
-                        matTooltip="Retirer ce taxon"
-                        aria-label="Retirer ce taxon"
+                        matTooltip="{{ 'Permrequests.Form.Data.TaxaField.Remove' | translate }}"
+                        aria-label="{{ 'Permrequests.Form.Data.TaxaField.Remove' | translate }}"
                       >
                         <mat-icon>close</mat-icon>
                       </button>
@@ -184,7 +186,7 @@
                   class="Field__error"
                   *ngIf="taxaControl?.hasError('required') && taxaControl?.touched"
                 >
-                  Vous devez sélectionner au moins un taxon.
+                  {{ 'Permrequests.Form.Data.TaxaField.Required' | translate }}
                 </div>
               </div>
 
@@ -193,7 +195,7 @@
                   class="Field__label"
                   for="areas"
                 >
-                  Zones géographiques
+                  {{ 'Permrequests.Form.Data.AreaField.Label' | translate }}
                 </label>
                 <pnx-areas
                   id="areas"
@@ -204,13 +206,16 @@
                 ></pnx-areas>
               </div>
             </div>
-            <div class="Field Field--inline-check">
+            <div
+              class="Field Field--inline-check"
+              *ngIf="shouldDisplaySensitivityFilter"
+            >
               <label class="Field__label">
                 <input
                   type="checkbox"
                   formControlName="sensitivity_filter"
                 />
-                Inclure les données sensibles
+                {{ 'Permrequests.Form.Data.Sensitivity.Label' | translate }}
               </label>
             </div>
           </mat-card-content>
@@ -233,7 +238,7 @@
       (click)="onReset()"
       [disabled]="form.pristine || isSaving || isSameAsPermissionRequest"
     >
-      Réinitialiser
+      {{ 'Permrequests.Form.Actions.Reset' | translate }}
     </button>
     <button
       type="submit"
@@ -241,7 +246,7 @@
       color="primary"
       [disabled]="form.invalid || form.pristine || isSaving || isSameAsPermissionRequest"
     >
-      Enregistrer
+      {{ 'Permrequests.Form.Actions.Submit' | translate }}
     </button>
   </div>
 </form>

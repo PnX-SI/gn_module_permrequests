@@ -4,9 +4,12 @@ import { RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 
+import { TranslateService } from '@ngx-translate/core';
+
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { ConfirmationDialog } from '@geonature_common/others/modal-confirmation/confirmation.dialog';
 import { ModuleService } from '@geonature/services/module.service';
+import { I18nService } from '@geonature/shared/translate/i18n-service';
 
 import { PermissionRequest } from '../../models/permissionRequest';
 import {
@@ -14,7 +17,6 @@ import {
   ValidatedPayload,
 } from '../../services/permissionRequest.service';
 import { ROUTE_PATHS } from '../../gnModule.module';
-import { STATUS_LABELS } from '../../models/status';
 import {
   ValidationDescriptionDialogComponent,
   ValidationDescriptionDialogData,
@@ -28,13 +30,16 @@ import {
   imports: [GN2CommonModule, CommonModule, RouterModule, MatButtonModule],
 })
 export class PermissionRequestToolbarComponent {
-  readonly STATUS_LABELS = STATUS_LABELS;
 
   constructor(
     private _permissionRequestService: PermissionRequestService,
     private _dialog: MatDialog,
-    private _moduleService: ModuleService
-  ) {}
+    private _moduleService: ModuleService,
+    private _translateService: TranslateService,
+    private _i18nService: I18nService,
+  ) {
+    this._i18nService.initializeModuleTranslateService(this._translateService);
+  }
 
   @Input()
   permissionRequest: PermissionRequest | null = null;
