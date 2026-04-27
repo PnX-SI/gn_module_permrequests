@@ -79,7 +79,7 @@ export class PermissionRequestFormComponent {
     private _router: Router,
     private _authService: AuthService
   ) {
-    const moduleConfig = this._configService.PERMISSION_REQUEST ?? {};
+    const moduleConfig = this._configService.PERMREQUESTS ?? {};
     this.shouldDisplayAcknowledgement = !!moduleConfig.REQUIRE_TERMS_ACKNOWLEDGEMENT;
     this._setupValidators();
     this._setupAcknowledgementControl();

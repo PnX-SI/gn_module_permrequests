@@ -29,7 +29,7 @@ export class AcknowledgementComponent {
     private controlContainer: ControlContainer,
     private _configService: ConfigService
   ) {
-    const moduleConfig = this._configService.PERMISSION_REQUEST ?? {};
+    const moduleConfig = this._configService.PERMREQUESTS ?? {};
     this.termsLink = this._buildTermsLink(moduleConfig.TERMS_ACKNOWLEDGEMENT ?? null);
   }
 
