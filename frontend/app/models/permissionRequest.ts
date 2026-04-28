@@ -27,6 +27,7 @@ export interface PermissionRequestRole {
 export interface PermissionRequestTaxon {
   cd_nom: number;
   lb_nom: string;
+  nom_valide: string | null;
 }
 
 export interface PermissionRequestArea {

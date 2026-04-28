@@ -120,18 +120,10 @@
                 <pnx-taxonomy id="taxa" [parentFormControl]="taxonSearchControl" charNumber="3" listLength="20"
                   (onChange)="onTaxonSelected($event)"></pnx-taxonomy>
                 <div class="Field__selectedTaxa" *ngIf="taxaControl?.value?.length">
-                  <ul>
-                    <li *ngFor="let taxon of taxaControl?.value">
-                      <span [innerHtml]="taxon.search_name"></span>
-                      <button type="button" mat-icon-button color="warn" (click)="removeTaxon(taxon.cd_nom)"
-                        matTooltip="Retirer ce taxon" aria-label="Retirer ce taxon">
-                        <mat-icon>close</mat-icon>
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-                <div class="Field__error" *ngIf="taxaControl?.hasError('required') && taxaControl?.touched">
-                  Vous devez sélectionner au moins un taxon.
+                  <span class="Chip" *ngFor="let taxon of taxaControl?.value">
+                    {{ taxon.nom_valide || taxon.lb_nom }}
+                    <button type="button" (click)="removeTaxon(taxon.cd_nom)" aria-label="Retirer ce taxon">×</button>
+                  </span>
                 </div>
               </div>
 

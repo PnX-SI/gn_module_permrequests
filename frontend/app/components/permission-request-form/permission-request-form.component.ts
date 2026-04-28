@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -121,7 +121,7 @@ export class PermissionRequestFormComponent {
       scope: [DEFAULT_SCOPE, [Validators.required]],
       sensitivity_filter: [true],
       acknowledgeTerms: [false],
-      taxa: [[], Validators.required],
+      taxa: [[]],
       taxon_search: [''],
       areas: [[], Validators.required],
     });
@@ -187,7 +187,7 @@ export class PermissionRequestFormComponent {
               `/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.permissionRequest(updatedPermissionRequest.id_permission_request)}`,
             ]);
           },
-          error: (error: any) => {
+          error: (_error: any) => {
             // TODO: throw notifications
           },
         });
@@ -205,7 +205,7 @@ export class PermissionRequestFormComponent {
               `/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.permissionRequest(createdPermissionRequest.id_permission_request)}`,
             ]);
           },
-          error: (error: any) => {
+          error: (_error: any) => {
             // TODO: throw notifications
           },
         });
@@ -266,12 +266,8 @@ export class PermissionRequestFormComponent {
   }
 
   private _normalizeDateValue(value: NgbDateStruct | string | null | undefined): string | null {
-    if (!value) {
-      return null;
-    }
-    if (typeof value === 'string') {
-      return value || null;
-    }
+    if (!value) return null;
+    if (typeof value === 'string') return value || null;
     return this._dateParser.format(value) as unknown as string;
   }
 
@@ -289,28 +285,24 @@ export class PermissionRequestFormComponent {
       });
       this.selectedAreasDefaultItems = [];
     } else {
-      const createdOnStruct = this.permissionRequest.created_on
-        ? this._dateParser.parse(this.permissionRequest.created_on)
-        : null;
-      const expirationStruct = this.permissionRequest.expiration_date
-        ? this._dateParser.parse(this.permissionRequest.expiration_date)
-        : null;
       this.form.patchValue({
         description: this.permissionRequest.description,
-        created_on: createdOnStruct,
-        expiration_date: expirationStruct,
+        expiration_date: this.permissionRequest.expiration_date
+          ? this._dateParser.parse(this.permissionRequest.expiration_date)
+          : null,
         scope: this.permissionRequest.scope ?? DEFAULT_SCOPE,
         sensitivity_filter: !!this.permissionRequest.sensitivity_filter,
         acknowledgeTerms: true,
-        taxa: (this.permissionRequest.taxa || []).map((taxon) => ({
+        taxa: (this.permissionRequest.taxa ?? []).map((taxon) => ({
           cd_nom: taxon.cd_nom,
           lb_nom: taxon.lb_nom,
-          displayName: taxon.lb_nom,
+          nom_valide: taxon.nom_valide,
+          displayName: taxon.nom_valide ?? taxon.lb_nom,
         })),
         taxon_search: '',
-        areas: (this.permissionRequest.areas || []).map((area) => area.id_area),
+        areas: (this.permissionRequest.areas ?? []).map((area) => area.id_area),
       });
-      this.selectedAreasDefaultItems = (this.permissionRequest.areas || []).map((area) => ({
+      this.selectedAreasDefaultItems = (this.permissionRequest.areas ?? []).map((area) => ({
         id_area: area.id_area,
         area_name: area.area_name,
         displayName: area.area_name,
@@ -320,104 +312,50 @@ export class PermissionRequestFormComponent {
     this.form.updateValueAndValidity({ emitEvent: false });
   }
 
-  get expirationDateControl() {
-    return this.form.get('expiration_date');
-  }
-
-  get createdOnControl() {
-    return this.form.get('created_on');
-  }
-
-  get acknowledgeTermsControl() {
-    return this.form.get('acknowledgeTerms');
-  }
-
-  get scopeControl() {
-    return this.form.get('scope');
-  }
-
-  get sensitivityFilterControl() {
-    return this.form.get('sensitivity_filter');
-  }
-
-  get taxaControl() {
-    return this.form.get('taxa');
-  }
-
-  get taxonSearchControl() {
-    return this.form.get('taxon_search');
-  }
-
-  get areasControl() {
-    return this.form.get('areas');
-  }
+  get expirationDateControl() { return this.form.get('expiration_date'); }
+  get createdOnControl() { return this.form.get('created_on'); }
+  get acknowledgeTermsControl() { return this.form.get('acknowledgeTerms'); }
+  get scopeControl() { return this.form.get('scope'); }
+  get sensitivityFilterControl() { return this.form.get('sensitivity_filter'); }
+  get taxaControl() { return this.form.get('taxa'); }
+  get taxonSearchControl() { return this.form.get('taxon_search'); }
+  get areasControl() { return this.form.get('areas'); }
 
   private _extractTaxaIdentifiers(value: any): number[] {
-    if (!Array.isArray(value)) {
-      return [];
-    }
+    if (!Array.isArray(value)) return [];
     return value
       .map((item) => {
-        if (!item) {
-          return null;
-        }
-        if (typeof item === 'number') {
-          return item;
-        }
-        if (typeof item === 'string' && item.trim() !== '') {
-          const parsed = Number(item);
-          return Number.isNaN(parsed) ? null : parsed;
-        }
-        if (typeof item === 'object' && 'cd_nom' in item) {
-          return Number(item['cd_nom']);
-        }
+        if (!item) return null;
+        if (typeof item === 'number') return item;
+        if (typeof item === 'string' && item.trim()) return Number(item) || null;
+        if (typeof item === 'object' && 'cd_nom' in item) return Number(item['cd_nom']);
         return null;
       })
-      .filter((taxonId): taxonId is number => taxonId !== null);
+      .filter((id): id is number => id !== null && Number.isFinite(id));
   }
 
   private _extractAreaIdentifiers(value: any): number[] {
-    if (!Array.isArray(value)) {
-      return [];
-    }
+    if (!Array.isArray(value)) return [];
     return value
       .map((item) => {
-        if (item === null || item === undefined) {
-          return null;
-        }
-        if (typeof item === 'number') {
-          return item;
-        }
-        if (typeof item === 'string' && item.trim() !== '') {
-          const parsed = Number(item);
-          return Number.isNaN(parsed) ? null : parsed;
-        }
-        if (typeof item === 'object' && 'id_area' in item) {
-          return Number(item['id_area']);
-        }
+        if (item === null || item === undefined) return null;
+        if (typeof item === 'number') return item;
+        if (typeof item === 'string' && item.trim()) return Number(item) || null;
+        if (typeof item === 'object' && 'id_area' in item) return Number(item['id_area']);
         return null;
       })
-      .filter((areaId): areaId is number => areaId !== null);
+      .filter((id): id is number => id !== null && Number.isFinite(id));
   }
 
   onTaxonSelected(event: NgbTypeaheadSelectItemEvent<Taxon>): void {
+    event.preventDefault();
     const item = event.item;
-    if (!item || item.cd_nom === undefined || item.cd_nom === null) {
-      return;
-    }
+    if (!item || item.cd_nom == null) { this._resetTaxonSearchControl(); return; }
     const cd_ref = Number(item.cd_ref);
-    if (!Number.isFinite(cd_ref)) {
-      this._resetTaxonSearchControl();
-      return;
-    }
+    if (!Number.isFinite(cd_ref)) { this._resetTaxonSearchControl(); return; }
     const currentTaxa = (this.taxaControl?.value as any[]) ?? [];
-    const alreadySelected = currentTaxa.some((taxon) => taxon.cd_nom === cd_ref);
-    if (alreadySelected) {
-      this._resetTaxonSearchControl();
-      return;
-    }
-    currentTaxa.push(item);
-    this.taxaControl?.setValue(currentTaxa);
+    if (currentTaxa.some((t) => t.cd_nom === cd_ref)) { this._resetTaxonSearchControl(); return; }
+    this.taxaControl?.setValue([...currentTaxa, item]);
     this.taxaControl?.markAsDirty();
     this.taxaControl?.markAsTouched();
     this.taxaControl?.updateValueAndValidity({ emitEvent: false });
@@ -425,9 +363,8 @@ export class PermissionRequestFormComponent {
   }
 
   removeTaxon(cd_nom: number): void {
-    const currentTaxa = (this.taxaControl?.value as any[]) ?? [];
-    const updatedTaxa = currentTaxa.filter((taxon) => taxon.cd_nom !== cd_nom);
-    this.taxaControl?.setValue(updatedTaxa);
+    const updated = ((this.taxaControl?.value as any[]) ?? []).filter((t) => t.cd_nom !== cd_nom);
+    this.taxaControl?.setValue(updated);
     this.taxaControl?.markAsDirty();
     this.taxaControl?.markAsTouched();
     this.taxaControl?.updateValueAndValidity({ emitEvent: false });
@@ -440,8 +377,6 @@ export class PermissionRequestFormComponent {
   }
 
   private _resetTaxonSearchControl(): void {
-    this.taxonSearchControl?.setValue('', { emitEvent: false });
-    this.taxonSearchControl?.markAsPristine();
-    this.taxonSearchControl?.markAsUntouched();
+    this.taxonSearchControl?.reset();
   }
 }
