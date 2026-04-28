@@ -117,7 +117,7 @@ def create_permission_request(
             description=description,
             validation_description=validation_description,
         )
-        permission_request.permission = permission
+        permission_request.permissions.append(permission)
         db.session.add(permission_request)
         db.session.flush()
         db.session.refresh(permission_request)
@@ -213,9 +213,9 @@ def test_create_permission_request_success(client, users, taxon_ids, area_ids):
     assert data["created_on"] == created_on.isoformat()
     created = db.session.get(PermissionRequest, data["id_permission_request"])
     assert created is not None
-    assert created.permission is not None
-    assert len(created.permission.taxons_filter) == len(taxon_ids[:2])
-    assert sorted(area.id_area for area in created.permission.areas_filter) == sorted(area_ids[:2])
+    assert created.permissions
+    assert len(created._ref_permission.taxons_filter) == len(taxon_ids[:2])
+    assert sorted(area.id_area for area in created._ref_permission.areas_filter) == sorted(area_ids[:2])
 
 
 def test_create_permission_request_rejects_invalid_taxa(client, users):
@@ -272,9 +272,9 @@ def test_update_permission_request_updates_fields(client, users, taxon_ids, area
     data = response.get_json()
     assert data["description"] == update_payload["description"]
     reloaded = db.session.get(PermissionRequest, created.id_permission_request)
-    assert reloaded.permission.sensitivity_filter is False
-    assert [tax.cd_nom for tax in reloaded.permission.taxons_filter] == update_payload["taxa"]
-    assert sorted(area.id_area for area in reloaded.permission.areas_filter) == sorted(
+    assert reloaded._ref_permission.sensitivity_filter is False
+    assert [tax.cd_nom for tax in reloaded._ref_permission.taxons_filter] == update_payload["taxa"]
+    assert sorted(area.id_area for area in reloaded._ref_permission.areas_filter) == sorted(
         update_payload["areas"]
     )
 

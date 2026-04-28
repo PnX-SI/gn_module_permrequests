@@ -40,7 +40,7 @@ export interface PermissionRequestArea {
 
 export interface PermissionRequestCustomArea {
   id_custom_area: number;
-  id_permission_request: number;
+  id_permission_request: number | null;
   geojson_data: object;
   file_name: string | null;
 }
