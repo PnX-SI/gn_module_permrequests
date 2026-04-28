@@ -86,6 +86,22 @@
         &--synthese {
           max-width: 400px;
         }
+
+        &__warning {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          margin-top: 0.4rem;
+          font-size: 0.85rem;
+          color: #e65100;
+
+          mat-icon {
+            font-size: 1rem;
+            width: 1rem;
+            height: 1rem;
+            flex-shrink: 0;
+          }
+        }
       }
     }
   }
@@ -93,5 +109,18 @@
   &__list {
     margin: 0;
     padding-left: 1.25rem;
+  }
+
+  &__customArea {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    mat-icon {
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+      line-height: 1;
+    }
   }
 }

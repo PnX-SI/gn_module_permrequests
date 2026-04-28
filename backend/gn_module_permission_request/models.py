@@ -4,6 +4,7 @@ from flask import g
 
 import sqlalchemy as sa
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.dialects.postgresql import JSONB
 
 from geonature.utils.env import DB
 from geonature.core.gn_permissions.models import Permission
@@ -20,6 +21,27 @@ PRIMARY_KEY = "id_permission_request"
 
 SCOPE_USER = "USER"
 SCOPE_ORGANISM = "ORGANISM"
+
+
+class CustomArea(DB.Model):
+    __tablename__ = "t_custom_area"
+    __table_args__ = {"schema": SCHEMA_NAME}
+
+    id_custom_area = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
+    id_permission_request = DB.Column(
+        DB.Integer,
+        DB.ForeignKey(f"{SCHEMA_NAME}.{TABLE_NAME}.{PRIMARY_KEY}", ondelete="CASCADE"),
+        nullable=True,
+        unique=True,
+    )
+    geojson_data = DB.Column(JSONB, nullable=False)
+    file_name = DB.Column(DB.Text, nullable=True)
+
+    permission_request = DB.relationship(
+        "PermissionRequest",
+        back_populates="custom_area",
+        uselist=False,
+    )
 
 
 class PermissionRequest(DB.Model):
@@ -70,6 +92,14 @@ class PermissionRequest(DB.Model):
         single_parent=True,
         lazy="joined",
         backref=DB.backref("permission_request", uselist=False),
+    )
+    custom_area = DB.relationship(
+        CustomArea,
+        foreign_keys=[CustomArea.id_permission_request],
+        uselist=False,
+        cascade="all, delete-orphan",
+        lazy="joined",
+        back_populates="permission_request",
     )
 
     @classmethod

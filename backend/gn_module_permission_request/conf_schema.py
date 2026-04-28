@@ -18,6 +18,7 @@ class GnModuleSchemaConf(Schema):
         fields.String(),
         load_default=["COM", "DEP", "REG"],
     )
+    ALLOW_CUSTOM_AREA = fields.Boolean(load_default=False)
     REQUIRE_TERMS_ACKNOWLEDGEMENT = fields.Boolean(load_default=True)
     TERMS_ACKNOWLEDGEMENT = fields.Nested(
         TermsAcknowledgementSchemaConf,

@@ -128,12 +128,54 @@
               </div>
 
               <div class="Field">
-                <label class="Field__label" for="areas">
+                <label class="Field__label">
                   Zones géographiques
                 </label>
-                <pnx-areas id="areas" [typeCodes]="['COM', 'DEP', 'REG']" [parentFormControl]="areasControl"
-                  [defaultItems]="selectedAreasDefaultItems"
-                  (onSelectionChange)="onAreasSelectionChange($event)"></pnx-areas>
+
+                <div class="Field__radio Field__radio--area-mode" *ngIf="allowCustomArea">
+                  <label>
+                    <input type="radio" formControlName="area_mode" value="existing"
+                      (change)="onAreaModeChange('existing')" />
+                    Sélectionner une zone existante
+                  </label>
+                  <label>
+                    <input type="radio" formControlName="area_mode" value="custom"
+                      (change)="onAreaModeChange('custom')" />
+                    Charger un GeoJSON personnalisé
+                  </label>
+                </div>
+
+                <div [hidden]="allowCustomArea && isCustomAreaMode">
+                  <pnx-areas id="areas" [typeCodes]="['COM', 'DEP', 'REG']" [parentFormControl]="areasControl"
+                    [defaultItems]="selectedAreasDefaultItems"
+                    (onSelectionChange)="onAreasSelectionChange($event)"></pnx-areas>
+                  <div class="Field__error" *ngIf="!isAreaValid && areasControl?.touched">
+                    Vous devez sélectionner au moins une zone géographique.
+                  </div>
+                </div>
+
+                <div [hidden]="!allowCustomArea || !isCustomAreaMode">
+                  <div class="Field Field--geojson">
+                    <div class="input-group">
+                      <div class="custom-file">
+                        <input
+                          type="file"
+                          class="custom-file-input"
+                          id="geojson_file"
+                          accept=".geojson,.json"
+                          (change)="onGeoJsonFileChange($event)"
+                        />
+                        <label class="custom-file-label" for="geojson_file">
+                          {{ selectedGeoJsonFileName || permissionRequest?.custom_area?.file_name || 'Choisir un fichier' }}
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="Field__error" *ngIf="geoJsonParseError">
+                      {{ geoJsonParseError }}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="Field Field--inline-check">
@@ -156,7 +198,7 @@
       Réinitialiser
     </button>
     <button type="submit" mat-flat-button color="primary"
-      [disabled]="form.invalid || form.pristine || isSaving || isSameAsPermissionRequest">
+      [disabled]="form.invalid || !isAreaValid || form.pristine || isSaving || isSameAsPermissionRequest">
       Enregistrer
     </button>
   </div>

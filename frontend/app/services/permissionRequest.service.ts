@@ -13,6 +13,12 @@ export interface PermissionRequestListResponse {
 }
 
 export type PermissionRequestResponse = PermissionRequest;
+
+export interface CustomAreaPayload {
+  geojson: object;
+  file_name?: string | null;
+}
+
 export interface PermissionRequestPayload {
   description: string | null;
   expiration_date: string;
@@ -20,6 +26,7 @@ export interface PermissionRequestPayload {
   sensitivity_filter?: boolean;
   taxa: number[];
   areas: number[];
+  custom_area?: CustomAreaPayload | null;
 }
 
 export interface ValidatedPayload {
@@ -41,6 +48,7 @@ export class PermissionRequestService {
       { params: params }
     );
   }
+
   getPermissionRequest(id_permission_request: number): Observable<PermissionRequestResponse> {
     return this._http.get<PermissionRequestResponse>(
       `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/${id_permission_request}`
@@ -61,24 +69,22 @@ export class PermissionRequestService {
     };
   }
 
+  createPermissionRequest(
+    payload: PermissionRequestPayload
+  ): Observable<PermissionRequestResponse> {
+    return this._http.post<PermissionRequestResponse>(
+      `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/`,
+      this._serializePayload(payload)
+    );
+  }
+
   updatePermissionRequest(
     permissionRequest: PermissionRequest,
     payload: PermissionRequestPayload
   ): Observable<PermissionRequestResponse> {
-    payload = this._serializePayload(payload);
     return this._http.patch<PermissionRequestResponse>(
       `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/${permissionRequest.id_permission_request}`,
-      payload
-    );
-  }
-
-  createPermissionRequest(
-    payload: PermissionRequestPayload
-  ): Observable<PermissionRequestResponse> {
-    payload = this._serializePayload(payload);
-    return this._http.post<PermissionRequestResponse>(
-      `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/`,
-      payload
+      this._serializePayload(payload)
     );
   }
 
@@ -103,5 +109,15 @@ export class PermissionRequestService {
       `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/${id_permission_request}/validated`,
       null
     );
+  }
+
+  getMapData(id_permission_request: number): Observable<object> {
+    return this._http.get<object>(
+      `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/${id_permission_request}/map-data`
+    );
+  }
+
+  getCustomAreaDownloadUrl(id_permission_request: number): string {
+    return `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/${id_permission_request}/custom-area/download`;
   }
 }
