@@ -197,7 +197,16 @@
     justify-content: flex-end;
     align-items: center;
     column-gap: 0.5rem;
-    padding-top: 0.5rem;
+    padding-top: 0.75rem;
     border-top: 1px solid rgba(0, 0, 0, 0.125);
+  }
+
+  &__validationWarning {
+    font-size: 0.875rem;
+    color: #e65100;
+
+    mat-icon {
+      vertical-align: middle;
+    }
   }
 }

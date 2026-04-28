@@ -886,6 +886,12 @@ def update_permission_request(scope, id_permission_request):
     if permission_request is None:
         raise NotFound(f"Permission request {id_permission_request} not found")
 
+    if permission_request.validated is not None:
+        permission_request.validated = None
+        permission_request.id_validator = None
+        permission_request.validation_description = None
+        _sync_custom_area_to_l_areas(permission_request)
+
     if "description" in payload:
         permission_request.description = payload.get("description")
 
