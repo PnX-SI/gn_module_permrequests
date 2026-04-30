@@ -14,8 +14,12 @@ import { I18nService } from '@geonature/shared/translate/i18n-service';
 
 
 type TermsLink = {
+  classCss: string;
   href: string;
+  target: string;
+  rel: string;
 };
+
 
 @Component({
   standalone: true,
@@ -28,7 +32,6 @@ type TermsLink = {
 export class AcknowledgementComponent {
   @Input() controlName = '';
   termsLink: TermsLink | null = null;
-  readonly defaultTermsText = "conditions d'utilisations";
 
   constructor(
     private controlContainer: ControlContainer,
@@ -52,11 +55,14 @@ export class AcknowledgementComponent {
     if (!termsConfig || typeof termsConfig !== 'object') {
       return null;
     }
-    const url = this._normalizeConfigValue(termsConfig.URL);
 
+    const url = this._normalizeConfigValue(termsConfig.URL);
     if (url) {
       return {
         href: url,
+        classCss: termsConfig.CLASS_CSS || 'Acknowledgment__link',
+        target: '_blank',
+        rel: 'noopener',
       };
     }
 

@@ -4,19 +4,15 @@
       type="checkbox"
       [formControlName]="controlName"
     />
-    J'ai lu et j'accepte les
     <ng-container *ngIf="termsLink; else termsText">
-      <a
-        class="Acknowledgment__link"
-        [href]="termsLink.href"
-        target="_blank"
-        rel="noopener"
-      >
-        {{ defaultTermsText }}
-      </a>
-      .
+      &nbsp;
+      <span
+        [innerHTML]="'Permrequests.Form.Acknowledgment.Terms.WithLink' | translate: termsLink"
+      ></span>
     </ng-container>
-    <ng-template #termsText>{{ defaultTermsText }}.</ng-template>
+    <ng-template #termsText>
+      {{ 'Permrequests.Form.Acknowledgment.Terms.TextOnly' | translate }}
+    </ng-template>
   </label>
   <div
     class="Acknowledgment__error"

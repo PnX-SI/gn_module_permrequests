@@ -85,7 +85,7 @@ export class PermissionRequestFormComponent {
     private _i18nService: I18nService
   ) {
     const moduleConfig = this._configService.PERMREQUESTS ?? {};
-    this.shouldDisplayAcknowledgement = !!moduleConfig.REQUIRE_TERMS_ACKNOWLEDGEMENT;
+    this.shouldDisplayAcknowledgement = !!moduleConfig.TERMS_ACKNOWLEDGEMENT.REQUIRED;
     this.shouldDisplaySensitivityFilter = !!moduleConfig.SENSITIVITY_FILTER.DISPLAY_ENABLED;
     this.sensitivityFilterDefaultValue = !!moduleConfig.SENSITIVITY_FILTER.DEFAULT_VALUE;
     this._setupValidators();

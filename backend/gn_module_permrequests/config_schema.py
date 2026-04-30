@@ -6,8 +6,9 @@ from marshmallow import Schema, fields
 
 
 class TermsAcknowledgementSchemaConf(Schema):
+    REQUIRED = fields.Boolean(load_default=True)
     URL = fields.String(load_default="https://www.google.fr")
-
+    CLASS_CSS = fields.String(load_default="")
 
 class SensitivityFilterConfigSchema(Schema):
     DISPLAY_ENABLED = fields.Boolean(load_default=False)
@@ -22,7 +23,6 @@ class PermrequestsConfigSchema(Schema):
         fields.String(),
         load_default=["COM", "DEP", "REG"],
     )
-    REQUIRE_TERMS_ACKNOWLEDGEMENT = fields.Boolean(load_default=True)
     TERMS_ACKNOWLEDGEMENT = fields.Nested(
         TermsAcknowledgementSchemaConf,
         load_default=TermsAcknowledgementSchemaConf().load({}),

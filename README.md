@@ -94,8 +94,11 @@ GeoNature.
 
 - ``ALLOWED_SCOPES`` : liste des scopes autorisés pour les demandes (par défaut ``["USER", "ORGANISM"]``).
 - ``ALLOWED_AREA_TYPE_CODES`` : liste des types de zones autorisés (par défaut ``["COM", "DEP", "REG"]``).
-- ``REQUIRE_TERMS_ACKNOWLEDGEMENT`` : permet de faire apparaitre / dissimuler dans le formulaire une coche d'acceptation des termes et conditions.
-- ``TERMS_ACKNOWLEDGEMENT.URL`` : URL vers les conditions d'utilisations (ouvre un nouvel onglet).
+- ``TERMS_ACKNOWLEDGEMENT`` : section permetant de configurer la coche d'acceptation des termes et conditions des demandes d'accès. Le texte et le lien sont configurable via [la surcharge des fichiers de traductions](https://docs.geonature.fr/admin-manual.html#customiser-les-traductions).
+- ``TERMS_ACKNOWLEDGEMENT.REQUIRED`` : permet de faire apparaitre / dissimuler dans le formulaire une coche d'acceptation des termes et conditions. Par défaut, c'est affiché.
+- ``TERMS_ACKNOWLEDGEMENT.URL`` : URL vers les conditions d'utilisations (ouvre un nouvel onglet). Si non définit ou vide seul le texte sera affiché. Par défaut, aucun lien n'est défini.
+- ``TERMS_ACKNOWLEDGEMENT.CLASS_CSS`` : permet de définir des classes CSS sur le lien des conditions d'utilisation. Ex.: `btn btn-primary`.
+
 
 > Le statut visible dans l’interface est calculé automatiquement :
 >

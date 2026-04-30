@@ -5,12 +5,8 @@
 # Alternatively, you could copy this file in current directory and use a symbolic link in
 # geonature/config/ directory.
 
-REQUIRE_TERMS_ACKNOWLEDGEMENT = true
 ALLOWED_SCOPES = ["USER", "ORGANISM"]
 ALLOWED_AREA_TYPE_CODES = ["COM", "DEP", "REG"]
-
-[TERMS_ACKNOWLEDGEMENT]
-# URL = "https://exemple.org/conditions"
 
 [SENSITIVITY_FILTER]
     # Enable the display of the sensitive data filter in the permission request form.
@@ -18,3 +14,8 @@ ALLOWED_AREA_TYPE_CODES = ["COM", "DEP", "REG"]
     DISPLAY_ENABLED = false
     # Default value of the sensitive filter. By default set to true.
     DEFAULT_VALUE = true
+
+[TERMS_ACKNOWLEDGEMENT]
+    REQUIRED = true
+    # URL = "https://exemple.org/conditions"
+    # CLASS_CSS = "btn btn-primary"
