@@ -6,7 +6,7 @@ from ref_geo.models import LAreas
 
 from geonature.utils.schema import CruvedSchemaMixin
 
-from .models import PermissionRequest
+from .models import PermissionRequest, CustomArea
 from .status_utils import compute_status
 from . import MODULE_CODE
 
@@ -27,6 +27,7 @@ class PermissionRequestTaxonSchema(SQLAlchemySchema):
 
     cd_nom = auto_field()
     lb_nom = auto_field()
+    nom_valide = auto_field()
 
 
 class PermissionRequestAreaSchema(SQLAlchemySchema):
@@ -41,6 +42,18 @@ class PermissionRequestAreaSchema(SQLAlchemySchema):
     type_code = fields.Function(
         lambda obj: getattr(getattr(obj, "area_type", None), "type_code", None)
     )
+
+
+class CustomAreaSchema(SQLAlchemySchema):
+    class Meta:
+        model = CustomArea
+        load_instance = False
+        include_fk = True
+
+    id_custom_area = auto_field()
+    id_permission_request = auto_field()
+    geojson_data = auto_field()
+    file_name = auto_field()
 
 
 class PermissionRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
@@ -64,16 +77,18 @@ class PermissionRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     description = auto_field()
     validation_description = auto_field(dump_only=True)
     taxa = fields.Nested(PermissionRequestTaxonSchema, many=True, dump_only=True)
-    areas = fields.Nested(
-        PermissionRequestAreaSchema,
-        many=True,
-        attribute="permission.areas_filter",
-        dump_only=True,
-    )
+    areas = fields.Method("get_areas", dump_only=True)
+    custom_area = fields.Nested(CustomAreaSchema, allow_none=True, dump_only=True)
     author = fields.Nested(PermissionRequestUserSchema, dump_only=True)
     validator = fields.Nested(PermissionRequestUserSchema, dump_only=True)
     status = fields.Method("get_status", dump_only=True)
     cruved = fields.Method("get_cruved", dump_only=True)
+
+    def get_areas(self, obj):
+        ref = obj._ref_permission
+        if ref is None:
+            return []
+        return PermissionRequestAreaSchema(many=True).dump(ref.areas_filter)
 
     def get_status(self, obj):
         return compute_status(

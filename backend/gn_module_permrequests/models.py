@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import g
 import sqlalchemy as sa
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.dialects.postgresql import JSONB
 
 from geonature.utils.env import DB
 from geonature.core.gn_permissions.models import Permission
@@ -17,16 +18,37 @@ SCOPE_USER = "USER"
 SCOPE_ORGANISM = "ORGANISM"
 
 
+class CustomArea(DB.Model):
+    __tablename__ = "t_custom_area"
+    __table_args__ = {"schema": SCHEMA_NAME}
+
+    id_custom_area = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
+    id_permission_request = DB.Column(
+        DB.Integer,
+        DB.ForeignKey(f"{SCHEMA_NAME}.t_requests.id_request", ondelete="CASCADE"),
+        nullable=True,
+        unique=True,
+    )
+    geojson_data = DB.Column(JSONB, nullable=False)
+    file_name = DB.Column(DB.Text, nullable=True)
+
+    permission_request = DB.relationship(
+        "PermissionRequest",
+        back_populates="custom_area",
+        uselist=False,
+    )
+
+
 cor_request_permission = DB.Table(
     "cor_request_permission",
-    DB.Model.metadata,
     DB.Column(
-        "id_request", DB.Integer, DB.ForeignKey(f"{SCHEMA_NAME}.t_requests.id_request")
+        "id_request", DB.Integer, DB.ForeignKey(f"{SCHEMA_NAME}.t_requests.id_request", ondelete="CASCADE", primary_key=True)
     ),
     DB.Column(
-        "id_permission", DB.Integer, DB.ForeignKey("gn_permissions.t_permissions.id_permission")
+        "id_permission", DB.Integer, DB.ForeignKey("gn_permissions.t_permissions.id_permission", ondelete="CASCADE", primary_key=True, unique=True)
     ),
     schema=SCHEMA_NAME,
+    extend_existing=True,
 )
 
 
@@ -72,7 +94,21 @@ class PermissionRequest(DB.Model):
         cascade="all, delete-orphan",
         single_parent=True,
         lazy="joined",
+        order_by=Permission.id_permission,
+        backref=DB.backref("permission_request", uselist=False),
     )
+    custom_area = DB.relationship(
+        CustomArea,
+        foreign_keys=[CustomArea.id_permission_request],
+        uselist=False,
+        cascade="all, delete-orphan",
+        lazy="joined",
+        back_populates="permission_request",
+    )
+
+    @property
+    def _ref_permission(self):
+        return self.permissions[0] if self.permissions else None
 
     @classmethod
     def filter_by_scope(cls, scope, *, user=None):
@@ -81,11 +117,11 @@ class PermissionRequest(DB.Model):
         if scope == 0:
             return sa.false()
         elif scope == 1:
-            return cls.permission.has(Permission.role == user)
+            return cls.permissions.any(Permission.role == user)
         elif scope == 2:
             return sa.or_(
-                cls.permission.has(Permission.role == user),
-                cls.permission.has(Permission.role.has(User.id_organisme == user.id_organisme)),
+                cls.permissions.any(Permission.role == user),
+                cls.permissions.any(Permission.role.has(User.id_organisme == user.id_organisme)),
             )
         elif scope == 3:
             return sa.true()
@@ -145,9 +181,10 @@ class PermissionRequest(DB.Model):
 
     @hybrid_property
     def created_on(self):
-        if not self.permissions or self.permissions[0].created_on is None:
+        ref = self._ref_permission
+        if ref is None or ref.created_on is None:
             return None
-        return self.permissions[0].created_on.date()
+        return ref.created_on.date()
 
     @created_on.setter
     def created_on(self, value):
@@ -158,6 +195,7 @@ class PermissionRequest(DB.Model):
             new_date = value
         elif value is not None:
             new_date = datetime.combine(value, datetime.min.time())
+
         for p in self.permissions:
             p.created_on = new_date
 
@@ -173,10 +211,10 @@ class PermissionRequest(DB.Model):
 
     @hybrid_property
     def expiration_date(self):
-        if not self.permissions or self.permissions[0].expire_on is None:
+        ref = self._ref_permission
+        if ref is None or ref.expire_on is None:
             return None
-        expire_on = self.permissions[0].expire_on
-        return expire_on.date()
+        return ref.expire_on.date()
 
     @expiration_date.setter
     def expiration_date(self, value):
@@ -187,6 +225,7 @@ class PermissionRequest(DB.Model):
             new_date = value
         elif value is not None:
             new_date = datetime.combine(value, datetime.min.time())
+
         for p in self.permissions:
             p.expire_on = new_date
 
@@ -202,17 +241,19 @@ class PermissionRequest(DB.Model):
 
     @hybrid_property
     def validated(self):
-        if not self.permissions:
+        ref = self._ref_permission
+        if ref is None:
             return None
-        return self.permissions[0].validated
+        return ref.validated
 
     @validated.setter
     def validated(self, value):
         if not self.permissions:
             raise AttributeError("No permission is linked to this permission request.")
-        previous = self.permissions[0].validated if self.permissions else None
+        previous = self._ref_permission.validated if self._ref_permission else None
         if previous != value:
             self.validation_date = datetime.now()
+
         for p in self.permissions:
             p.validated = value
 
@@ -228,32 +269,32 @@ class PermissionRequest(DB.Model):
 
     @property
     def scope(self):
-        if not self.permissions or self.permissions[0].id_role is None or self.id_author is None:
-            return None
+        scope = None
+        ref = self._ref_permission
+        if ref is None or ref.id_role is None or self.id_author is None:
+            scope = None
+        elif ref.id_role == self.id_author:
+            scope = SCOPE_USER
+        else:
+            role = ref.role
+            author = self.author
+            if (
+                role is not None
+                and role.groupe
+                and author is not None
+                and author.id_organisme is not None
+                and role.id_organisme == author.id_organisme
+            ):
+                scope = SCOPE_ORGANISM
 
-        permission = self.permissions[0]
-
-        if permission.id_role == self.id_author:
-            return SCOPE_USER
-
-        role = permission.role
-        author = self.author
-        if (
-            role is not None
-            and role.groupe
-            and author is not None
-            and author.id_organisme is not None
-            and role.id_organisme == author.id_organisme
-        ):
-            return SCOPE_ORGANISM
-
-        return None
+        return scope
 
     @hybrid_property
     def sensitivity_filter(self):
-        if not self.permissions:
+        ref = self._ref_permission
+        if ref is None:
             return None
-        return self.permissions[0].sensitivity_filter
+        return ref.sensitivity_filter
 
     @sensitivity_filter.setter
     def sensitivity_filter(self, value):
@@ -261,9 +302,9 @@ class PermissionRequest(DB.Model):
             raise AttributeError("No permission is linked to this permission request.")
         if value is None:
             raise ValueError("sensitivity_filter cannot be null.")
-        bool_value = bool(value)
+
         for p in self.permissions:
-            p.sensitivity_filter = bool_value
+            p.sensitivity_filter = bool(value)
 
     @sensitivity_filter.expression
     def sensitivity_filter(cls):
@@ -277,14 +318,15 @@ class PermissionRequest(DB.Model):
 
     @property
     def taxa(self):
-        if not self.permissions:
+        ref = self._ref_permission
+        if ref is None:
             return []
-        # Assuming all permissions have the same taxa filter
-        return self.permissions[0].taxons_filter
+        return ref.taxons_filter
 
     @taxa.setter
     def taxa(self, value):
         if not self.permissions:
             raise AttributeError("No permission is linked to this permission request.")
+
         for p in self.permissions:
             p.taxons_filter = value

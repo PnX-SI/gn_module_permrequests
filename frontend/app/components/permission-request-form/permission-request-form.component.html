@@ -166,21 +166,15 @@
                   class="Field__selectedTaxa"
                   *ngIf="taxaControl?.value?.length"
                 >
-                  <ul>
-                    <li *ngFor="let taxon of taxaControl?.value">
-                      <span [innerHtml]="taxon.search_name"></span>
-                      <button
-                        type="button"
-                        mat-icon-button
-                        color="warn"
-                        (click)="removeTaxon(taxon.cd_nom)"
-                        matTooltip="{{ 'Permrequests.Form.Data.TaxaField.Remove' | translate }}"
-                        aria-label="{{ 'Permrequests.Form.Data.TaxaField.Remove' | translate }}"
-                      >
-                        <mat-icon>close</mat-icon>
-                      </button>
-                    </li>
-                  </ul>
+                  <span class="Chip" *ngFor="let taxon of taxaControl?.value">
+                    {{ taxon.nom_valide || taxon.lb_nom }}
+                    <button
+                      type="button"
+                      (click)="removeTaxon(taxon.cd_nom)"
+                      matTooltip="{{ 'Permrequests.Form.Data.TaxaField.Remove' | translate }}"
+                      aria-label="{{ 'Permrequests.Form.Data.TaxaField.Remove' | translate }}"
+                    >×</button>
+                  </span>
                 </div>
                 <div
                   class="Field__error"
@@ -191,19 +185,54 @@
               </div>
 
               <div class="Field">
-                <label
-                  class="Field__label"
-                  for="areas"
-                >
+                <label class="Field__label">
                   {{ 'Permrequests.Form.Data.AreaField.Label' | translate }}
                 </label>
-                <pnx-areas
-                  id="areas"
-                  [typeCodes]="['COM', 'DEP', 'REG']"
-                  [parentFormControl]="areasControl"
-                  [defaultItems]="selectedAreasDefaultItems"
-                  (onSelectionChange)="onAreasSelectionChange($event)"
-                ></pnx-areas>
+
+                <div class="Field__radio Field__radio--area-mode" *ngIf="allowCustomArea">
+                  <label>
+                    <input type="radio" formControlName="area_mode" value="existing"
+                      (change)="onAreaModeChange('existing')" />
+                    Sélectionner une zone existante
+                  </label>
+                  <label>
+                    <input type="radio" formControlName="area_mode" value="custom"
+                      (change)="onAreaModeChange('custom')" />
+                    Charger un GeoJSON personnalisé
+                  </label>
+                </div>
+
+                <div [hidden]="allowCustomArea && isCustomAreaMode">
+                  <pnx-areas id="areas" [typeCodes]="['COM', 'DEP', 'REG']" [parentFormControl]="areasControl"
+                    [defaultItems]="selectedAreasDefaultItems"
+                    (onSelectionChange)="onAreasSelectionChange($event)"></pnx-areas>
+                  <div class="Field__error" *ngIf="!isAreaValid && areasControl?.touched">
+                    Vous devez sélectionner au moins une zone géographique.
+                  </div>
+                </div>
+
+                <div [hidden]="!allowCustomArea || !isCustomAreaMode">
+                  <div class="Field Field--geojson">
+                    <div class="input-group">
+                      <div class="custom-file">
+                        <input
+                          type="file"
+                          class="custom-file-input"
+                          id="geojson_file"
+                          accept=".geojson,.json"
+                          (change)="onGeoJsonFileChange($event)"
+                        />
+                        <label class="custom-file-label" for="geojson_file">
+                          {{ selectedGeoJsonFileName || permissionRequest?.custom_area?.file_name || 'Choisir un fichier' }}
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="Field__error" *ngIf="geoJsonParseError">
+                      {{ geoJsonParseError }}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <div
@@ -231,6 +260,13 @@
     </mat-card-content>
   </div>
   <div class="PermissionRequestForm__actions">
+    <div
+      class="PermissionRequestForm__validationWarning"
+      *ngIf="permissionRequest?.validated === true"
+    >
+      <mat-icon color="warn">warning</mat-icon>
+      Enregistrer la demande annulera la validation en cours et soumettra la demande à une nouvelle validation.
+    </div>
     <button
       type="button"
       mat-stroked-button
@@ -244,7 +280,7 @@
       type="submit"
       mat-flat-button
       color="primary"
-      [disabled]="form.invalid || form.pristine || isSaving || isSameAsPermissionRequest"
+      [disabled]="form.invalid || !isAreaValid || form.pristine || isSaving || isSameAsPermissionRequest"
     >
       {{ 'Permrequests.Form.Actions.Submit' | translate }}
     </button>

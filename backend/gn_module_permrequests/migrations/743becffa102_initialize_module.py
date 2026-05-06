@@ -21,6 +21,7 @@ depends_on = ("707390c722fe",)
 SCHEMA_NAME = f"pr_{MODULE_CODE.lower()}"
 REQUEST_TABLE = "t_requests"
 PERMISSION_LINKS_TABLE = "cor_request_permission"
+CUSTOM_AREA_TABLE = "t_custom_areas"
 
 NOTIFICATION_SCHEMA = "gn_notifications"
 NOTIFICATION_CATEGORY_DEFINITIONS = [
@@ -221,8 +222,33 @@ def create_module_schema_tables():
                 ondelete="CASCADE",
             ),
             nullable=False,
+            unique=True,
         ),
         sa.PrimaryKeyConstraint("id_request", "id_permission", name=f"pk_{PERMISSION_LINKS_TABLE}"),
+        schema=SCHEMA_NAME,
+    )
+
+    op.create_table(
+        CUSTOM_AREA_TABLE,
+        sa.Column(
+            "id_custom_area",
+            sa.Integer(),
+            primary_key=True,
+            autoincrement=True,
+        ),
+        sa.Column(
+            "id_request",
+            sa.Integer(),
+            sa.ForeignKey(
+                f"{SCHEMA_NAME}.{REQUEST_TABLE}.id_request",
+                name=f"fk_{CUSTOM_AREA_TABLE}_id_request",
+                ondelete="CASCADE",
+            ),
+            nullable=False,
+            unique=True,
+        ),
+        sa.Column("geojson_data", sa.JSON(), nullable=False),
+        sa.Column("file_name", sa.Text(), nullable=True),
         schema=SCHEMA_NAME,
     )
 
@@ -509,6 +535,7 @@ def remove_module_permissions():
         )
 
 def drop_module_schema_tables():
+    op.drop_table(CUSTOM_AREA_TABLE, schema=SCHEMA_NAME)
     op.drop_table(PERMISSION_LINKS_TABLE, schema=SCHEMA_NAME)
     op.drop_table(REQUEST_TABLE, schema=SCHEMA_NAME)
     op.execute(sa.text(f"DROP SCHEMA IF EXISTS {SCHEMA_NAME} CASCADE"))

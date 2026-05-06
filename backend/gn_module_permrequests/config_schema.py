@@ -2,7 +2,7 @@
 TOML schema specifications for module configuration parameters
 """
 
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 
 
 class TermsAcknowledgementSchemaConf(Schema):
@@ -10,9 +10,18 @@ class TermsAcknowledgementSchemaConf(Schema):
     URL = fields.String(load_default="https://www.google.fr")
     CLASS_CSS = fields.String(load_default="")
 
+
 class SensitivityFilterConfigSchema(Schema):
     DISPLAY_ENABLED = fields.Boolean(load_default=False)
     DEFAULT_VALUE = fields.Boolean(load_default=True)
+
+
+class PermissionToCreateSchemaConf(Schema):
+    module = fields.String(required=True)
+    action = fields.String(
+        required=True, validate=validate.OneOf(["R", "E", "C", "U", "D"])
+    )
+
 
 class PermrequestsConfigSchema(Schema):
     ALLOWED_SCOPES = fields.List(
@@ -22,6 +31,15 @@ class PermrequestsConfigSchema(Schema):
     ALLOWED_AREA_TYPE_CODES = fields.List(
         fields.String(),
         load_default=["COM", "DEP", "REG"],
+    )
+    ALLOW_CUSTOM_AREA = fields.Boolean(load_default=False)
+
+    PERMISSIONS_TO_CREATE = fields.List(
+        fields.Nested(PermissionToCreateSchemaConf),
+        load_default=[
+            {"module": "SYNTHESE", "action": "R"},
+            {"module": "SYNTHESE", "action": "E"},
+        ],
     )
     TERMS_ACKNOWLEDGEMENT = fields.Nested(
         TermsAcknowledgementSchemaConf,

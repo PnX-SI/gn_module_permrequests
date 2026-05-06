@@ -35,6 +35,8 @@ import { ROUTE_PATHS } from '../../gnModule.module';
 import { AcknowledgementComponent } from './acknowledgement/acknowledgement.component';
 import { PERMISSION_REQUEST_SECTIONS } from '../permission-request-common/permission-request-sections';
 
+export type AreaMode = 'existing' | 'custom';
+
 type PermissionRequestFormValue = {
   description: string | null;
   expiration_date: NgbDateStruct | string | null;
@@ -44,6 +46,7 @@ type PermissionRequestFormValue = {
   taxa: any[];
   taxon_search: string | null;
   areas: number[];
+  area_mode: AreaMode;
 };
 
 @Component({
@@ -66,11 +69,16 @@ export class PermissionRequestFormComponent {
   readonly shouldDisplayAcknowledgement: boolean;
   readonly shouldDisplaySensitivityFilter: boolean;
   readonly sensitivityFilterDefaultValue: boolean;
+  readonly allowCustomArea: boolean;
   readonly PermissionRequestScope = PermissionRequestScope;
   readonly sections = PERMISSION_REQUEST_SECTIONS;
   readonly today = new Date();
   selectedAreasDefaultItems: Array<{ id_area: number; area_name: string; displayName: string }> =
     [];
+
+  parsedGeoJson: object | null = null;
+  geoJsonParseError: string | null = null;
+  selectedGeoJsonFileName: string | null = null;
 
   constructor(
     private _permissionRequestService: PermissionRequestService,
@@ -88,6 +96,7 @@ export class PermissionRequestFormComponent {
     this.shouldDisplayAcknowledgement = !!moduleConfig.TERMS_ACKNOWLEDGEMENT.REQUIRED;
     this.shouldDisplaySensitivityFilter = !!moduleConfig.SENSITIVITY_FILTER.DISPLAY_ENABLED;
     this.sensitivityFilterDefaultValue = !!moduleConfig.SENSITIVITY_FILTER.DEFAULT_VALUE;
+    this.allowCustomArea = !!moduleConfig.ALLOW_CUSTOM_AREA;
     this._setupValidators();
     this._setupAcknowledgementControl();
     this._i18nService.initializeModuleTranslateService(this._translateService);
@@ -123,34 +132,31 @@ export class PermissionRequestFormComponent {
   form: FormGroup = this._buildForm();
 
   private _buildForm(): FormGroup {
-    const group = this._formBuilder.group({
+    return this._formBuilder.group({
       description: [''],
       expiration_date: [null, [Validators.required]],
       scope: [DEFAULT_SCOPE, [Validators.required]],
       sensitivity_filter: [this.sensitivityFilterDefaultValue],
       acknowledgeTerms: [false],
-      taxa: [[], Validators.required],
+      taxa: [[]],
       taxon_search: [''],
-      areas: [[], Validators.required],
+      areas: [[]],
+      area_mode: ['existing' as AreaMode],
     });
-    return group;
   }
 
   private _setupValidators(): void {
     const initControl = this.createdOnControl;
     const expirationControl = this.expirationDateControl;
     if (initControl && expirationControl) {
-      const baseValidator = this._formService.dateValidator(initControl, expirationControl);
-      this.form.setValidators(baseValidator);
+      this.form.setValidators(this._formService.dateValidator(initControl, expirationControl));
       this.form.updateValueAndValidity({ emitEvent: false });
     }
   }
 
   private _setupAcknowledgementControl(): void {
     const control = this.acknowledgeTermsControl;
-    if (!control) {
-      return;
-    }
+    if (!control) return;
     if (this.shouldDisplayAcknowledgement) {
       control.setValidators(Validators.requiredTrue);
       control.setValue(false, { emitEvent: false });
@@ -161,8 +167,64 @@ export class PermissionRequestFormComponent {
     control.updateValueAndValidity({ emitEvent: false });
   }
 
+  // //////////////////////////////////////////////////////////////////////////
+  // Area mode
+  // //////////////////////////////////////////////////////////////////////////
+
+  get areaMode(): AreaMode {
+    return this.form.get('area_mode')?.value ?? 'existing';
+  }
+
+  get isCustomAreaMode(): boolean {
+    return this.areaMode === 'custom';
+  }
+
+  onAreaModeChange(mode: AreaMode): void {
+    this.form.get('area_mode')?.setValue(mode);
+    this.form.markAsDirty();
+  }
+
+  onGeoJsonFileChange(event: Event): void {
+    this.geoJsonParseError = null;
+    this.parsedGeoJson = null;
+    this.selectedGeoJsonFileName = null;
+
+    const file = (event.target as HTMLInputElement).files?.[0] ?? null;
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        this.parsedGeoJson = JSON.parse(reader.result as string);
+        this.selectedGeoJsonFileName = file.name;
+        this.form.markAsDirty();
+      } catch {
+        this.geoJsonParseError = 'Le GeoJSON fourni n\'est pas valide.';
+      }
+    };
+    reader.onerror = () => {
+      this.geoJsonParseError = 'Le GeoJSON fourni n\'est pas valide.';
+    };
+    reader.readAsText(file);
+  }
+
+  get isCustomAreaValid(): boolean {
+    if (!this.isCustomAreaMode) return true;
+    if (this.permissionRequest?.custom_area && !this.parsedGeoJson) return true;
+    return this.parsedGeoJson !== null && this.geoJsonParseError === null;
+  }
+
+  get isAreaValid(): boolean {
+    if (this.isCustomAreaMode) return this.isCustomAreaValid;
+    return (this._extractAreaIdentifiers(this.areasControl?.value).length > 0);
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+  // Submit
+  // //////////////////////////////////////////////////////////////////////////
+
   onSubmit(): void {
-    if (this.form.invalid) {
+    if (this.form.invalid || !this.isAreaValid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -177,113 +239,107 @@ export class PermissionRequestFormComponent {
       description: rawValue.description?.trim() || null,
       expiration_date: this._dateParser.format(rawValue.expiration_date) as unknown as string,
       taxa: this._extractTaxaIdentifiers(rawValue.taxa),
-      areas: this._extractAreaIdentifiers(rawValue.areas),
+      areas: this.isCustomAreaMode ? [] : this._extractAreaIdentifiers(rawValue.areas),
       scope: rawValue.scope,
       sensitivity_filter: !!rawValue.sensitivity_filter,
+      custom_area: this._buildCustomAreaPayload(),
     };
-    if (this.permissionRequest) {
-      this._permissionRequestService
-        .updatePermissionRequest(this.permissionRequest, payload)
-        .pipe(
-          finalize(() => {
-            this.isSaving = false;
-          })
-        )
-        .subscribe({
-          next: (updatedPermissionRequest: PermissionRequest) => {
-            this._router.navigate([
-              `/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.permissionRequest(updatedPermissionRequest.id_permission_request)}`,
-            ]);
-          },
-          error: (error: any) => {
-            // TODO: throw notifications
-          },
-        });
-    } else {
-      this._permissionRequestService
-        .createPermissionRequest(payload)
-        .pipe(
-          finalize(() => {
-            this.isSaving = false;
-          })
-        )
-        .subscribe({
-          next: (createdPermissionRequest: PermissionRequest) => {
-            this._router.navigate([
-              `/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.permissionRequest(createdPermissionRequest.id_permission_request)}`,
-            ]);
-          },
-          error: (error: any) => {
-            // TODO: throw notifications
-          },
-        });
+
+    const save$ = this.permissionRequest
+      ? this._permissionRequestService.updatePermissionRequest(this.permissionRequest, payload)
+      : this._permissionRequestService.createPermissionRequest(payload);
+
+    save$
+      .pipe(finalize(() => { this.isSaving = false; }))
+      .subscribe({
+        next: (result: PermissionRequest) => {
+          this._router.navigate([
+            `/${this._moduleService.currentModule.module_url}/${ROUTE_PATHS.permissionRequest(result.id_permission_request)}`,
+          ]);
+        },
+        error: (_error: any) => {
+          // TODO: throw notifications
+        },
+      });
+  }
+
+  private _buildCustomAreaPayload() {
+    if (!this.isCustomAreaMode) {
+      return this.permissionRequest?.custom_area ? null : undefined;
     }
+    if (!this.parsedGeoJson) return undefined;
+    return { geojson: this.parsedGeoJson, file_name: this.selectedGeoJsonFileName };
   }
 
   // //////////////////////////////////////////////////////////////////////////
-  // Form Helpers
+  // isSameAsPermissionRequest
   // //////////////////////////////////////////////////////////////////////////
 
   get isSameAsPermissionRequest(): boolean {
-    if (!this.permissionRequest) {
+    if (!this.permissionRequest) return false;
+
+    const rawValue = this.form.value as PermissionRequestFormValue;
+
+    const normalizedDescription = (rawValue.description ?? '').trim();
+    const permissionRequestDescription = (this.permissionRequest.description ?? '').trim();
+    if (normalizedDescription !== permissionRequestDescription) return false;
+
+    const normalizedExpiration = this._normalizeDateValue(rawValue.expiration_date);
+    if (normalizedExpiration !== this._normalizeDateValue(this.permissionRequest.expiration_date))
       return false;
+
+    if (!!rawValue.sensitivity_filter !== !!this.permissionRequest.sensitivity_filter) return false;
+
+    if ((rawValue.scope ?? DEFAULT_SCOPE) !== (this.permissionRequest.scope ?? DEFAULT_SCOPE))
+      return false;
+
+    const selectedTaxa = this._extractTaxaIdentifiers(rawValue.taxa).sort((a, b) => a - b);
+    const savedTaxa = (this.permissionRequest.taxa ?? []).map((t) => t.cd_nom).sort((a, b) => a - b);
+    if (
+      selectedTaxa.length !== savedTaxa.length ||
+      selectedTaxa.some((id, i) => id !== savedTaxa[i])
+    )
+      return false;
+
+    const savedMode: AreaMode = this.permissionRequest.custom_area ? 'custom' : 'existing';
+    if ((rawValue.area_mode ?? 'existing') !== savedMode) return false;
+
+    if (rawValue.area_mode === 'custom') {
+      if (this.parsedGeoJson) return false;
+    } else {
+      const selectedAreas = this._extractAreaIdentifiers(rawValue.areas).sort((a, b) => a - b);
+      const savedAreas = (this.permissionRequest.areas ?? [])
+        .map((a) => a.id_area)
+        .sort((a, b) => a - b);
+      if (
+        selectedAreas.length !== savedAreas.length ||
+        selectedAreas.some((id, i) => id !== savedAreas[i])
+      )
+        return false;
     }
 
-    const { description, expiration_date, sensitivity_filter, scope, taxa, areas } = this.form
-      .value as PermissionRequestFormValue;
-    const selectedTaxa = this._extractTaxaIdentifiers(taxa);
-    const permissionRequestTaxa = (this.permissionRequest.taxa || []).map((taxon) => taxon.cd_nom);
-    const normalizedSelectedTaxa = [...selectedTaxa].sort((a, b) => a - b);
-    const normalizedPermissionRequestTaxa = [...permissionRequestTaxa].sort((a, b) => a - b);
-    const selectedAreas = this._extractAreaIdentifiers(areas);
-    const permissionRequestAreas = (this.permissionRequest.areas || []).map((area) => area.id_area);
-    const normalizedSelectedAreas = [...selectedAreas].sort((a, b) => a - b);
-    const normalizedPermissionRequestAreas = [...permissionRequestAreas].sort((a, b) => a - b);
-
-    const normalizedDescription = (description ?? '').trim();
-    const permissionRequestDescription = (this.permissionRequest.description ?? '').trim();
-
-    const normalizedExpiration = this._normalizeDateValue(expiration_date);
-    const permissionRequestExpiration = this._normalizeDateValue(
-      this.permissionRequest.expiration_date
-    );
-
-    const normalizedSensitivity = !!sensitivity_filter;
-    const permissionRequestSensitivity = !!this.permissionRequest.sensitivity_filter;
-    const normalizedScope = scope ?? DEFAULT_SCOPE;
-    const permissionRequestScope = this.permissionRequest.scope ?? DEFAULT_SCOPE;
-
-    return (
-      normalizedDescription === permissionRequestDescription &&
-      normalizedExpiration === permissionRequestExpiration &&
-      normalizedSensitivity === permissionRequestSensitivity &&
-      normalizedScope === permissionRequestScope &&
-      normalizedSelectedTaxa.length === normalizedPermissionRequestTaxa.length &&
-      normalizedSelectedTaxa.every(
-        (taxonId, index) => taxonId === normalizedPermissionRequestTaxa[index]
-      ) &&
-      normalizedSelectedAreas.length === normalizedPermissionRequestAreas.length &&
-      normalizedSelectedAreas.every(
-        (areaId, index) => areaId === normalizedPermissionRequestAreas[index]
-      )
-    );
+    return true;
   }
 
   onReset(): void {
     this._fillFormFromPermissionRequest();
   }
 
+  // //////////////////////////////////////////////////////////////////////////
+  // Helpers
+  // //////////////////////////////////////////////////////////////////////////
+
   private _normalizeDateValue(value: NgbDateStruct | string | null | undefined): string | null {
-    if (!value) {
-      return null;
-    }
-    if (typeof value === 'string') {
-      return value || null;
-    }
+    if (!value) return null;
+    if (typeof value === 'string') return value || null;
     return this._dateParser.format(value) as unknown as string;
   }
 
   private _fillFormFromPermissionRequest(): void {
+    this.parsedGeoJson = null;
+    this.geoJsonParseError = null;
+    this.selectedGeoJsonFileName = null;
+
     if (!this.permissionRequest) {
       this.form.reset({
         description: '',
@@ -294,31 +350,30 @@ export class PermissionRequestFormComponent {
         taxa: [],
         taxon_search: '',
         areas: [],
+        area_mode: 'existing' as AreaMode,
       });
       this.selectedAreasDefaultItems = [];
     } else {
-      const createdOnStruct = this.permissionRequest.created_on
-        ? this._dateParser.parse(this.permissionRequest.created_on)
-        : null;
-      const expirationStruct = this.permissionRequest.expiration_date
-        ? this._dateParser.parse(this.permissionRequest.expiration_date)
-        : null;
+      const savedMode: AreaMode = this.permissionRequest.custom_area ? 'custom' : 'existing';
       this.form.patchValue({
         description: this.permissionRequest.description,
-        created_on: createdOnStruct,
-        expiration_date: expirationStruct,
+        expiration_date: this.permissionRequest.expiration_date
+          ? this._dateParser.parse(this.permissionRequest.expiration_date)
+          : null,
         scope: this.permissionRequest.scope ?? DEFAULT_SCOPE,
         sensitivity_filter: !!this.permissionRequest.sensitivity_filter,
         acknowledgeTerms: true,
-        taxa: (this.permissionRequest.taxa || []).map((taxon) => ({
+        taxa: (this.permissionRequest.taxa ?? []).map((taxon) => ({
           cd_nom: taxon.cd_nom,
           lb_nom: taxon.lb_nom,
-          displayName: taxon.lb_nom,
+          nom_valide: taxon.nom_valide,
+          displayName: taxon.nom_valide ?? taxon.lb_nom,
         })),
         taxon_search: '',
-        areas: (this.permissionRequest.areas || []).map((area) => area.id_area),
+        areas: (this.permissionRequest.areas ?? []).map((area) => area.id_area),
+        area_mode: savedMode,
       });
-      this.selectedAreasDefaultItems = (this.permissionRequest.areas || []).map((area) => ({
+      this.selectedAreasDefaultItems = (this.permissionRequest.areas ?? []).map((area) => ({
         id_area: area.id_area,
         area_name: area.area_name,
         displayName: area.area_name,
@@ -328,104 +383,58 @@ export class PermissionRequestFormComponent {
     this.form.updateValueAndValidity({ emitEvent: false });
   }
 
-  get expirationDateControl() {
-    return this.form.get('expiration_date');
-  }
+  // //////////////////////////////////////////////////////////////////////////
+  // Form control accessors
+  // //////////////////////////////////////////////////////////////////////////
 
-  get createdOnControl() {
-    return this.form.get('created_on');
-  }
+  get expirationDateControl() { return this.form.get('expiration_date'); }
+  get createdOnControl() { return this.form.get('created_on'); }
+  get acknowledgeTermsControl() { return this.form.get('acknowledgeTerms'); }
+  get scopeControl() { return this.form.get('scope'); }
+  get sensitivityFilterControl() { return this.form.get('sensitivity_filter'); }
+  get taxaControl() { return this.form.get('taxa'); }
+  get taxonSearchControl() { return this.form.get('taxon_search'); }
+  get areasControl() { return this.form.get('areas'); }
 
-  get acknowledgeTermsControl() {
-    return this.form.get('acknowledgeTerms');
-  }
-
-  get scopeControl() {
-    return this.form.get('scope');
-  }
-
-  get sensitivityFilterControl() {
-    return this.form.get('sensitivity_filter');
-  }
-
-  get taxaControl() {
-    return this.form.get('taxa');
-  }
-
-  get taxonSearchControl() {
-    return this.form.get('taxon_search');
-  }
-
-  get areasControl() {
-    return this.form.get('areas');
-  }
+  // //////////////////////////////////////////////////////////////////////////
+  // Taxa / Area extraction
+  // //////////////////////////////////////////////////////////////////////////
 
   private _extractTaxaIdentifiers(value: any): number[] {
-    if (!Array.isArray(value)) {
-      return [];
-    }
+    if (!Array.isArray(value)) return [];
     return value
       .map((item) => {
-        if (!item) {
-          return null;
-        }
-        if (typeof item === 'number') {
-          return item;
-        }
-        if (typeof item === 'string' && item.trim() !== '') {
-          const parsed = Number(item);
-          return Number.isNaN(parsed) ? null : parsed;
-        }
-        if (typeof item === 'object' && 'cd_nom' in item) {
-          return Number(item['cd_nom']);
-        }
+        if (!item) return null;
+        if (typeof item === 'number') return item;
+        if (typeof item === 'string' && item.trim()) return Number(item) || null;
+        if (typeof item === 'object' && 'cd_nom' in item) return Number(item['cd_nom']);
         return null;
       })
-      .filter((taxonId): taxonId is number => taxonId !== null);
+      .filter((id): id is number => id !== null && Number.isFinite(id));
   }
 
   private _extractAreaIdentifiers(value: any): number[] {
-    if (!Array.isArray(value)) {
-      return [];
-    }
+    if (!Array.isArray(value)) return [];
     return value
       .map((item) => {
-        if (item === null || item === undefined) {
-          return null;
-        }
-        if (typeof item === 'number') {
-          return item;
-        }
-        if (typeof item === 'string' && item.trim() !== '') {
-          const parsed = Number(item);
-          return Number.isNaN(parsed) ? null : parsed;
-        }
-        if (typeof item === 'object' && 'id_area' in item) {
-          return Number(item['id_area']);
-        }
+        if (item == null) return null;
+        if (typeof item === 'number') return item;
+        if (typeof item === 'string' && item.trim()) return Number(item) || null;
+        if (typeof item === 'object' && 'id_area' in item) return Number(item['id_area']);
         return null;
       })
-      .filter((areaId): areaId is number => areaId !== null);
+      .filter((id): id is number => id !== null && Number.isFinite(id));
   }
 
   onTaxonSelected(event: NgbTypeaheadSelectItemEvent<Taxon>): void {
+    event.preventDefault();
     const item = event.item;
-    if (!item || item.cd_nom === undefined || item.cd_nom === null) {
-      return;
-    }
+    if (!item || item.cd_nom == null) { this._resetTaxonSearchControl(); return; }
     const cd_ref = Number(item.cd_ref);
-    if (!Number.isFinite(cd_ref)) {
-      this._resetTaxonSearchControl();
-      return;
-    }
+    if (!Number.isFinite(cd_ref)) { this._resetTaxonSearchControl(); return; }
     const currentTaxa = (this.taxaControl?.value as any[]) ?? [];
-    const alreadySelected = currentTaxa.some((taxon) => taxon.cd_nom === cd_ref);
-    if (alreadySelected) {
-      this._resetTaxonSearchControl();
-      return;
-    }
-    currentTaxa.push(item);
-    this.taxaControl?.setValue(currentTaxa);
+    if (currentTaxa.some((t) => t.cd_nom === cd_ref)) { this._resetTaxonSearchControl(); return; }
+    this.taxaControl?.setValue([...currentTaxa, item]);
     this.taxaControl?.markAsDirty();
     this.taxaControl?.markAsTouched();
     this.taxaControl?.updateValueAndValidity({ emitEvent: false });
@@ -433,9 +442,8 @@ export class PermissionRequestFormComponent {
   }
 
   removeTaxon(cd_nom: number): void {
-    const currentTaxa = (this.taxaControl?.value as any[]) ?? [];
-    const updatedTaxa = currentTaxa.filter((taxon) => taxon.cd_nom !== cd_nom);
-    this.taxaControl?.setValue(updatedTaxa);
+    const updated = ((this.taxaControl?.value as any[]) ?? []).filter((t) => t.cd_nom !== cd_nom);
+    this.taxaControl?.setValue(updated);
     this.taxaControl?.markAsDirty();
     this.taxaControl?.markAsTouched();
     this.taxaControl?.updateValueAndValidity({ emitEvent: false });
@@ -448,8 +456,6 @@ export class PermissionRequestFormComponent {
   }
 
   private _resetTaxonSearchControl(): void {
-    this.taxonSearchControl?.setValue('', { emitEvent: false });
-    this.taxonSearchControl?.markAsPristine();
-    this.taxonSearchControl?.markAsUntouched();
+    this.taxonSearchControl?.reset();
   }
 }
