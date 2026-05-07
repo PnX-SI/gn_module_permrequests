@@ -16,8 +16,10 @@ down_revision = "743becffa102"
 depends_on = None
 
 AREA_TYPE_CODE = MODULE_CODE.upper()
-AREA_TYPE_NAME = "Zone des demandes de permission"
-AREA_TYPE_DESC = "Zones géographiques personnalisées associées à une demande de permission"
+AREA_TYPE_NAME = "Zones des demandes de permission"
+AREA_TYPE_DESC = (
+    "Zones géographiques personnalisées associées aux demandes de permission."
+)
 
 
 def upgrade():

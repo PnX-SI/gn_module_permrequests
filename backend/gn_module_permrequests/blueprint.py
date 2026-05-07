@@ -140,7 +140,7 @@ def _build_role_recipient_ids(*role_ids):
 ## CUSTOM AREA SYNC TO L_AREAS
 ## ########################################################################
 
-_AREA_TYPE_CODE = "PERMISSION_REQUEST"
+_AREA_TYPE_CODE = MODULE_CODE.upper()
 
 
 def _get_permission_request_area_type_id():

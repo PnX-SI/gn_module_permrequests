@@ -244,7 +244,7 @@ def create_module_schema_tables():
                 name=f"fk_{CUSTOM_AREA_TABLE}_id_request",
                 ondelete="CASCADE",
             ),
-            nullable=False,
+            nullable=True,
             unique=True,
         ),
         sa.Column("geojson_data", sa.JSON(), nullable=False),

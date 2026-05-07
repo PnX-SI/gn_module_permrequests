@@ -19,11 +19,12 @@ SCOPE_ORGANISM = "ORGANISM"
 
 
 class CustomArea(DB.Model):
-    __tablename__ = "t_custom_area"
+    __tablename__ = "t_custom_areas"
     __table_args__ = {"schema": SCHEMA_NAME}
 
     id_custom_area = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
     id_permission_request = DB.Column(
+        "id_request",
         DB.Integer,
         DB.ForeignKey(f"{SCHEMA_NAME}.t_requests.id_request", ondelete="CASCADE"),
         nullable=True,
@@ -42,13 +43,21 @@ class CustomArea(DB.Model):
 cor_request_permission = DB.Table(
     "cor_request_permission",
     DB.Column(
-        "id_request", DB.Integer, DB.ForeignKey(f"{SCHEMA_NAME}.t_requests.id_request", ondelete="CASCADE", primary_key=True)
+        "id_request",
+        DB.Integer,
+        DB.ForeignKey(f"{SCHEMA_NAME}.t_requests.id_request", ondelete="CASCADE"),
+        primary_key=True,
     ),
     DB.Column(
-        "id_permission", DB.Integer, DB.ForeignKey("gn_permissions.t_permissions.id_permission", ondelete="CASCADE", primary_key=True, unique=True)
+        "id_permission",
+        DB.Integer,
+        DB.ForeignKey(
+            "gn_permissions.t_permissions.id_permission",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
     ),
     schema=SCHEMA_NAME,
-    extend_existing=True,
 )
 
 
