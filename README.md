@@ -92,12 +92,14 @@ GeoNature.
 
 ### Paramètres
 
-- ``ALLOWED_SCOPES`` : liste des scopes autorisés pour les demandes (par défaut ``["USER", "ORGANISM"]``).
-- ``ALLOWED_AREA_TYPE_CODES`` : liste des types de zones autorisés (par défaut ``["COM", "DEP", "REG"]``).
-- ``TERMS_ACKNOWLEDGEMENT`` : section permetant de configurer la coche d'acceptation des termes et conditions des demandes d'accès. Le texte et le lien sont configurable via [la surcharge des fichiers de traductions](https://docs.geonature.fr/admin-manual.html#customiser-les-traductions).
-- ``TERMS_ACKNOWLEDGEMENT.REQUIRED`` : permet de faire apparaitre / dissimuler dans le formulaire une coche d'acceptation des termes et conditions. Par défaut, c'est affiché.
-- ``TERMS_ACKNOWLEDGEMENT.URL`` : URL vers les conditions d'utilisations (ouvre un nouvel onglet). Si non définit ou vide seul le texte sera affiché. Par défaut, aucun lien n'est défini.
-- ``TERMS_ACKNOWLEDGEMENT.CLASS_CSS`` : permet de définir des classes CSS sur le lien des conditions d'utilisation. Ex.: `btn btn-primary`.
+- `ALLOW_CUSTOM_AREA`: autorise (`true`) ou pas (`false`) le téléversement de fichier GeoJSON pour définir une zone géographique personnalisé sur laquelle demande de permission s'appliquera.
+- `ALLOWED_AREA_TYPE_CODES` : liste des types de zones autorisés (par défaut `["COM", "DEP", "REG"]`).
+- `ALLOWED_SCOPES` : liste des scopes autorisés pour les demandes (par défaut `["USER", "ORGANISM"]`).
+- `PERMISSIONS_TO_CREATE` : contient une liste d'objets permettant de définir les permissions créés par une demande de permission. Le format de chaque objet est le suivant `{"module": "<code-du-module>", "action": "<code-de-l'action>"}`.
+- `TERMS_ACKNOWLEDGEMENT` : section permetant de configurer la coche d'acceptation des termes et conditions des demandes d'accès. Le texte et le lien sont configurable via [la surcharge des fichiers de traductions](https://docs.geonature.fr/admin-manual.html#customiser-les-traductions).
+- `TERMS_ACKNOWLEDGEMENT.REQUIRED` : permet de faire apparaitre / dissimuler dans le formulaire une coche d'acceptation des termes et conditions. Par défaut, c'est affiché.
+- `TERMS_ACKNOWLEDGEMENT.URL` : URL vers les conditions d'utilisations (ouvre un nouvel onglet). Si non définit ou vide seul le texte sera affiché. Par défaut, aucun lien n'est défini.
+- `TERMS_ACKNOWLEDGEMENT.CLASS_CSS` : permet de définir des classes CSS sur le lien des conditions d'utilisation. Ex.: `btn btn-primary`.
 
 
 > Le statut visible dans l’interface est calculé automatiquement :
@@ -106,6 +108,10 @@ GeoNature.
 > - sinon, elle apparaît comme « expirée ».
 
 ## Administration du module
+
+### Zones géographiques personnalisées
+
+Ce module ajouter un nouveau type de zone géographique au référentiel géographique dont le code est `PERMREQUESTS`. Ce type permet de rassembler toutes les zones géographiques téléversées par les utilisateurs lorsque le paramètre `ALLOW_CUSTOM_AREA` est à `true`.
 
 ## Développement du module
 
