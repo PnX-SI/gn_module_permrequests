@@ -19,7 +19,7 @@
           *ngIf="permissionRequest.author"
         >
           <label for="author">
-             {{ 'Permrequests.Form.Beneficiary.Author' | translate }}
+            {{ 'Permrequests.Form.Beneficiary.Author' | translate }}
           </label>
           <div id="author">{{ permissionRequest.author?.nom_complet }}</div>
         </div>
@@ -89,14 +89,18 @@
       </mat-card-header>
       <mat-card-content class="Card__content">
         <div class="Field">
-          <label for="created_on">{{ 'Permrequests.Form.Validity.CreationDate' | translate }}</label>
+          <label for="created_on">
+            {{ 'Permrequests.Form.Validity.CreationDate' | translate }}
+          </label>
           <div id="created_on">
             {{ permissionRequest.created_on | date: 'dd/MM/yyyy' }}
           </div>
         </div>
 
         <div class="Field">
-          <label for="expiration_date">{{ 'Permrequests.Form.Validity.ExpirationDate' | translate }}</label>
+          <label for="expiration_date">
+            {{ 'Permrequests.Form.Validity.ExpirationDate' | translate }}
+          </label>
           <div id="expiration_date">
             {{ permissionRequest.expiration_date | date: 'dd/MM/yyyy' }}
           </div>
@@ -134,7 +138,9 @@
           class="Field"
           *ngIf="permissionRequest.areas?.length"
         >
-          <label for="areas">{{ 'Permrequests.Form.Data.AreaField.Existing.Label' | translate }}</label>
+          <label for="areas">
+            {{ 'Permrequests.Form.Data.AreaField.Existing.Label' | translate }}
+          </label>
           <ul
             id="areas"
             class="PermissionRequestInfo__list"
@@ -146,21 +152,40 @@
           </ul>
         </div>
 
-        <div class="Field" *ngIf="permissionRequest.custom_area">
-          <div id="custom_area" class="PermissionRequestInfo__customArea">
+        <div
+          class="Field"
+          *ngIf="permissionRequest.custom_area"
+        >
           <label for="custom_area">
             {{ 'Permrequests.Form.Data.AreaField.Custom.Label' | translate }}
           </label>
+          <div
+            id="custom_area"
+            class="PermissionRequestInfo__customArea"
+          >
             <mat-icon>description</mat-icon>
-            <a [href]="getCustomAreaDownloadUrl()" download>
+            <a
+              [href]="getCustomAreaDownloadUrl()"
+              download
+            >
               {{ permissionRequest.custom_area.file_name || 'custom_area.geojson' }}
             </a>
           </div>
         </div>
 
-        <div class="Field Field--map" *ngIf="mapGeojson">
-          <pnx-map height="300px" [searchBar]="false">
-            <pnx-geojson [geojson]="mapGeojson" [zoomOnLayer]="true" [zoomOnFirstTime]="true"></pnx-geojson>
+        <div
+          class="Field Field--map"
+          *ngIf="mapGeojson"
+        >
+          <pnx-map
+            height="300px"
+            [searchBar]="false"
+          >
+            <pnx-geojson
+              [geojson]="mapGeojson"
+              [zoomOnLayer]="true"
+              [zoomOnFirstTime]="true"
+            ></pnx-geojson>
           </pnx-map>
         </div>
 
@@ -171,8 +196,8 @@
           <div id="sensitivity_filter">
             {{
               permissionRequest.sensitivity_filter
-              ? ('Permrequests.Form.Data.Sensitivity.Yes' | translate)
-              : ('Permrequests.Form.Data.Sensitivity.No' | translate)
+                ? ('Permrequests.Form.Data.Sensitivity.Yes' | translate)
+                : ('Permrequests.Form.Data.Sensitivity.No' | translate)
             }}
           </div>
         </div>
@@ -191,7 +216,10 @@
           >
             {{ 'Permrequests.Form.Data.ShowData' | translate }}
           </a>
-          <div class="Field__warning" *ngIf="permissionRequest.custom_area">
+          <div
+            class="Field__warning"
+            *ngIf="permissionRequest.custom_area"
+          >
             <mat-icon>warning</mat-icon>
             {{ 'Permrequests.Form.Data.AreaField.Custom.Warning' | translate }}
           </div>

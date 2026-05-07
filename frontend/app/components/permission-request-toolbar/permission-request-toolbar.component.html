@@ -7,11 +7,13 @@
     [ngClass]="permissionRequest?.status ? 'Edit--' + permissionRequest.status : ''"
     [disabled]="validationRequestPending"
     mat-stroked-button
-    matTooltip="{{ 'Permrequests.List.Actions.Update' | translate}}"
+    matTooltip="{{ 'Permrequests.List.Actions.Update' | translate }}"
     (click)="openValidationDialog()"
     *ngIf="withValidate && permissionRequest?.cruved?.V; else displayStatus"
   >
-    <span class="Edit__label">{{ 'Permrequests.Enums.Status.' + permissionRequest.status | translate }}</span>
+    <span class="Edit__label">
+      {{ 'Permrequests.Enums.Status.' + permissionRequest.status | translate }}
+    </span>
     <mat-icon class="Edit__icon">edit</mat-icon>
   </button>
   <ng-template #displayStatus>
@@ -31,7 +33,7 @@
     [disabled]="!permissionRequest.cruved.U"
     color="primary"
     mat-icon-button
-    matTooltip="{{ 'Permrequests.List.Actions.Update' | translate}}"
+    matTooltip="{{ 'Permrequests.List.Actions.Update' | translate }}"
     [routerLink]="[editRouterLink]"
   >
     <mat-icon>edit</mat-icon>
@@ -41,7 +43,7 @@
     [disabled]="!permissionRequest.cruved.R"
     color="primary"
     mat-icon-button
-    matTooltip="{{ 'Permrequests.List.Actions.Read' | translate}}"
+    matTooltip="{{ 'Permrequests.List.Actions.Read' | translate }}"
     [routerLink]="[infoRouterLink]"
   >
     <mat-icon>info</mat-icon>
@@ -51,7 +53,7 @@
     [disabled]="!permissionRequest.cruved.D"
     color="warn"
     mat-icon-button
-    matTooltip="{{ 'Permrequests.List.Actions.Delete' | translate}}"
+    matTooltip="{{ 'Permrequests.List.Actions.Delete' | translate }}"
     (click)="deletePermissionRequest()"
   >
     <mat-icon>delete</mat-icon>

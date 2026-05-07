@@ -199,11 +199,11 @@ export class PermissionRequestFormComponent {
         this.selectedGeoJsonFileName = file.name;
         this.form.markAsDirty();
       } catch {
-        this.geoJsonParseError = 'Le GeoJSON fourni n\'est pas valide.';
+        this.geoJsonParseError = "Le GeoJSON fourni n'est pas valide.";
       }
     };
     reader.onerror = () => {
-      this.geoJsonParseError = 'Le GeoJSON fourni n\'est pas valide.';
+      this.geoJsonParseError = "Le GeoJSON fourni n'est pas valide.";
     };
     reader.readAsText(file);
   }
@@ -216,7 +216,7 @@ export class PermissionRequestFormComponent {
 
   get isAreaValid(): boolean {
     if (this.isCustomAreaMode) return this.isCustomAreaValid;
-    return (this._extractAreaIdentifiers(this.areasControl?.value).length > 0);
+    return this._extractAreaIdentifiers(this.areasControl?.value).length > 0;
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -250,7 +250,11 @@ export class PermissionRequestFormComponent {
       : this._permissionRequestService.createPermissionRequest(payload);
 
     save$
-      .pipe(finalize(() => { this.isSaving = false; }))
+      .pipe(
+        finalize(() => {
+          this.isSaving = false;
+        })
+      )
       .subscribe({
         next: (result: PermissionRequest) => {
           this._router.navigate([
@@ -294,7 +298,9 @@ export class PermissionRequestFormComponent {
       return false;
 
     const selectedTaxa = this._extractTaxaIdentifiers(rawValue.taxa).sort((a, b) => a - b);
-    const savedTaxa = (this.permissionRequest.taxa ?? []).map((t) => t.cd_nom).sort((a, b) => a - b);
+    const savedTaxa = (this.permissionRequest.taxa ?? [])
+      .map((t) => t.cd_nom)
+      .sort((a, b) => a - b);
     if (
       selectedTaxa.length !== savedTaxa.length ||
       selectedTaxa.some((id, i) => id !== savedTaxa[i])
@@ -387,14 +393,30 @@ export class PermissionRequestFormComponent {
   // Form control accessors
   // //////////////////////////////////////////////////////////////////////////
 
-  get expirationDateControl() { return this.form.get('expiration_date'); }
-  get createdOnControl() { return this.form.get('created_on'); }
-  get acknowledgeTermsControl() { return this.form.get('acknowledgeTerms'); }
-  get scopeControl() { return this.form.get('scope'); }
-  get sensitivityFilterControl() { return this.form.get('sensitivity_filter'); }
-  get taxaControl() { return this.form.get('taxa'); }
-  get taxonSearchControl() { return this.form.get('taxon_search'); }
-  get areasControl() { return this.form.get('areas'); }
+  get expirationDateControl() {
+    return this.form.get('expiration_date');
+  }
+  get createdOnControl() {
+    return this.form.get('created_on');
+  }
+  get acknowledgeTermsControl() {
+    return this.form.get('acknowledgeTerms');
+  }
+  get scopeControl() {
+    return this.form.get('scope');
+  }
+  get sensitivityFilterControl() {
+    return this.form.get('sensitivity_filter');
+  }
+  get taxaControl() {
+    return this.form.get('taxa');
+  }
+  get taxonSearchControl() {
+    return this.form.get('taxon_search');
+  }
+  get areasControl() {
+    return this.form.get('areas');
+  }
 
   // //////////////////////////////////////////////////////////////////////////
   // Taxa / Area extraction
@@ -429,11 +451,20 @@ export class PermissionRequestFormComponent {
   onTaxonSelected(event: NgbTypeaheadSelectItemEvent<Taxon>): void {
     event.preventDefault();
     const item = event.item;
-    if (!item || item.cd_nom == null) { this._resetTaxonSearchControl(); return; }
+    if (!item || item.cd_nom == null) {
+      this._resetTaxonSearchControl();
+      return;
+    }
     const cd_ref = Number(item.cd_ref);
-    if (!Number.isFinite(cd_ref)) { this._resetTaxonSearchControl(); return; }
+    if (!Number.isFinite(cd_ref)) {
+      this._resetTaxonSearchControl();
+      return;
+    }
     const currentTaxa = (this.taxaControl?.value as any[]) ?? [];
-    if (currentTaxa.some((t) => t.cd_nom === cd_ref)) { this._resetTaxonSearchControl(); return; }
+    if (currentTaxa.some((t) => t.cd_nom === cd_ref)) {
+      this._resetTaxonSearchControl();
+      return;
+    }
     this.taxaControl?.setValue([...currentTaxa, item]);
     this.taxaControl?.markAsDirty();
     this.taxaControl?.markAsTouched();

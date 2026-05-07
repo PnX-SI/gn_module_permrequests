@@ -12,7 +12,7 @@
       </div>
       <div class="Header__center">
         <div *ngIf="permissionRequest; else newPermissionRequest">
-          {{ 'Permrequests.Breadcrumb.Titles.Edit' | translate:permissionRequest }}
+          {{ 'Permrequests.Breadcrumb.Titles.Edit' | translate: permissionRequest }}
         </div>
         <ng-template #newPermissionRequest>
           <div>

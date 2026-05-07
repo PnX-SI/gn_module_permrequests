@@ -21,12 +21,16 @@
               class="Field Field--inline"
               *ngIf="authorName"
             >
-              <div class="Field__label">{{ 'Permrequests.Form.Beneficiary.Author' | translate }}</div>
+              <div class="Field__label">
+                {{ 'Permrequests.Form.Beneficiary.Author' | translate }}
+              </div>
               <div>{{ authorName }}</div>
             </div>
 
             <div class="Field">
-              <div class="Field__label">{{ 'Permrequests.Form.Beneficiary.Scope.Label' | translate }}</div>
+              <div class="Field__label">
+                {{ 'Permrequests.Form.Beneficiary.Scope.Label' | translate }}
+              </div>
               <div class="Field__radio">
                 <label>
                   <input
@@ -166,14 +170,19 @@
                   class="Field__selectedTaxa"
                   *ngIf="taxaControl?.value?.length"
                 >
-                  <span class="Chip" *ngFor="let taxon of taxaControl?.value">
+                  <span
+                    class="Chip"
+                    *ngFor="let taxon of taxaControl?.value"
+                  >
                     {{ taxon.nom_valide || taxon.lb_nom }}
                     <button
                       type="button"
                       (click)="removeTaxon(taxon.cd_nom)"
                       matTooltip="{{ 'Permrequests.Form.Data.TaxaField.Remove' | translate }}"
                       aria-label="{{ 'Permrequests.Form.Data.TaxaField.Remove' | translate }}"
-                    >×</button>
+                    >
+                      ×
+                    </button>
                   </span>
                 </div>
                 <div
@@ -189,24 +198,42 @@
                   {{ 'Permrequests.Form.Data.AreaField.Label' | translate }}
                 </label>
 
-                <div class="Field__radio Field__radio--area-mode" *ngIf="allowCustomArea">
+                <div
+                  class="Field__radio Field__radio--area-mode"
+                  *ngIf="allowCustomArea"
+                >
                   <label>
-                    <input type="radio" formControlName="area_mode" value="existing"
-                      (change)="onAreaModeChange('existing')" />
+                    <input
+                      type="radio"
+                      formControlName="area_mode"
+                      value="existing"
+                      (change)="onAreaModeChange('existing')"
+                    />
                     {{ 'Permrequests.Form.Data.AreaField.Existing.Mode' | translate }}
                   </label>
                   <label>
-                    <input type="radio" formControlName="area_mode" value="custom"
-                      (change)="onAreaModeChange('custom')" />
+                    <input
+                      type="radio"
+                      formControlName="area_mode"
+                      value="custom"
+                      (change)="onAreaModeChange('custom')"
+                    />
                     {{ 'Permrequests.Form.Data.AreaField.Custom.Mode' | translate }}
                   </label>
                 </div>
 
                 <div [hidden]="allowCustomArea && isCustomAreaMode">
-                  <pnx-areas id="areas" [typeCodes]="['COM', 'DEP', 'REG']" [parentFormControl]="areasControl"
+                  <pnx-areas
+                    id="areas"
+                    [typeCodes]="['COM', 'DEP', 'REG']"
+                    [parentFormControl]="areasControl"
                     [defaultItems]="selectedAreasDefaultItems"
-                    (onSelectionChange)="onAreasSelectionChange($event)"></pnx-areas>
-                  <div class="Field__error" *ngIf="!isAreaValid && areasControl?.touched">
+                    (onSelectionChange)="onAreasSelectionChange($event)"
+                  ></pnx-areas>
+                  <div
+                    class="Field__error"
+                    *ngIf="!isAreaValid && areasControl?.touched"
+                  >
                     {{ 'Permrequests.Form.Data.AreaField.Existing.Required' | translate }}
                   </div>
                 </div>
@@ -222,7 +249,10 @@
                           accept=".geojson,.json"
                           (change)="onGeoJsonFileChange($event)"
                         />
-                        <label class="custom-file-label" for="geojson_file">
+                        <label
+                          class="custom-file-label"
+                          for="geojson_file"
+                        >
                           {{
                             selectedGeoJsonFileName ||
                               permissionRequest?.custom_area?.file_name ||
@@ -232,7 +262,10 @@
                       </div>
                     </div>
 
-                    <div class="Field__error" *ngIf="geoJsonParseError">
+                    <div
+                      class="Field__error"
+                      *ngIf="geoJsonParseError"
+                    >
                       {{ geoJsonParseError }}
                     </div>
                   </div>
@@ -284,7 +317,9 @@
       type="submit"
       mat-flat-button
       color="primary"
-      [disabled]="form.invalid || !isAreaValid || form.pristine || isSaving || isSameAsPermissionRequest"
+      [disabled]="
+        form.invalid || !isAreaValid || form.pristine || isSaving || isSameAsPermissionRequest
+      "
     >
       {{ 'Permrequests.Form.Actions.Submit' | translate }}
     </button>

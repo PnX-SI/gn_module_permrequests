@@ -72,9 +72,11 @@ export class PermissionRequestInfoComponent implements OnChanges {
     const hasCustomArea = !!pr.custom_area;
     if (!hasAreas && !hasCustomArea) return;
 
-    this._permissionRequestService
-      .getMapData(pr.id_permission_request)
-      .subscribe({ next: (data) => { this.mapGeojson = data; } });
+    this._permissionRequestService.getMapData(pr.id_permission_request).subscribe({
+      next: (data) => {
+        this.mapGeojson = data;
+      },
+    });
   }
 
   getCustomAreaDownloadUrl(): string | null {

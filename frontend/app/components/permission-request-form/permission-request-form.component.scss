@@ -160,7 +160,9 @@
             font-size: 1.1rem;
             line-height: 1;
             color: #7986cb;
-            &:hover { color: #c62828; }
+            &:hover {
+              color: #c62828;
+            }
           }
         }
       }

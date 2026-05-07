@@ -35,9 +35,8 @@
               />
               <div class="MultiselectOptionItem__text">
                 {{
-                  ('Permrequests.Enums.Status.' + item.group | translate)
-                  ||
-                  ('Permrequests.Enums.Status.' + item.value | translate)
+                  ('Permrequests.Enums.Status.' + item.group | translate) ||
+                    ('Permrequests.Enums.Status.' + item.value | translate)
                 }}
               </div>
             </div>
@@ -68,12 +67,16 @@
           [items]="scopeOptions"
           bindValue="value"
           [clearable]="true"
-          placeholder="{{ 'Permrequests.List.Filters.Labels.Scope'  | translate }}"
+          placeholder="{{ 'Permrequests.List.Filters.Labels.Scope' | translate }}"
           formControlName="scope"
           [multiple]="true"
           [closeOnSelect]="false"
         >
-          <ng-template ng-option-tmp  ng-label-tmp let-item="item">
+          <ng-template
+            ng-option-tmp
+            ng-label-tmp
+            let-item="item"
+          >
             {{ 'Permrequests.Enums.Scope.' + item.value | translate }}
           </ng-template>
         </ng-select>
@@ -89,7 +92,11 @@
           [multiple]="true"
           [closeOnSelect]="false"
         >
-          <ng-template ng-option-tmp  ng-label-tmp let-item="item">
+          <ng-template
+            ng-option-tmp
+            ng-label-tmp
+            let-item="item"
+          >
             {{ 'Permrequests.Enums.Sensitivity.' + item.value | translate }}
           </ng-template>
         </ng-select>

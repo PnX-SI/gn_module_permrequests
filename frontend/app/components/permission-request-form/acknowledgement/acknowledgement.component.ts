@@ -12,14 +12,12 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ConfigService } from '@geonature/services/config.service';
 import { I18nService } from '@geonature/shared/translate/i18n-service';
 
-
 type TermsLink = {
   classCss: string;
   href: string;
   target: string;
   rel: string;
 };
-
 
 @Component({
   standalone: true,
@@ -37,7 +35,7 @@ export class AcknowledgementComponent {
     private controlContainer: ControlContainer,
     private _configService: ConfigService,
     private _i18nService: I18nService,
-    private _translateService: TranslateService,
+    private _translateService: TranslateService
   ) {
     const moduleConfig = this._configService.PERMREQUESTS ?? {};
     this.termsLink = this._buildTermsLink(moduleConfig.TERMS_ACKNOWLEDGEMENT ?? null);

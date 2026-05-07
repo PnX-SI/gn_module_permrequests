@@ -30,13 +30,12 @@ import {
   imports: [GN2CommonModule, CommonModule, RouterModule, MatButtonModule],
 })
 export class PermissionRequestToolbarComponent {
-
   constructor(
     private _permissionRequestService: PermissionRequestService,
     private _dialog: MatDialog,
     private _moduleService: ModuleService,
     private _translateService: TranslateService,
-    private _i18nService: I18nService,
+    private _i18nService: I18nService
   ) {
     this._i18nService.initializeModuleTranslateService(this._translateService);
   }

@@ -107,10 +107,7 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
     { value: PermissionRequestScope.ORGANISM },
   ];
 
-  sensitivityOptions = [
-    { value: 'TRUE' },
-    { value: 'FALSE' },
-  ];
+  sensitivityOptions = [{ value: 'TRUE' }, { value: 'FALSE' }];
 
   filtersForm = new FormGroup({
     status: new FormControl<string[] | null>([]),
@@ -124,7 +121,7 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
     private _moduleService: ModuleService,
     private _cruvedStore: CruvedStoreService,
     private _i18nService: I18nService,
-    private _translateService: TranslateService,
+    private _translateService: TranslateService
   ) {
     this._i18nService.initializeModuleTranslateService(this._translateService);
   }
