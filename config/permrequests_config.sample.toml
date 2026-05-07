@@ -1,12 +1,32 @@
 # Sample of configuration file for the permrequests module.
 #
+# All parameters available in this file are optional as they have default values defined in the code.
+# You only need to specify the parameters you want to change from the default values.
+# The parameters are explained in comments in this file, and the default values are the ones used.
+#
 # This file should be copied to geonature/config/permrequests_config.toml and edited to fit your
 # needs of the deployment.
 # Alternatively, you could copy this file in current directory and use a symbolic link in
 # geonature/config/ directory.
 
+# Autorise uploading of GeoJson file to define a custom area for the permission request.
+ALLOW_CUSTOM_AREA = false
+
+# List of allowed scopes for the permission request. Possible values are "USER" and "ORGANISM".
 ALLOWED_SCOPES = ["USER", "ORGANISM"]
+
+# List of allowed area type codes for the permission request. Codes must be defined in the
+# geonature database in the table "ref_geo.bib_areas_types".
 ALLOWED_AREA_TYPE_CODES = ["COM", "DEP", "REG"]
+
+# List of permissions to create when a permission request is validated.
+# Use module code for `module` and action code for `action` (R, E, C, U, D), as defined in the geonature database.
+[[PERMISSIONS_TO_CREATE]]
+    module = "SYNTHESE"
+    action = "R"
+[[PERMISSIONS_TO_CREATE]]
+    module = "SYNTHESE"
+    action = "E"
 
 [SENSITIVITY_FILTER]
     # Enable the display of the sensitive data filter in the permission request form.
@@ -15,7 +35,9 @@ ALLOWED_AREA_TYPE_CODES = ["COM", "DEP", "REG"]
     # Default value of the sensitive filter. By default set to true.
     DEFAULT_VALUE = true
 
+# WARNING: by default you must define the URL parameter for the terms acknowledgement, otherwise
+# set an empty value.
 [TERMS_ACKNOWLEDGEMENT]
     REQUIRED = true
-    # URL = "https://exemple.org/conditions"
-    # CLASS_CSS = "btn btn-primary"
+    URL = "https://exemple.org/conditions"
+    #CLASS_CSS = "btn btn-primary"
