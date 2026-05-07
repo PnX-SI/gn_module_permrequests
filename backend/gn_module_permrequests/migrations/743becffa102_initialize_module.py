@@ -119,13 +119,16 @@ def upgrade():
     print("-> Module upgrade complete!")
     print_post_installation_steps()
 
+
 def print_post_installation_steps():
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("Post-migration steps:")
     print("1. Grant all permissions to an admin group (e.g., 'Grp_admin'):")
     print("   geonature permissions supergrant --group --nom Grp_admin")
-    print("\n2. Assign default permissions to your users group for the "
-          f"'{MODULE_CODE}' module in the GeoNature admin interface:")
+    print(
+        "\n2. Assign default permissions to your users group for the "
+        f"'{MODULE_CODE}' module in the GeoNature admin interface:"
+    )
 
     # --- Table formatting ---
     header = ["Action", "Object", "Scope filter"]
@@ -139,10 +142,11 @@ def print_post_installation_steps():
     row_format = "   ".join([f"{{:<{width}}}" for width in col_widths])
 
     print("\n   " + row_format.format(*header))
-    print("   " + row_format.format(*["-"*w for w in col_widths]))
+    print("   " + row_format.format(*["-" * w for w in col_widths]))
     for row in rows:
         print("   " + row_format.format(*row))
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
+
 
 def update_module_infos():
     operation = sa.sql.text(
@@ -161,10 +165,11 @@ def update_module_infos():
             "code": MODULE_CODE,
             "label": "Demandes d'accès",
             "description": "Module de gestion des demandes de permission d'accès "
-                "aux données sensibles de la Synthese.",
+            "aux données sensibles de la Synthese.",
             "docUrl": "https://github.com/PnX-SI/gn_module_permrequests",
         },
     )
+
 
 def create_module_schema_tables():
     op.execute(sa.text(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_NAME}"))
@@ -224,7 +229,9 @@ def create_module_schema_tables():
             nullable=False,
             unique=True,
         ),
-        sa.PrimaryKeyConstraint("id_request", "id_permission", name=f"pk_{PERMISSION_LINKS_TABLE}"),
+        sa.PrimaryKeyConstraint(
+            "id_request", "id_permission", name=f"pk_{PERMISSION_LINKS_TABLE}"
+        ),
         schema=SCHEMA_NAME,
     )
 
@@ -251,6 +258,7 @@ def create_module_schema_tables():
         sa.Column("file_name", sa.Text(), nullable=True),
         schema=SCHEMA_NAME,
     )
+
 
 def add_module_permissions():
     op.execute(f"""
@@ -282,6 +290,7 @@ def add_module_permissions():
             JOIN gn_permissions.bib_actions AS a
                 ON a.code_action = v.action_code
     """)
+
 
 def add_module_notifications():
     category_values = []
@@ -387,6 +396,7 @@ def get_module_id(module_code):
         )
     return module_id
 
+
 def get_object_id(object_code):
     conn = op.get_bind()
     object_id = conn.execute(
@@ -404,6 +414,7 @@ def get_object_id(object_code):
             f"Permission object '{object_code}' is required to configure notifications."
         )
     return object_id
+
 
 def get_action_id(action_code):
     conn = op.get_bind()
@@ -464,6 +475,7 @@ def remove_module_notifications():
             ),
             {"code": definition["code"]},
         )
+
 
 def remove_module_permissions():
     conn = op.get_bind()
@@ -533,6 +545,7 @@ def remove_module_permissions():
             ),
             {"module_id": module_id},
         )
+
 
 def drop_module_schema_tables():
     op.drop_table(CUSTOM_AREA_TABLE, schema=SCHEMA_NAME)

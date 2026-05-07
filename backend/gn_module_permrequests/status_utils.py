@@ -27,7 +27,9 @@ STATUS_ORDER = [
 STATUS_ORDER_INDEX = {key: index + 1 for index, key in enumerate(STATUS_ORDER)}
 
 
-def compute_status(validated, created_on, expiration_date, id_validator=None, today=None):
+def compute_status(
+    validated, created_on, expiration_date, id_validator=None, today=None
+):
     today = today or date.today()
 
     if validated is False:

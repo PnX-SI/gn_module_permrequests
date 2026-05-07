@@ -71,7 +71,9 @@ class PermissionRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     created_on = fields.Date(attribute="created_on", dump_only=True)
     expiration_date = fields.Date(attribute="expiration_date", dump_only=True)
     validated = fields.Boolean(attribute="validated", allow_none=True, dump_only=True)
-    validation_date = fields.DateTime(attribute="validation_date", allow_none=True, dump_only=True)
+    validation_date = fields.DateTime(
+        attribute="validation_date", allow_none=True, dump_only=True
+    )
     sensitivity_filter = fields.Boolean(attribute="sensitivity_filter", dump_only=True)
     scope = fields.Method("get_scope", dump_only=True)
     description = auto_field()

@@ -130,7 +130,9 @@ class PermissionRequest(DB.Model):
         elif scope == 2:
             return sa.or_(
                 cls.permissions.any(Permission.role == user),
-                cls.permissions.any(Permission.role.has(User.id_organisme == user.id_organisme)),
+                cls.permissions.any(
+                    Permission.role.has(User.id_organisme == user.id_organisme)
+                ),
             )
         elif scope == 3:
             return sa.true()
@@ -145,7 +147,9 @@ class PermissionRequest(DB.Model):
             query = query.where(
                 sa.or_(
                     PermissionRequest.id_author == user.id_role,
-                    PermissionRequest.author.has(User.id_organisme == user.id_organisme),
+                    PermissionRequest.author.has(
+                        User.id_organisme == user.id_organisme
+                    ),
                 )
             )
         elif scope == 3:
