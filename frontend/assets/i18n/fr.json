@@ -33,7 +33,8 @@
         "Form": {
             "Actions": {
                 "Submit": "Enregistrer",
-                "Reset": "Réinitialiser"
+                "Reset": "Réinitialiser",
+                "Warning": "Enregistrer la demande annulera la validation en cours et soumettra la demande à une nouvelle validation."
             },
             "Acknowledgment": {
                 "Terms": {
@@ -62,6 +63,17 @@
                     "Remove": "Retirer ce taxon"
                 },
                 "AreaField": {
+                    "Custom": {
+                        "Label": "Zone géographique personnalisée",
+                        "Input": "Choisir un fichier GeoJSON à téléverser",
+                        "Mode": "Chargement de GeoJSON personnalisé",
+                        "Warning": "La zone géographique personnalisée n'est pas prise en compte dans la synthèse."
+                    },
+                    "Existing": {
+                        "Label": "Zones géographiques prédéfinies",
+                        "Mode": "Sélection de zone prédéfinie",
+                        "Required": "Vous devez sélectionner au moins une zone géographique."
+                    },
                     "Label": "Zones géographiques"
                 },
                 "Sensitivity": {

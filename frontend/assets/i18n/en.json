@@ -1,28 +1,157 @@
 {
     "Permrequests": {
+        "Breadcrumb": {
+            "Actions": {
+                "Return": "Return"
+            },
+            "Titles": {
+                "Create": "New permission request",
+                "Edit": "Permission request #{{id_permission_request}}",
+                "Details": "Permission request details"
+            }
+        },
+        "Enums": {
+            "Scope" : {
+                "ORGANISM": "Organism",
+                "USER": "User"
+            },
+            "Sensitivity": {
+                "TRUE": "Yes",
+                "FALSE": "No"
+            },
+            "Status": {
+                "ACTIVE": "Active",
+                "APPROVED": "Approved",
+                "EXPIRED": "Expired",
+                "IN_PROGRESS": "In progress",
+                "PENDING": "Pending",
+                "REFUSED": "Refused",
+                "UPCOMING": "Upcoming",
+                "VALIDATED": "Validated"
+            }
+        },
         "Form": {
+            "Actions": {
+                "Submit": "Save",
+                "Reset": "Reset",
+                "Warning": "Saving the request will cancel the current validation and submit the request for a new validation."
+            },
+            "Acknowledgment": {
+                "Terms": {
+                    "WithLink": "I have read and accept the <a class=\"{{classCss}}\" href=\"{{href}}\" target=\"{{target}}\" rel=\"{{rel}}\">terms of use</a>.",
+                    "TextOnly": "I have read and accept the terms of use."
+                },
+                "Required": "You must accept the terms of use to submit the request."
+            },
             "Beneficiary": {
                 "Title": "Beneficiary",
                 "Subtitle": "Author and scope of the request.",
                 "Author": "Author",
                 "Scope": {
-                    "Title": "Scope",
-                    "User": "Me only",
+                    "Label": "Scope",
                     "Organism": "My organism",
-                    "Required": "Scope is required."
+                    "Required": "The scope is required.",
+                    "User": "Only me"
                 }
             },
+            "Data": {
+                "Title": "Concerned data",
+                "Subtitle": "Concerned taxa and geographical areas.",
+                "TaxaField": {
+                    "Label": "Taxa",
+                    "Required": "You must select at least one taxon.",
+                    "Remove": "Remove this taxon"
+                },
+                "AreaField": {
+                    "Custom": {
+                        "Label": "Custom geographical area",
+                        "Input": "Choose a file",
+                        "Mode": "Upload a custom GeoJSON",
+                        "Warning": "The custom geographical area is not taken into account in the synthesis."
+                    },
+                    "Existing": {
+                        "Label": "Predefined geographical areas",
+                        "Mode": "Select at least one predefined area",
+                        "Required": "You must select at least one geographical area."
+                    },
+                    "Label": "Geographical areas"
+                },
+                "Sensitivity": {
+                    "Label": "Include sensitive data",
+                    "Yes": "Yes",
+                    "No": "No"
+                },
+                "ShowData": "View concerned data"
+            },
             "Description": {
-                "Title": "Description"
+                "Title": "Description",
+                "Subtitle": "",
+                "Empty": "Not provided!",
+                "Placeholder": "Describe the need or context."
+            },
+            "Validation": {
+                "Comment": "Validation comment",
+                "Validator": "Validator"
             },
             "Validity": {
                 "Title": "Validity window",
-                "Subtitle": "Period during which the permission is required."
-            },
-            "Data": {
-                "Title": "Data concerned",
-                "Subtitle": "Select the concerned taxa and areas."
+                "Subtitle": "Period during which the permission is required.",
+                "CreationDate": "Creation date",
+                "ExpirationDate": "Expiration date",
+                "Required": "The expiration date is required.",
+                "invalidDate": "The creation date must be before the expiration date."
             }
+        },
+        "List": {
+            "Actions": {
+                "Create": "New request",
+                "Delete": "Delete",
+                "Read": "View",
+                "Update": "Edit"
+            },
+            "Columns": {
+                "Areas": "Geographical area(s)",
+                "Author": "Author",
+                "CreationDate": "Created on",
+                "ExpirationDate": "Expires on",
+                "Id": "ID",
+                "Scope": "Scope",
+                "Sensitivity": "Sensitivity",
+                "Status": "Status",
+                "Taxa": "Taxonomic group(s)",
+                "Validator": "Validator"
+            },
+            "EmptyState": {
+                "Message": "No permission request found."
+            },
+            "Filters": {
+                "Labels": {
+                    "MyValidations": "My validations",
+                    "Scope": "Scope",
+                    "Sensitivity": "Sensitivity",
+                    "Status": "Status"
+                }
+            }
+        },
+        "ValidationDialog": {
+            "Actions": {
+                "Cancel": "Cancel",
+                "Reset": "Reset",
+                "Validate": "Validate"
+            },
+            "Status": {
+                "Title": "Validation status",
+                "Approve": "Approve",
+                "ApprovedHint": "This request will be considered as \"{{ date_status_label }}\".",
+                "InProgress": "In progress",
+                "Refuse": "Refuse"
+            },
+            "Message": {
+                "Title": "Message to be sent with this validation",
+                "Label":"Message (optional)",
+                "Placeholder": "Enter a message to send to the applicant (e.g. special conditions of use, explanation of refusal...)"
+            },
+            "Title": "Validate the permission request"
         }
     }
 }

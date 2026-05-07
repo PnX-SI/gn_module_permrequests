@@ -193,12 +193,12 @@
                   <label>
                     <input type="radio" formControlName="area_mode" value="existing"
                       (change)="onAreaModeChange('existing')" />
-                    Sélectionner une zone existante
+                    {{ 'Permrequests.Form.Data.AreaField.Existing.Mode' | translate }}
                   </label>
                   <label>
                     <input type="radio" formControlName="area_mode" value="custom"
                       (change)="onAreaModeChange('custom')" />
-                    Charger un GeoJSON personnalisé
+                    {{ 'Permrequests.Form.Data.AreaField.Custom.Mode' | translate }}
                   </label>
                 </div>
 
@@ -207,7 +207,7 @@
                     [defaultItems]="selectedAreasDefaultItems"
                     (onSelectionChange)="onAreasSelectionChange($event)"></pnx-areas>
                   <div class="Field__error" *ngIf="!isAreaValid && areasControl?.touched">
-                    Vous devez sélectionner au moins une zone géographique.
+                    {{ 'Permrequests.Form.Data.AreaField.Existing.Required' | translate }}
                   </div>
                 </div>
 
@@ -223,7 +223,11 @@
                           (change)="onGeoJsonFileChange($event)"
                         />
                         <label class="custom-file-label" for="geojson_file">
-                          {{ selectedGeoJsonFileName || permissionRequest?.custom_area?.file_name || 'Choisir un fichier' }}
+                          {{
+                            selectedGeoJsonFileName ||
+                              permissionRequest?.custom_area?.file_name ||
+                              ('Permrequests.Form.Data.AreaField.Custom.Input' | translate)
+                          }}
                         </label>
                       </div>
                     </div>
@@ -265,7 +269,7 @@
       *ngIf="permissionRequest?.validated === true"
     >
       <mat-icon color="warn">warning</mat-icon>
-      Enregistrer la demande annulera la validation en cours et soumettra la demande à une nouvelle validation.
+      {{ 'Permrequests.Form.Actions.Warning' | translate }}
     </div>
     <button
       type="button"
