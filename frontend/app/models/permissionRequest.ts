@@ -51,6 +51,7 @@ export enum PermissionRequestScope {
 }
 
 export const DEFAULT_SCOPE = PermissionRequestScope.USER;
+
 export interface Cruved {
   C: boolean;
   R: boolean;

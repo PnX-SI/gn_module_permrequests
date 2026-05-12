@@ -18,9 +18,9 @@ import { I18nService } from '@geonature/shared/translate/i18n-service';
 import { DEFAULT_PAGINATION, PaginationItem } from '../../models/paginationItem';
 import { SORT_ORDER, SortItem } from '../../models/sortItem';
 import {
+  DEFAULT_SCOPE,
   PermissionRequest,
   PermissionRequestScope,
-  DEFAULT_SCOPE,
 } from '../../models/permissionRequest';
 import {
   PermissionRequestListResponse,
@@ -30,6 +30,7 @@ import { PermissionRequestToolbarComponent } from '../permission-request-toolbar
 import { ROUTE_PATHS } from '../../gnModule.module';
 import { canCreatePermission } from '../../guards/can-create.guard';
 import { STATUS } from '../../models/status';
+import { ConfigService } from '@geonature/services/config.service';
 
 type FiltersFormValue = {
   status: string[] | null;
@@ -67,6 +68,7 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
   readonly PROP_VALIDATION_DESCRIPTION = 'validation_description';
   readonly PROP_STATUS = 'status';
   readonly PermissionRequestScope = PermissionRequestScope;
+  readonly scopeFilterDefaultValue: PermissionRequestScope;
 
   pagination: PaginationItem = DEFAULT_PAGINATION;
   sort: SortItem = {
@@ -79,6 +81,7 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
 
   private _destroy$ = new Subject<void>();
 
+  // TODO: remove this and use i18n
   readonly scopeLabels: Record<PermissionRequestScope, string> = {
     [PermissionRequestScope.USER]: 'Utilisateur',
     [PermissionRequestScope.ORGANISM]: 'Organisme',
@@ -121,8 +124,13 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
     private _moduleService: ModuleService,
     private _cruvedStore: CruvedStoreService,
     private _i18nService: I18nService,
-    private _translateService: TranslateService
+    private _translateService: TranslateService,
+    private _configService: ConfigService,
   ) {
+    const moduleConfig = this._configService.PERMREQUESTS ?? {};
+    this.scopeFilterDefaultValue =
+      moduleConfig.SCOPE_FILTER.DEFAULT_VALUE ?? DEFAULT_SCOPE;
+
     this._i18nService.initializeModuleTranslateService(this._translateService);
   }
 
@@ -153,7 +161,7 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
 
   renderScope(scope: PermissionRequestScope | null): string {
     if (!scope) {
-      return this.scopeLabels[DEFAULT_SCOPE];
+      return this.scopeLabels[this.scopeFilterDefaultValue];
     }
     return this.scopeLabels[scope] ?? scope;
   }

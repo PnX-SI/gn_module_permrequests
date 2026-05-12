@@ -27,7 +27,7 @@
               <div>{{ authorName }}</div>
             </div>
 
-            <div class="Field">
+            <div class="Field" *ngIf="shouldDisplayScopeFilter">
               <div class="Field__label">
                 {{ 'Permrequests.Form.Beneficiary.Scope.Label' | translate }}
               </div>

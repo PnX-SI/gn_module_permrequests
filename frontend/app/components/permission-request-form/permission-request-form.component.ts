@@ -22,11 +22,7 @@ import { ConfigService } from '@geonature/services/config.service';
 import { AuthService } from '@geonature/components/auth/auth.service';
 import { I18nService } from '@geonature/shared/translate/i18n-service';
 
-import {
-  PermissionRequest,
-  PermissionRequestScope,
-  DEFAULT_SCOPE,
-} from '../../models/permissionRequest';
+import { DEFAULT_SCOPE, PermissionRequest, PermissionRequestScope } from '../../models/permissionRequest';
 import {
   PermissionRequestPayload,
   PermissionRequestService,
@@ -67,8 +63,13 @@ type PermissionRequestFormValue = {
 export class PermissionRequestFormComponent {
   isSaving = false;
   readonly shouldDisplayAcknowledgement: boolean;
+
   readonly shouldDisplaySensitivityFilter: boolean;
   readonly sensitivityFilterDefaultValue: boolean;
+
+  readonly shouldDisplayScopeFilter: boolean;
+  readonly scopeFilterDefaultValue: PermissionRequestScope;
+
   readonly allowCustomArea: boolean;
   readonly PermissionRequestScope = PermissionRequestScope;
   readonly sections = PERMISSION_REQUEST_SECTIONS;
@@ -94,9 +95,16 @@ export class PermissionRequestFormComponent {
   ) {
     const moduleConfig = this._configService.PERMREQUESTS ?? {};
     this.shouldDisplayAcknowledgement = !!moduleConfig.TERMS_ACKNOWLEDGEMENT.REQUIRED;
+
     this.shouldDisplaySensitivityFilter = !!moduleConfig.SENSITIVITY_FILTER.DISPLAY_ENABLED;
     this.sensitivityFilterDefaultValue = !!moduleConfig.SENSITIVITY_FILTER.DEFAULT_VALUE;
+
+    this.shouldDisplayScopeFilter = !!moduleConfig.SCOPE_FILTER.DISPLAY_ENABLED;
+    this.scopeFilterDefaultValue =
+      moduleConfig.SCOPE_FILTER.DEFAULT_VALUE ?? DEFAULT_SCOPE;
+
     this.allowCustomArea = !!moduleConfig.ALLOW_CUSTOM_AREA;
+
     this._setupValidators();
     this._setupAcknowledgementControl();
     this._i18nService.initializeModuleTranslateService(this._translateService);
@@ -135,7 +143,7 @@ export class PermissionRequestFormComponent {
     return this._formBuilder.group({
       description: [''],
       expiration_date: [null, [Validators.required]],
-      scope: [DEFAULT_SCOPE, [Validators.required]],
+      scope: [this.scopeFilterDefaultValue, [Validators.required]],
       sensitivity_filter: [this.sensitivityFilterDefaultValue],
       acknowledgeTerms: [false],
       taxa: [[]],
@@ -294,7 +302,10 @@ export class PermissionRequestFormComponent {
 
     if (!!rawValue.sensitivity_filter !== !!this.permissionRequest.sensitivity_filter) return false;
 
-    if ((rawValue.scope ?? DEFAULT_SCOPE) !== (this.permissionRequest.scope ?? DEFAULT_SCOPE))
+    if (
+      (rawValue.scope ?? this.scopeFilterDefaultValue) !==
+      (this.permissionRequest.scope ?? this.scopeFilterDefaultValue)
+    )
       return false;
 
     const selectedTaxa = this._extractTaxaIdentifiers(rawValue.taxa).sort((a, b) => a - b);
@@ -350,7 +361,7 @@ export class PermissionRequestFormComponent {
       this.form.reset({
         description: '',
         expiration_date: null,
-        scope: DEFAULT_SCOPE,
+        scope: this.scopeFilterDefaultValue,
         sensitivity_filter: this.sensitivityFilterDefaultValue,
         acknowledgeTerms: this.shouldDisplayAcknowledgement ? false : true,
         taxa: [],
@@ -366,7 +377,7 @@ export class PermissionRequestFormComponent {
         expiration_date: this.permissionRequest.expiration_date
           ? this._dateParser.parse(this.permissionRequest.expiration_date)
           : null,
-        scope: this.permissionRequest.scope ?? DEFAULT_SCOPE,
+        scope: this.permissionRequest.scope ?? this.scopeFilterDefaultValue,
         sensitivity_filter: !!this.permissionRequest.sensitivity_filter,
         acknowledgeTerms: true,
         taxa: (this.permissionRequest.taxa ?? []).map((taxon) => ({

@@ -8,18 +8,20 @@ import { Params, RouterModule } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
+import { ConfigService } from '@geonature/services/config.service';
 import { I18nService } from '@geonature/shared/translate/i18n-service';
 
 import {
+  DEFAULT_SCOPE,
   PermissionRequest,
   PermissionRequestScope,
-  DEFAULT_SCOPE,
   PermissionRequestTaxon,
   PermissionRequestArea,
 } from '../../models/permissionRequest';
 import { PermissionRequestService } from '../../services/permissionRequest.service';
 import { PERMISSION_REQUEST_SECTIONS } from '../permission-request-common/permission-request-sections';
 
+// TODO: remove this constant and use i18n
 const SCOPE_LABELS: Record<PermissionRequestScope, string> = {
   [PermissionRequestScope.USER]: 'Utilisateur',
   [PermissionRequestScope.ORGANISM]: 'Organisme',
@@ -46,14 +48,20 @@ export class PermissionRequestInfoComponent implements OnChanges {
   readonly scopeLabels = SCOPE_LABELS;
   readonly sections = PERMISSION_REQUEST_SECTIONS;
   readonly syntheseLink = ['/synthese'];
+  readonly scopeFilterDefaultValue: PermissionRequestScope;
 
   mapGeojson: object | null = null;
 
   constructor(
+    private _configService: ConfigService,
     private _i18nService: I18nService,
     private _translateService: TranslateService,
     private _permissionRequestService: PermissionRequestService
   ) {
+    const moduleConfig = this._configService.PERMREQUESTS ?? {};
+    this.scopeFilterDefaultValue =
+      moduleConfig.SCOPE_FILTER.DEFAULT_VALUE ?? DEFAULT_SCOPE;
+
     this._i18nService.initializeModuleTranslateService(this._translateService);
   }
 
@@ -87,7 +95,7 @@ export class PermissionRequestInfoComponent implements OnChanges {
   }
 
   getScopeLabel(scope: PermissionRequestScope | null): string {
-    if (!scope) return this.scopeLabels[DEFAULT_SCOPE];
+    if (!scope) return this.scopeLabels[this.scopeFilterDefaultValue];
     return scope in this.scopeLabels ? this.scopeLabels[scope as PermissionRequestScope] : scope;
   }
 
