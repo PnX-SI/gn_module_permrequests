@@ -94,12 +94,18 @@ GeoNature.
 
 - `ALLOW_CUSTOM_AREA`: autorise (`true`) ou pas (`false`) le téléversement de fichier GeoJSON pour définir une zone géographique personnalisé sur laquelle demande de permission s'appliquera.
 - `ALLOWED_AREA_TYPE_CODES` : liste des types de zones autorisés (par défaut `["COM", "DEP", "REG"]`).
-- `ALLOWED_SCOPES` : liste des scopes autorisés pour les demandes (par défaut `["USER", "ORGANISM"]`).
 - `PERMISSIONS_TO_CREATE` : contient une liste d'objets permettant de définir les permissions créés par une demande de permission. Le format de chaque objet est le suivant `{"module": "<code-du-module>", "action": "<code-de-l'action>"}`.
-- `TERMS_ACKNOWLEDGEMENT` : section permetant de configurer la coche d'acceptation des termes et conditions des demandes d'accès. Le texte et le lien sont configurable via [la surcharge des fichiers de traductions](https://docs.geonature.fr/admin-manual.html#customiser-les-traductions).
-- `TERMS_ACKNOWLEDGEMENT.REQUIRED` : permet de faire apparaitre / dissimuler dans le formulaire une coche d'acceptation des termes et conditions. Par défaut, c'est affiché.
-- `TERMS_ACKNOWLEDGEMENT.URL` : URL vers les conditions d'utilisations (ouvre un nouvel onglet). Si non définit ou vide seul le texte sera affiché. Par défaut, aucun lien n'est défini.
-- `TERMS_ACKNOWLEDGEMENT.CLASS_CSS` : permet de définir des classes CSS sur le lien des conditions d'utilisation. Ex.: `btn btn-primary`.
+- `SCOPE_FILTER` : section permettant de configurer l'affichage du filtre liés à la sensibilité au sein de la demande.
+  - `SCOPE_FILTER.DISPLAY_ENABLED` : affiche (`true`) ou pas (`false`) la possibilité de sélectionner la portée d'une demande.
+  - `SCOPE_FILTER.ALLOWED_VALUES` : liste des valeurs autorisées pour le filtre de portée vérifiées côté serveur. Par défaut : utilisateur (`USER`) et organisme (`ORGANISM`). Ne devrait pas être modifié.
+  - `SCOPE_FILTER.DEFAULT_VALUE` : permet de définir la valeur par défaut (`USER`) pour le filtre de portée de la demande.
+- `SENSITIVITY_FILTER` : section permettant de configurer l'affichage du filtre liés à la sensibilité au sein de la demande.
+  - `SENSITIVITY_FILTER.DISPLAY_ENABLED` : affiche (`true`) ou pas (`false`) la coche permettant de définir le filtre de sensibilité de la demande.
+  - `SENSITIVITY_FILTER.DEFAULT_VALUE` : permet de définir la valeur par défaut (`true`) du filtre de sensibilité de la demande.
+- `TERMS_ACKNOWLEDGEMENT` : section permetant de configurer la coche d'acceptation des termes et conditions des demandes d'accès. Le texte et le lien sont configurable via [la surcharge des fichiers de traductions](https://docs.geonature.fr/admin-manual.html#customiser-les-traductions).
+  - `TERMS_ACKNOWLEDGEMENT.REQUIRED` : permet de faire apparaitre / dissimuler dans le formulaire une coche d'acceptation des termes et conditions. Par défaut, c'est affiché.
+  - `TERMS_ACKNOWLEDGEMENT.URL` : URL vers les conditions d'utilisations (ouvre un nouvel onglet). Si non définit ou vide seul le texte sera affiché. Par défaut, aucun lien n'est défini.
+  - `TERMS_ACKNOWLEDGEMENT.CLASS_CSS` : permet de définir des classes CSS sur le lien des conditions d'utilisation. Ex.: `btn btn-primary`.
 
 
 > Le statut visible dans l’interface est calculé automatiquement :
