@@ -17,6 +17,15 @@ class SensitivityFilterConfigSchema(Schema):
     DEFAULT_VALUE = fields.Boolean(load_default=True)
 
 
+class ScopeFilterConfigSchema(Schema):
+    DISPLAY_ENABLED = fields.Boolean(load_default=False)
+    ALLOWED_VALUES = fields.List(
+        fields.String(),
+        load_default=["USER", "ORGANISM"],
+    )
+    DEFAULT_VALUE = fields.String(load_default="USER")
+
+
 class TermsAcknowledgementSchemaConf(Schema):
     REQUIRED = fields.Boolean(load_default=True)
     URL = fields.String(load_default="https://www.google.fr")
@@ -29,16 +38,16 @@ class PermrequestsConfigSchema(Schema):
         fields.String(),
         load_default=["COM", "DEP", "REG"],
     )
-    ALLOWED_SCOPES = fields.List(
-        fields.String(),
-        load_default=["USER", "ORGANISM"],
-    )
     PERMISSIONS_TO_CREATE = fields.List(
         fields.Nested(PermissionToCreateSchemaConf),
         load_default=[
             {"module": "SYNTHESE", "action": "R"},
             {"module": "SYNTHESE", "action": "E"},
         ],
+    )
+    SCOPE_FILTER = fields.Nested(
+        ScopeFilterConfigSchema,
+        load_default=ScopeFilterConfigSchema().load({}),
     )
     SENSITIVITY_FILTER = fields.Nested(
         SensitivityFilterConfigSchema,

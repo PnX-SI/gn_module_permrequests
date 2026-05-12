@@ -12,9 +12,6 @@
 # Autorise uploading of GeoJson file to define a custom area for the permission request.
 ALLOW_CUSTOM_AREA = false
 
-# List of allowed scopes for the permission request. Possible values are "USER" and "ORGANISM".
-ALLOWED_SCOPES = ["USER", "ORGANISM"]
-
 # List of allowed area type codes for the permission request. Codes must be defined in the
 # geonature database in the table "ref_geo.bib_areas_types".
 ALLOWED_AREA_TYPE_CODES = ["COM", "DEP", "REG"]
@@ -27,6 +24,15 @@ ALLOWED_AREA_TYPE_CODES = ["COM", "DEP", "REG"]
 [[PERMISSIONS_TO_CREATE]]
     module = "SYNTHESE"
     action = "E"
+
+[SCOPE_FILTER]
+    # Enable the display of the scope filter in the permission request form.
+    DISPLAY_ENABLED = true
+    # List of allowed scope values checked by web services. Possible values are "USER" and "ORGANISM".
+    # Do not modifiy the value unless you know what you are doing and have adapted the code to handle the new values.
+    # ALLOWED_VALUES = ["USER", "ORGANISM"]
+    # Default value of the scope filter. By default set to "USER".
+    DEFAULT_VALUE = "USER"
 
 [SENSITIVITY_FILTER]
     # Enable the display of the sensitive data filter in the permission request form.
