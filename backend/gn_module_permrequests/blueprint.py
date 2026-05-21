@@ -717,8 +717,7 @@ def create_permission_request():
     }
     if forbidden_fields.intersection(payload.keys()):
         raise BadRequest(
-            "Fields status, id_validator, "
-            "id_author and author are not allowed during creation."
+            f"Fields {', '.join(sorted(forbidden_fields))} are not allowed during creation."
         )
 
     allowed_fields = {
