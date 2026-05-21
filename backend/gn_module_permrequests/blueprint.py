@@ -481,7 +481,8 @@ def list_permission_requests(scope):
 
     module_config = current_app.config[MODULE_CODE]
     allowed_scopes = {
-        scope.strip().upper() for scope in module_config.get("SCOPE_FILTER", {}).get("ALLOWED_VALUES", [])
+        scope.strip().upper()
+        for scope in module_config.get("SCOPE_FILTER", {}).get("ALLOWED_VALUES", [])
     }
     scope_filters = []
     for scope_value in request.args.getlist("scope"):
@@ -754,7 +755,11 @@ def create_permission_request():
     scope_value = _normalize_scope(payload.get("scope", SCOPE_USER))
     if scope_value is None:
         raise BadRequest("scope must be provided as a string.")
-    allowed_scopes = current_app.config[MODULE_CODE].get("SCOPE_FILTER", {}).get("ALLOWED_VALUES", [])
+    allowed_scopes = (
+        current_app.config[MODULE_CODE]
+        .get("SCOPE_FILTER", {})
+        .get("ALLOWED_VALUES", [])
+    )
     if scope_value not in allowed_scopes:
         raise BadRequest(f"Unsupported scope value '{scope_value}'.")
 
@@ -1038,7 +1043,11 @@ def update_permission_request(scope, id_permission_request):
         if not isinstance(raw_scope, str):
             raise BadRequest("scope must be provided as a string.")
         scope_value = _normalize_scope(raw_scope)
-        allowed_scopes = current_app.config[MODULE_CODE].get("SCOPE_FILTER", {}).get("ALLOWED_VALUES", [])
+        allowed_scopes = (
+            current_app.config[MODULE_CODE]
+            .get("SCOPE_FILTER", {})
+            .get("ALLOWED_VALUES", [])
+        )
         if scope_value is None or scope_value not in allowed_scopes:
             raise BadRequest(f"Unsupported scope value '{raw_scope}'.")
         author = permission_request.author
