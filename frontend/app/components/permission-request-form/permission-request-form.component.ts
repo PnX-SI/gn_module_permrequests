@@ -22,7 +22,11 @@ import { ConfigService } from '@geonature/services/config.service';
 import { AuthService } from '@geonature/components/auth/auth.service';
 import { I18nService } from '@geonature/shared/translate/i18n-service';
 
-import { DEFAULT_SCOPE, PermissionRequest, PermissionRequestScope } from '../../models/permissionRequest';
+import {
+  DEFAULT_SCOPE,
+  PermissionRequest,
+  PermissionRequestScope,
+} from '../../models/permissionRequest';
 import {
   PermissionRequestPayload,
   PermissionRequestService,
@@ -100,8 +104,7 @@ export class PermissionRequestFormComponent {
     this.sensitivityFilterDefaultValue = !!moduleConfig.SENSITIVITY_FILTER.DEFAULT_VALUE;
 
     this.shouldDisplayScopeFilter = !!moduleConfig.SCOPE_FILTER.DISPLAY_ENABLED;
-    this.scopeFilterDefaultValue =
-      moduleConfig.SCOPE_FILTER.DEFAULT_VALUE ?? DEFAULT_SCOPE;
+    this.scopeFilterDefaultValue = moduleConfig.SCOPE_FILTER.DEFAULT_VALUE ?? DEFAULT_SCOPE;
 
     this.allowCustomArea = !!moduleConfig.ALLOW_CUSTOM_AREA;
 
@@ -140,7 +143,7 @@ export class PermissionRequestFormComponent {
   form: FormGroup = this._buildForm();
 
   private _buildForm(): FormGroup {
-    return this._formBuilder.group({
+    let defaultFormGroup = {
       description: [''],
       expiration_date: [null, [Validators.required]],
       scope: [this.scopeFilterDefaultValue, [Validators.required]],
@@ -150,7 +153,8 @@ export class PermissionRequestFormComponent {
       taxon_search: [''],
       areas: [[]],
       area_mode: ['existing' as AreaMode],
-    });
+    };
+    return this._formBuilder.group(defaultFormGroup);
   }
 
   private _setupValidators(): void {
@@ -198,33 +202,44 @@ export class PermissionRequestFormComponent {
     this.selectedGeoJsonFileName = null;
 
     const file = (event.target as HTMLInputElement).files?.[0] ?? null;
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        this.parsedGeoJson = JSON.parse(reader.result as string);
-        this.selectedGeoJsonFileName = file.name;
-        this.form.markAsDirty();
-      } catch {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          this.parsedGeoJson = JSON.parse(reader.result as string);
+          this.selectedGeoJsonFileName = file.name;
+          this.areasControl?.updateValueAndValidity({ emitEvent: false });
+          this.form.markAsDirty();
+        } catch {
+          this.geoJsonParseError = "Le GeoJSON fourni n'est pas valide.";
+          this.areasControl?.updateValueAndValidity({ emitEvent: false });
+        }
+      };
+      reader.onerror = () => {
         this.geoJsonParseError = "Le GeoJSON fourni n'est pas valide.";
-      }
-    };
-    reader.onerror = () => {
-      this.geoJsonParseError = "Le GeoJSON fourni n'est pas valide.";
-    };
-    reader.readAsText(file);
+        this.areasControl?.updateValueAndValidity({ emitEvent: false });
+      };
+      reader.readAsText(file);
+    }
   }
 
   get isCustomAreaValid(): boolean {
-    if (!this.isCustomAreaMode) return true;
-    if (this.permissionRequest?.custom_area && !this.parsedGeoJson) return true;
-    return this.parsedGeoJson !== null && this.geoJsonParseError === null;
+    let isCustomAreaValid = false;
+    if (
+      !this.isCustomAreaMode ||
+      (this.permissionRequest?.custom_area && !this.parsedGeoJson) ||
+      (this.parsedGeoJson !== null && this.geoJsonParseError === null)
+    ) {
+      isCustomAreaValid = true;
+    }
+    return isCustomAreaValid;
   }
 
   get isAreaValid(): boolean {
-    if (this.isCustomAreaMode) return this.isCustomAreaValid;
-    return this._extractAreaIdentifiers(this.areasControl?.value).length > 0;
+    let isAreaValid = this.isCustomAreaMode
+      ? this.isCustomAreaValid
+      : this._extractAreaIdentifiers(this.areasControl?.value).length > 0;
+    return isAreaValid;
   }
 
   // //////////////////////////////////////////////////////////////////////////
