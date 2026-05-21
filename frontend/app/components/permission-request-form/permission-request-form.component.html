@@ -288,14 +288,16 @@
         </mat-card>
       </div>
     </div>
+
     <mat-card-content>
-      <acknowledgement
+      <acknowledgement-terms
         class="Acknowledgment"
         *ngIf="shouldDisplayAcknowledgement"
         [controlName]="'acknowledgeTerms'"
       />
     </mat-card-content>
   </div>
+
   <div class="PermissionRequestForm__actions">
     <div
       class="PermissionRequestForm__validationWarning"

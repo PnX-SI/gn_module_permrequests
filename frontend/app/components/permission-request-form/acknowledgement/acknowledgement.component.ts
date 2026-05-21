@@ -21,7 +21,7 @@ type TermsLink = {
 
 @Component({
   standalone: true,
-  selector: 'acknowledgement',
+  selector: 'acknowledgement-terms',
   templateUrl: './acknowledgement.component.html',
   styleUrls: ['./acknowledgement.component.scss'],
   imports: [CommonModule, ReactiveFormsModule, TranslateModule],
