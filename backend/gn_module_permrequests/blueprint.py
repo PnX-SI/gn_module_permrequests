@@ -937,9 +937,13 @@ def create_permission_request():
 
     db.session.add(permission_request)
 
-    # WARNING: force NULL (=None) to all permissions validated field
+    # WARNING: force NULL (=None) to all permissions validated field to
+    # enable PENDING status by default.
     desired_validated = None
     db.session.flush()
+    for p in permission_request.permissions:
+        if p.validated != desired_validated:
+            p.validated = desired_validated
 
     db.session.commit()
 
