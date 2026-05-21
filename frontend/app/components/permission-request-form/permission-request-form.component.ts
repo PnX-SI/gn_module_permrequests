@@ -1,6 +1,13 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -108,7 +115,8 @@ export class PermissionRequestFormComponent {
 
     this.allowCustomArea = !!moduleConfig.ALLOW_CUSTOM_AREA;
 
-    this._setupValidators();
+    this._setupExpirationDateValidator();
+    this._setupAreasValidator();
     this._setupAcknowledgementControl();
     this._i18nService.initializeModuleTranslateService(this._translateService);
   }
@@ -148,22 +156,57 @@ export class PermissionRequestFormComponent {
       expiration_date: [null, [Validators.required]],
       scope: [this.scopeFilterDefaultValue, [Validators.required]],
       sensitivity_filter: [this.sensitivityFilterDefaultValue],
-      acknowledgeTerms: [false],
+      acknowledgeTerms: [false, this.shouldDisplayAcknowledgement ? Validators.requiredTrue : []],
       taxa: [[]],
       taxon_search: [''],
-      areas: [[]],
+      areas: [[], Validators.required],
       area_mode: ['existing' as AreaMode],
     };
     return this._formBuilder.group(defaultFormGroup);
   }
 
-  private _setupValidators(): void {
+  private areasValidator(): ValidatorFn {
+    return (): ValidationErrors | null => {
+      if (this.isAreaValid) {
+        return null;
+      }
+      return { invalidAreas: true };
+    };
+  }
+
+  private _setupExpirationDateValidator(): void {
+    // Expiration Date Validator
     const initControl = this.createdOnControl;
     const expirationControl = this.expirationDateControl;
     if (initControl && expirationControl) {
       this.form.setValidators(this._formService.dateValidator(initControl, expirationControl));
       this.form.updateValueAndValidity({ emitEvent: false });
     }
+  }
+
+  private _setupAreasValidator(): void {
+    // Areas Validator - depends on areas mode
+    this._updateAreasValidators();
+
+    // Listener on area_mode change to update areas validators
+    const areaModeControl = this.form.get('area_mode');
+    if (areaModeControl) {
+      areaModeControl.valueChanges.subscribe(() => {
+        this._updateAreasValidators();
+      });
+    }
+  }
+
+  private _updateAreasValidators(): void {
+    const areasControl = this.areasControl;
+    if (!areasControl) return;
+
+    // areas est requis uniquement en mode "existing"
+    const validators = this.isCustomAreaMode
+      ? [this.areasValidator()]
+      : [Validators.required, this.areasValidator()];
+    areasControl.setValidators(validators);
+    areasControl.updateValueAndValidity({ emitEvent: false });
   }
 
   private _setupAcknowledgementControl(): void {

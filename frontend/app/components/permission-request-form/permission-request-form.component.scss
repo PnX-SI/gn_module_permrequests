@@ -118,6 +118,10 @@
         color: #1f2937;
       }
 
+      &__required {
+        color: #d32f2f;
+      }
+
       textarea,
       input:not(.custom-file-input) {
         border: 1px solid #d0d0d0;
@@ -192,6 +196,15 @@
 
   .Acknowledgment {
     margin-right: auto;
+  }
+
+  .custom-file, .custom-file-input, .custom-file-label, .custom-file-label::after {
+    min-height: 36px;
+    line-height: 1.5rem;
+  }
+  .custom-file.ng-invalid {
+    border-left: 5px solid red;
+    border-radius: .25rem;
   }
 
   &__actions {

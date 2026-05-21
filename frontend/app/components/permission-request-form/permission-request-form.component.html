@@ -27,9 +27,13 @@
               <div>{{ authorName }}</div>
             </div>
 
-            <div class="Field" *ngIf="shouldDisplayScopeFilter">
+            <div
+              class="Field"
+              *ngIf="shouldDisplayScopeFilter"
+            >
               <div class="Field__label">
                 {{ 'Permrequests.Form.Beneficiary.Scope.Label' | translate }}
+                <span class="Field__required">*</span>
               </div>
               <div class="Field__radio">
                 <label>
@@ -110,6 +114,7 @@
                   for="expiration_date"
                 >
                   {{ 'Permrequests.Form.Validity.ExpirationDate' | translate }}
+                  <span class="Field__required">*</span>
                 </label>
                 <pnx-date
                   id="expiration_date"
@@ -196,6 +201,7 @@
               <div class="Field">
                 <label class="Field__label">
                   {{ 'Permrequests.Form.Data.AreaField.Label' | translate }}
+                  <span class="Field__required">*</span>
                 </label>
 
                 <div
@@ -241,7 +247,10 @@
                 <div [hidden]="!allowCustomArea || !isCustomAreaMode">
                   <div class="Field Field--geojson">
                     <div class="input-group">
-                      <div class="custom-file">
+                      <div
+                        class="custom-file"
+                        [class.ng-invalid]="!parsedGeoJson || geoJsonParseError"
+                      >
                         <input
                           type="file"
                           class="custom-file-input"

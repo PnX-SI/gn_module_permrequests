@@ -4,6 +4,17 @@
   justify-content: flex-start;
   gap: 0.35rem;
 
+  input[type=checkbox].ng-invalid {
+    appearance: none;
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 2px solid red;
+    border-radius: .25rem;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+  }
+
   &__label {
     font-weight: 600;
     margin-bottom: 0.1rem;
@@ -18,5 +29,9 @@
   &__error {
     color: #d32f2f;
     font-size: 0.85rem;
+  }
+
+  &__required {
+    color: #d32f2f;
   }
 }
