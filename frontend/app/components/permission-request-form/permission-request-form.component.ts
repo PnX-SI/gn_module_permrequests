@@ -41,6 +41,7 @@ import {
 import { ROUTE_PATHS } from '../../gnModule.module';
 import { AcknowledgementComponent } from './acknowledgement/acknowledgement.component';
 import { PERMISSION_REQUEST_SECTIONS } from '../permission-request-common/permission-request-sections';
+import { DateStruc } from '@geonature_common/form/date/date.component';
 
 export type AreaMode = 'existing' | 'custom';
 
@@ -84,7 +85,7 @@ export class PermissionRequestFormComponent {
   readonly allowCustomArea: boolean;
   readonly PermissionRequestScope = PermissionRequestScope;
   readonly sections = PERMISSION_REQUEST_SECTIONS;
-  readonly today = new Date();
+
   selectedAreasDefaultItems: Array<{ id_area: number; area_name: string; displayName: string }> =
     [];
 
@@ -92,11 +93,18 @@ export class PermissionRequestFormComponent {
   geoJsonParseError: string | null = null;
   selectedGeoJsonFileName: string | null = null;
 
+  readonly today: Date = new Date();
+  readonly dayDuration = 864e5;
+  readonly defaultPermissionsDays: number;
+  readonly maxPermissionsDays: number;
+  readonly defaultEndExpirationDate: DateStruc;
+  readonly minExpirationDate: DateStruc;
+  readonly maxExpirationDate: DateStruc;
+
   constructor(
     private _permissionRequestService: PermissionRequestService,
     private _dateParser: NgbDateParserFormatter,
     private _formBuilder: FormBuilder,
-    private _formService: FormService,
     private _moduleService: ModuleService,
     private _configService: ConfigService,
     private _router: Router,
@@ -105,17 +113,25 @@ export class PermissionRequestFormComponent {
     private _i18nService: I18nService
   ) {
     const moduleConfig = this._configService.PERMREQUESTS ?? {};
-    this.shouldDisplayAcknowledgement = !!moduleConfig.TERMS_ACKNOWLEDGEMENT.REQUIRED;
 
-    this.shouldDisplaySensitivityFilter = !!moduleConfig.SENSITIVITY_FILTER.DISPLAY_ENABLED;
-    this.sensitivityFilterDefaultValue = !!moduleConfig.SENSITIVITY_FILTER.DEFAULT_VALUE;
+    this.allowCustomArea = !!moduleConfig.ALLOW_CUSTOM_AREA;
+
+    this.defaultPermissionsDays = moduleConfig.PERMISSIONS_DURATION.DEFAULT_DAYS;
+    this.maxPermissionsDays = moduleConfig.PERMISSIONS_DURATION.MAX_DAYS;
 
     this.shouldDisplayScopeFilter = !!moduleConfig.SCOPE_FILTER.DISPLAY_ENABLED;
     this.scopeFilterDefaultValue = moduleConfig.SCOPE_FILTER.DEFAULT_VALUE ?? DEFAULT_SCOPE;
 
-    this.allowCustomArea = !!moduleConfig.ALLOW_CUSTOM_AREA;
+    this.shouldDisplaySensitivityFilter = !!moduleConfig.SENSITIVITY_FILTER.DISPLAY_ENABLED;
+    this.sensitivityFilterDefaultValue = !!moduleConfig.SENSITIVITY_FILTER.DEFAULT_VALUE;
 
-    this._setupExpirationDateValidator();
+    this.shouldDisplayAcknowledgement = !!moduleConfig.TERMS_ACKNOWLEDGEMENT.REQUIRED;
+
+    this.defaultEndExpirationDate = this.getDefaultEndExpirationDate();
+    this.minExpirationDate = this.getMinExpirationDate();
+    this.maxExpirationDate = this.getMaxExpirationDate();
+
+    this.form = this._buildForm();
     this._setupAreasValidator();
     this._setupAcknowledgementControl();
     this._i18nService.initializeModuleTranslateService(this._translateService);
@@ -148,12 +164,12 @@ export class PermissionRequestFormComponent {
   // Form
   // //////////////////////////////////////////////////////////////////////////
 
-  form: FormGroup = this._buildForm();
+  form: FormGroup;
 
   private _buildForm(): FormGroup {
     let defaultFormGroup = {
       description: [''],
-      expiration_date: [null, [Validators.required]],
+      expiration_date: [this.defaultEndExpirationDate, [Validators.required]],
       scope: [this.scopeFilterDefaultValue, [Validators.required]],
       sensitivity_filter: [this.sensitivityFilterDefaultValue],
       acknowledgeTerms: [false, this.shouldDisplayAcknowledgement ? Validators.requiredTrue : []],
@@ -172,16 +188,6 @@ export class PermissionRequestFormComponent {
       }
       return { invalidAreas: true };
     };
-  }
-
-  private _setupExpirationDateValidator(): void {
-    // Expiration Date Validator
-    const initControl = this.createdOnControl;
-    const expirationControl = this.expirationDateControl;
-    if (initControl && expirationControl) {
-      this.form.setValidators(this._formService.dateValidator(initControl, expirationControl));
-      this.form.updateValueAndValidity({ emitEvent: false });
-    }
   }
 
   private _setupAreasValidator(): void {
@@ -220,6 +226,34 @@ export class PermissionRequestFormComponent {
       control.setValue(true, { emitEvent: false });
     }
     control.updateValueAndValidity({ emitEvent: false });
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+  // Permission expiration date
+  // //////////////////////////////////////////////////////////////////////////
+
+  private getMinExpirationDate(): DateStruc {
+    return this.transformToDateObject(this.today);
+  }
+
+  private getMaxExpirationDate(): DateStruc {
+    const maxPermissionsDuration = this.dayDuration * this.maxPermissionsDays;
+    const in2YearsDate = new Date(this.today.valueOf() + maxPermissionsDuration);
+    return this.transformToDateObject(in2YearsDate);
+  }
+
+  private getDefaultEndExpirationDate(): DateStruc {
+    const defaultPermissionsDuration = this.dayDuration * this.defaultPermissionsDays;
+    const defaultEndExpirationDate = new Date(this.today.valueOf() + defaultPermissionsDuration);
+    return this.transformToDateObject(defaultEndExpirationDate);
+  }
+
+  private transformToDateObject(date: Date): DateStruc {
+    return {
+      year: date.getFullYear(),
+      month: date.getMonth() + 1,
+      day: date.getDate(),
+    };
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -418,7 +452,7 @@ export class PermissionRequestFormComponent {
     if (!this.permissionRequest) {
       this.form.reset({
         description: '',
-        expiration_date: null,
+        expiration_date: this.defaultEndExpirationDate,
         scope: this.scopeFilterDefaultValue,
         sensitivity_filter: this.sensitivityFilterDefaultValue,
         acknowledgeTerms: this.shouldDisplayAcknowledgement ? false : true,
@@ -465,24 +499,27 @@ export class PermissionRequestFormComponent {
   get expirationDateControl() {
     return this.form.get('expiration_date');
   }
-  get createdOnControl() {
-    return this.form.get('created_on');
-  }
+
   get acknowledgeTermsControl() {
     return this.form.get('acknowledgeTerms');
   }
+
   get scopeControl() {
     return this.form.get('scope');
   }
+
   get sensitivityFilterControl() {
     return this.form.get('sensitivity_filter');
   }
+
   get taxaControl() {
     return this.form.get('taxa');
   }
+
   get taxonSearchControl() {
     return this.form.get('taxon_search');
   }
+
   get areasControl() {
     return this.form.get('areas');
   }

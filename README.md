@@ -94,6 +94,9 @@ GeoNature.
 
 - `ALLOW_CUSTOM_AREA`: autorise (`true`) ou pas (`false`) le téléversement de fichier GeoJSON pour définir une zone géographique personnalisé sur laquelle demande de permission s'appliquera.
 - `ALLOWED_AREA_TYPE_CODES` : liste des types de zones autorisés (par défaut `["COM", "DEP", "REG"]`).
+- `PERMISSIONS_DURATION` : section permettant de configurer la durée des permissions accordées lors d'une demande.
+  - `DEFAULT_DAYS` : durée par défaut en jours des permissions accordées lors d'une demande. La date d'expiration des permissions dans le formulaire d'une demande sera automatiquement calculée en prenant en compte le nombre de jours défini ici. Par défaut : *30 jours*.
+  - `MAX_DAYS` : durée maximale par défaut en jours des permissions accordées lors d'une demande. La date d'expiration maximale sélectionnable dans le formulaire d'une demande sera automatiquement calculée en prenant en compte le nombre de jours défini ici. Par défaut : *365 jours*.
 - `PERMISSIONS_TO_CREATE` : contient une liste d'objets permettant de définir les permissions créés par une demande de permission. Le format de chaque objet est le suivant `{"module": "<code-du-module>", "action": "<code-de-l'action>"}`.
 - `SCOPE_FILTER` : section permettant de configurer l'affichage du filtre liés à la sensibilité au sein de la demande.
   - `SCOPE_FILTER.DISPLAY_ENABLED` : affiche (`true`) ou pas (`false`) la possibilité de sélectionner la portée d'une demande.

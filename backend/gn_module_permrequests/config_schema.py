@@ -4,6 +4,9 @@ TOML schema specifications for module configuration parameters
 
 from marshmallow import Schema, fields, validate
 
+class PermissionDurationConfigSchema(Schema):
+    DEFAULT_DAYS = fields.Integer(load_default=30)
+    MAX_DAYS = fields.Integer(load_default=365)
 
 class PermissionToCreateSchemaConf(Schema):
     module = fields.String(required=True)
@@ -37,6 +40,10 @@ class PermrequestsConfigSchema(Schema):
     ALLOWED_AREA_TYPE_CODES = fields.List(
         fields.String(),
         load_default=["COM", "DEP", "REG"],
+    )
+    PERMISSIONS_DURATION = fields.Nested(
+        PermissionDurationConfigSchema,
+        load_default=PermissionDurationConfigSchema().load({}),
     )
     PERMISSIONS_TO_CREATE = fields.List(
         fields.Nested(PermissionToCreateSchemaConf),

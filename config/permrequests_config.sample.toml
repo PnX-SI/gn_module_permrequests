@@ -16,6 +16,13 @@ ALLOW_CUSTOM_AREA = false
 # geonature database in the table "ref_geo.bib_areas_types".
 ALLOWED_AREA_TYPE_CODES = ["COM", "DEP", "REG"]
 
+# Define permissions duration
+[PERMISSIONS_DURATION]
+    # Default duration in days for the permissions created when a permission request is validated.
+    DEFAULT_DAYS = 30
+    # Maximum duration in days for the permissions created when a permission request is validated.
+    MAX_DAYS = 365
+
 # List of permissions to create when a permission request is validated.
 # Use module code for `module` and action code for `action` (R, E, C, U, D), as defined in the geonature database.
 [[PERMISSIONS_TO_CREATE]]
