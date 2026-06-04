@@ -5,6 +5,7 @@ Revises: 743becffa102
 Create Date: 2026-04-27 00:00:00.000000
 
 """
+import time
 
 from alembic import op
 import sqlalchemy as sa
@@ -40,6 +41,30 @@ def upgrade():
 
 
 def downgrade():
+    print(f"-> Deleting links between areas of type {AREA_TYPE_CODE} and permissions...")
+    op.execute(
+        sa.text(
+            """
+            DELETE FROM gn_permissions.cor_permission_area WHERE id_area IN (
+                SELECT id_area FROM ref_geo.l_areas WHERE id_type IN (
+                    SELECT id_type FROM ref_geo.bib_areas_types WHERE type_code = :type_code
+                )
+            )
+            """
+        ).bindparams(type_code=AREA_TYPE_CODE)
+    )
+
+    print(f"-> Deleting areas of type {AREA_TYPE_CODE} from ref_geo...")
+    op.execute(
+        sa.text(
+            """
+            DELETE FROM ref_geo.l_areas WHERE id_type IN (
+                SELECT id_type FROM ref_geo.bib_areas_types WHERE type_code = :type_code
+            )
+            """
+        ).bindparams(type_code=AREA_TYPE_CODE)
+    )
+
     print(f"-> Removing {AREA_TYPE_CODE} area type from ref_geo...")
     op.execute(
         sa.text(
