@@ -86,6 +86,7 @@ class PermissionRequest(DB.Model):
     validation_description = DB.Column(DB.Text, nullable=True)
     validation_date = DB.Column(DB.DateTime, nullable=True)
     description = DB.Column(DB.Text, nullable=True)
+    additional_data = DB.Column(JSONB, nullable=True)
 
     author = DB.relationship(
         User,

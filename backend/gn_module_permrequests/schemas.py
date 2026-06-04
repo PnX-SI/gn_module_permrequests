@@ -1,10 +1,11 @@
-from marshmallow import fields
+from marshmallow import fields, post_dump
 from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
-from pypnusershub.db.models import User
-from apptax.taxonomie.models import Taxref
-from ref_geo.models import LAreas
+from flask import current_app
 
+from apptax.taxonomie.models import Taxref
 from geonature.utils.schema import CruvedSchemaMixin
+from pypnusershub.db.models import User
+from ref_geo.models import LAreas
 
 from .models import PermissionRequest, CustomArea
 from .status_utils import compute_status
@@ -77,6 +78,10 @@ class PermissionRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
     sensitivity_filter = fields.Boolean(attribute="sensitivity_filter", dump_only=True)
     scope = fields.Method("get_scope", dump_only=True)
     description = auto_field()
+
+    additional_data = auto_field()
+    custom_fields = fields.Method("get_custom_fields", dump_only=True)
+
     validation_description = auto_field(dump_only=True)
     taxa = fields.Nested(PermissionRequestTaxonSchema, many=True, dump_only=True)
     areas = fields.Method("get_areas", dump_only=True)
@@ -108,3 +113,52 @@ class PermissionRequestSchema(CruvedSchemaMixin, SQLAlchemySchema):
         if not base:
             return {action: False for action in ["C", "R", "U", "V", "D"]}
         return {action: base.get(action, False) for action in ["C", "R", "U", "V", "D"]}
+
+    def get_custom_fields(self, obj):
+        if not current_app.config[MODULE_CODE]["DYNAMIC_FORM"]:
+            return None
+
+        attr_infos = PermissionRequestSchema.build_dynamic_form_infos()
+        attr_keys = attr_infos.keys()
+        formated_fields = []
+        for key, value in (obj.additional_data or {}).items():
+            if key in attr_keys:
+                cfg = {
+                    "key": key,
+                    "label": attr_infos.get(key)["label"],
+                    "value": value,
+                }
+                for attr_infos_key, attr_infos_value in attr_infos.get(key).items():
+                    cfg[attr_infos_key] = attr_infos_value
+                formated_fields.append(cfg)
+        return formated_fields
+
+    @staticmethod
+    def build_dynamic_form_infos():
+        attr_infos = {}
+        form_cfg = current_app.config[MODULE_CODE]["DYNAMIC_FORM"]
+        for cfg in form_cfg:
+            if all(key in cfg for key in ("type_widget", "attribut_name", "attribut_label")):
+                attr_infos[cfg["attribut_name"]] = {
+                    "type": cfg["type_widget"],
+                    "label": cfg["attribut_label"],
+                }
+            if "icon" in cfg:
+                attr_infos[cfg["attribut_name"]]["icon"] = cfg["icon"]
+            if "icon_set" in cfg:
+                attr_infos[cfg["attribut_name"]]["icon_set"] = cfg["icon_set"]
+
+        return attr_infos
+
+    @post_dump(pass_collection=True)
+    def _remove_fields(self, data, many, **kwargs):
+        # Remove necessary fields only with DYNAMIC_FORM parameter enabled
+        if not current_app.config.get(MODULE_CODE, {}).get("DYNAMIC_FORM"):
+            if many and isinstance(data, list):
+                for item in data:
+                    item.pop("custom_fields", None)
+                    item.pop("additional_data", None)
+            elif isinstance(data, dict):
+                data.pop("custom_fields", None)
+                data.pop("additional_data", None)
+        return data

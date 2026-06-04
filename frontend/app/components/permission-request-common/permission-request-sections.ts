@@ -3,7 +3,7 @@ export type PermissionRequestSectionMeta = {
 };
 
 export const PERMISSION_REQUEST_SECTIONS: Record<
-  'beneficiary' | 'description' | 'validity' | 'data',
+  'beneficiary' | 'description' | 'validity' | 'data' | 'customFields',
   PermissionRequestSectionMeta
 > = {
   beneficiary: {
@@ -18,4 +18,7 @@ export const PERMISSION_REQUEST_SECTIONS: Record<
   data: {
     icon: 'layers',
   },
+  customFields: {
+    icon: 'edit',
+  }
 };

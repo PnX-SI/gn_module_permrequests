@@ -94,6 +94,9 @@ GeoNature.
 
 - `ALLOW_CUSTOM_AREA`: autorise (`true`) ou pas (`false`) le téléversement de fichier GeoJSON pour définir une zone géographique personnalisé sur laquelle demande de permission s'appliquera.
 - `ALLOWED_AREA_TYPE_CODES` : liste des types de zones autorisés (par défaut `["COM", "DEP", "REG"]`).
+- `DYNAMIC_FORM` : listes des champs de la section personnalisable du formulaire de demande d'accès. Par défaut, aucune section personnalisable n'est définie. Pour connaitre les attributs disponible pour chaque type de widget du formulaire dynamique vous pouvez [consulter le code source](https://github.com/PnX-SI/GeoNature/blob/master/frontend/src/app/GN2CommonModule/form/dynamic-form/dynamic-form.component.html) ou [chercher des exemples](./config/permrequests_config.sample.toml). Ce module ajoute 2 attributs spécifiques, `icon` et `icon_set`, permettant respectivement d'indiquer le nom d'une icône et son type de police.
+Pour [les icônes FontAwsome](https://fontawesome.com/v4/icons/), utiliser `fa` dans l'attribut `icon_set`. Pour [les icônes Material](https://fonts.google.com/icons?hl=fr), il n'est pas nécessaire d'utiliser le paramètre `icon_set`.
+
 - `PERMISSIONS_DURATION` : section permettant de configurer la durée des permissions accordées lors d'une demande.
   - `DEFAULT_DAYS` : durée par défaut en jours des permissions accordées lors d'une demande. La date d'expiration des permissions dans le formulaire d'une demande sera automatiquement calculée en prenant en compte le nombre de jours défini ici. Par défaut : *30 jours*.
   - `MAX_DAYS` : durée maximale par défaut en jours des permissions accordées lors d'une demande. La date d'expiration maximale sélectionnable dans le formulaire d'une demande sera automatiquement calculée en prenant en compte le nombre de jours défini ici. Par défaut : *365 jours*.

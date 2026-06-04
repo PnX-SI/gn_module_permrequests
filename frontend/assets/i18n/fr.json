@@ -54,6 +54,11 @@
                     "User": "Moi uniquement"
                 }
             },
+            "CustomFields": {
+                "Title": "Données complémentaires",
+                "Subtitle": "Données complémentaires à renseigner pour cette demande de permission.",
+                "Empty": "Aucun champ complémentaire n'est renseigné pour cette demande de permission."
+            },
             "Data": {
                 "Title": "Données concernées",
                 "Subtitle": "Taxons et zones géographiques concernées.",

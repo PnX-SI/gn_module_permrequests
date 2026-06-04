@@ -8,6 +8,7 @@ Create Date: 2023-03-27 11:54:34.602380
 
 from alembic import op
 import sqlalchemy as sa
+import sqlalchemy.dialects.postgresql as psql
 
 from gn_module_permrequests import MODULE_CODE, ALEMBIC_BRANCH
 
@@ -203,6 +204,7 @@ def create_module_schema_tables():
         sa.Column("validation_description", sa.Text(), nullable=True),
         sa.Column("validation_date", sa.DateTime(), nullable=True),
         sa.Column("description", sa.Text(), nullable=True),
+        sa.Column("additional_data", psql.JSONB(), nullable=True),
         schema=SCHEMA_NAME,
     )
 

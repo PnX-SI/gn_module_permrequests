@@ -728,6 +728,7 @@ def create_permission_request():
         "sensitivity_filter",
         "scope",
         "custom_area",
+        "additional_data",
     }
     unexpected_fields = set(payload.keys()) - allowed_fields
     if unexpected_fields:
@@ -750,6 +751,10 @@ def create_permission_request():
     description_value = payload.get("description")
     if description_value is not None and not isinstance(description_value, str):
         raise BadRequest("description must be a string or null.")
+
+    additional_data_value = payload.get("additional_data")
+    if additional_data_value is not None and not isinstance(additional_data_value, dict):
+        raise BadRequest("additional_data must be a JSON object or null.")
 
     scope_value = _normalize_scope(payload.get("scope", SCOPE_USER))
     if scope_value is None:
@@ -919,6 +924,7 @@ def create_permission_request():
         id_author=current_user.id_role,
         id_validator=None,
         description=description_value,
+        additional_data=additional_data_value,
     )
     if custom_area is not None:
         permission_request.custom_area = custom_area
@@ -995,6 +1001,7 @@ def update_permission_request(scope, id_permission_request):
         "sensitivity_filter",
         "scope",
         "custom_area",
+        "additional_data",
     }
     if not allowed_fields.intersection(payload.keys()):
         raise BadRequest("No updatable fields were provided.")
@@ -1016,6 +1023,12 @@ def update_permission_request(scope, id_permission_request):
 
     if "description" in payload:
         permission_request.description = payload.get("description")
+
+    if "additional_data" in payload:
+        additional_data_value = payload.get("additional_data")
+        if additional_data_value is not None and not isinstance(additional_data_value, dict):
+            raise BadRequest("additional_data must be a JSON object or null.")
+        permission_request.additional_data = additional_data_value
 
     if "expiration_date" in payload:
         expiration_value = payload.get("expiration_date")

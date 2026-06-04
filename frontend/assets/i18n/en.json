@@ -54,6 +54,11 @@
                     "User": "Only me"
                 }
             },
+            "CustomFields": {
+                "Title": "Additional Data",
+                "Subtitle": "Additional data to fill for this permission request.",
+                "Empty": "No additional fields are filled for this permission request."
+            },
             "Data": {
                 "Title": "Concerned data",
                 "Subtitle": "Concerned taxa and geographical areas.",

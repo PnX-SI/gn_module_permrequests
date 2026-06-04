@@ -16,6 +16,82 @@ ALLOW_CUSTOM_AREA = false
 # geonature database in the table "ref_geo.bib_areas_types".
 ALLOWED_AREA_TYPE_CODES = ["COM", "DEP", "REG"]
 
+# Define the customizable section of the permission request form.
+# Use GeoNature Dynamic Form syntax to define the fields to display in the form,
+# and the expected values.
+# Use `icon` and `icon_set` parameters to display an icon in front of the field,
+# using FontAwesome or Material icons.
+# Use `icon_set` only for FontAwesome icons, and set its value to "fa".
+# For Material icons, do not set `icon_set` parameter.
+[[DYNAMIC_FORM]]
+    type_widget = "html"
+    attribut_name = "motivationIntro"
+    html = """
+        <small class="form-text text-muted">
+            Veuillez décrire ci-dessous les motivations à l'origine
+            de votre demande.
+        </small>"""
+[[DYNAMIC_FORM]]
+    type_widget = "select"
+    attribut_label = "Règne concerné"
+    attribut_name = "kingdom"
+    icon = "fa-sitemap"
+    icon_set = "fa"
+    values = [
+            "Végétal",
+            "Animal (Invertébrés)",
+            "Végétal et Animal (Invertébrés)",
+        ]
+    required = true
+    help = """Veuillez indiquer le règne des taxons
+        concernés par votre étude et pour lesquels vous demandez
+        un accès précis."""
+[[DYNAMIC_FORM]]
+    type_widget = "text"
+    attribut_label = "Organisme"
+    attribut_name = "userOrganism"
+    icon = "business"
+    required = true
+    help = """Veuillez indiquer le nom de l'organisme auquel vous
+        appartenez."""
+[[DYNAMIC_FORM]]
+    type_widget = "select"
+    attribut_label = "Type d'étude ou de projet"
+    attribut_name = "projectType"
+    icon = "fa-tag"
+    icon_set = "fa"
+    values = [
+        "Plan de gestion",
+        "DOCOB Natura 2000",
+        "Inventaire scientifique",
+        "Expertise écologique réglementaire",
+        "Étude trame verte et bleue",
+        "PLU / SCOT",
+        "Autre (à préciser dans description)"]
+    required = true
+[[DYNAMIC_FORM]]
+    type_widget = "textarea"
+    attribut_label = "Commanditaire"
+    attribut_name = "projectSponsor"
+    icon = "request_quote"
+    required = true
+    rows = 4
+    help = """Veuillez indiquer le nom du commanditaire de l'étude ou
+        l'organisme à l'origine du projet."""
+[[DYNAMIC_FORM]]
+    type_widget = "textarea"
+    attribut_label = "Description"
+    attribut_name = "projectDescription"
+    icon = "text_snippet"
+    required = false
+    rows = 10
+    help = """Précisez le calendrier, la finalité, l'objet de l'étude
+        scientifique et le cadre réglementaire dans lequel s'inscrit
+        la demande (Étude d'impact, étude d'incidence Natura 2000,
+        étude d'incidence Eau, demande d'autorisation au titre de la
+        loi sur l'eau, demande d'autorisation au titre des ICPE,
+        demande d'autorisation de destruction d'espèces protégées)."""
+
 # Define permissions duration
 [PERMISSIONS_DURATION]
     # Default duration in days for the permissions created when a permission request is validated.

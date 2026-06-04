@@ -22,7 +22,6 @@ import { finalize } from '@librairies/rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
-import { FormService } from '@geonature_common/form/form.service';
 import { Taxon } from '@geonature_common/form/taxonomy/taxonomy.component';
 import { ModuleService } from '@geonature/services/module.service';
 import { ConfigService } from '@geonature/services/config.service';
@@ -101,6 +100,9 @@ export class PermissionRequestFormComponent {
   readonly minExpirationDate: DateStruc;
   readonly maxExpirationDate: DateStruc;
 
+  dynamicFormGrp: FormGroup;
+  readonly dynamicFormCfg: object | null;
+
   constructor(
     private _permissionRequestService: PermissionRequestService,
     private _dateParser: NgbDateParserFormatter,
@@ -131,9 +133,14 @@ export class PermissionRequestFormComponent {
     this.minExpirationDate = this.getMinExpirationDate();
     this.maxExpirationDate = this.getMaxExpirationDate();
 
+    this.dynamicFormCfg = moduleConfig.DYNAMIC_FORM ?? null;
+
     this.form = this._buildForm();
     this._setupAreasValidator();
     this._setupAcknowledgementControl();
+
+    this.dynamicFormGrp = this.createDynamicForm();
+
     this._i18nService.initializeModuleTranslateService(this._translateService);
   }
 
@@ -147,6 +154,7 @@ export class PermissionRequestFormComponent {
   set permissionRequest(permissionRequest: PermissionRequest | null) {
     this._permissionRequest = permissionRequest;
     this._fillFormFromPermissionRequest();
+    this._fillDynamicFormFromPermissionRequest();
   }
   get permissionRequest(): PermissionRequest | null {
     return this._permissionRequest;
@@ -320,12 +328,25 @@ export class PermissionRequestFormComponent {
   }
 
   // //////////////////////////////////////////////////////////////////////////
+  // Dynamic form group (custom fields)
+  // //////////////////////////////////////////////////////////////////////////
+
+  private createDynamicForm() {
+    return this._formBuilder.group({});
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
   // Submit
   // //////////////////////////////////////////////////////////////////////////
 
   onSubmit(): void {
-    if (this.form.invalid || !this.isAreaValid) {
-      this.form.markAllAsTouched();
+    if (this.form.invalid || this.dynamicFormGrp.invalid || !this.isAreaValid) {
+      if (this.form.invalid) {
+        this.form.markAllAsTouched();
+      }
+      if (this.dynamicFormGrp.invalid) {
+        this.dynamicFormGrp.markAllAsTouched();
+      }
       return;
     }
 
@@ -344,6 +365,10 @@ export class PermissionRequestFormComponent {
       sensitivity_filter: !!rawValue.sensitivity_filter,
       custom_area: this._buildCustomAreaPayload(),
     };
+
+    if (this.dynamicFormCfg !== null) {
+      payload['additional_data'] = this.dynamicFormGrp.value;
+    }
 
     const save$ = this.permissionRequest
       ? this._permissionRequestService.updatePermissionRequest(this.permissionRequest, payload)
@@ -427,11 +452,15 @@ export class PermissionRequestFormComponent {
         return false;
     }
 
+    const additionalData = this.dynamicFormGrp.value;
+    if (additionalData !== this.permissionRequest.additional_data) return false;
+
     return true;
   }
 
   onReset(): void {
     this._fillFormFromPermissionRequest();
+    this._fillDynamicFormFromPermissionRequest();
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -490,6 +519,23 @@ export class PermissionRequestFormComponent {
     }
     this.form.markAsPristine();
     this.form.updateValueAndValidity({ emitEvent: false });
+  }
+
+  onDynamicFormInit(dynamicForm: FormGroup): void {
+    this.dynamicFormGrp = dynamicForm;
+
+    this._fillDynamicFormFromPermissionRequest();
+  }
+
+  private _fillDynamicFormFromPermissionRequest(): void {
+    if (!this.permissionRequest) {
+      this.dynamicFormGrp.reset({});
+    } else {
+      this.dynamicFormGrp.patchValue(this.permissionRequest.additional_data ?? {});
+    }
+
+    this.dynamicFormGrp.markAsPristine();
+    this.dynamicFormGrp.updateValueAndValidity({ emitEvent: false });
   }
 
   // //////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,14 @@
 import { STATUS } from './status';
 
+export interface PermissionRequestCustomField {
+  key: string;
+  label: string;
+  value: unknown;
+  type: string;
+  icon?: string;
+  icon_set?: string;
+}
+
 export interface PermissionRequest {
   id_permission_request: number;
   id_author: number;
@@ -10,6 +19,8 @@ export interface PermissionRequest {
   sensitivity_filter: boolean;
   scope: PermissionRequestScope | null;
   description: string | null;
+  additional_data: object | null;
+  custom_fields: PermissionRequestCustomField[] | null;
   validation_description: string | null;
   taxa: PermissionRequestTaxon[];
   areas: PermissionRequestArea[];

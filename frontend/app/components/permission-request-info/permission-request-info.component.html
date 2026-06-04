@@ -227,4 +227,63 @@
       </mat-card-content>
     </mat-card>
   </div>
+
+  <div
+    *ngIf="permissionRequest.custom_fields != null"
+    class="PermissionRequestInfo__row PermissionRequestInfo__customFields"
+  >
+    <mat-card class="Card Card--customFields">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="Card__titleIcon">{{ sections.customFields.icon }}</mat-icon>
+          {{ 'Permrequests.Form.CustomFields.Title' | translate }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ 'Permrequests.Form.CustomFields.Subtitle' | translate }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content class="Card__content">
+
+        <ng-container *ngIf="permissionRequest.custom_fields?.length > 0; else noCustomFields">
+          <div
+            class="row"
+            *ngFor="let field of permissionRequest.custom_fields"
+          >
+            <mat-expansion-panel
+              class="col"
+              [expanded]="true"
+            >
+              <mat-expansion-panel-header class="d-flex flex-row">
+                <mat-icon
+                  *ngIf="field.icon && field.icon_set"
+                  class="flex-shrink"
+                  [fontSet]="field.icon_set"
+                  [fontIcon]="field.icon"
+                ></mat-icon>
+                <mat-icon
+                  *ngIf="field.icon && !field.icon_set"
+                  class="flex-shrink"
+                >
+                  {{ field.icon }}
+                </mat-icon>
+                <div class="header-group">
+                  <mat-panel-title>{{ field.label }}</mat-panel-title>
+                  <mat-panel-description class="truncate">{{ field.value }}</mat-panel-description>
+                </div>
+              </mat-expansion-panel-header>
+
+              <p>{{ field.value }}</p>
+            </mat-expansion-panel>
+          </div>
+        </ng-container>
+
+        <ng-template #noCustomFields>
+          <p class="alert alert-info" role="alert">
+            <mat-icon aria-hidden="true">info</mat-icon>
+            {{ 'Permrequests.Form.CustomFields.Empty' | translate }}
+          </p>
+        </ng-template>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>

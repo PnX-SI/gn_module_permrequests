@@ -27,6 +27,7 @@ export interface PermissionRequestPayload {
   taxa: number[];
   areas: number[];
   custom_area?: CustomAreaPayload | null;
+  additional_data?: object | null;
 }
 
 export interface ValidatedPayload {

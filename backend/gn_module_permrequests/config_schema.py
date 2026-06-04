@@ -41,6 +41,7 @@ class PermrequestsConfigSchema(Schema):
         fields.String(),
         load_default=["COM", "DEP", "REG"],
     )
+    DYNAMIC_FORM = fields.List(fields.Dict(), load_default=[])
     PERMISSIONS_DURATION = fields.Nested(
         PermissionDurationConfigSchema,
         load_default=PermissionDurationConfigSchema().load({}),
