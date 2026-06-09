@@ -16,12 +16,16 @@ import { Router } from '@angular/router';
 import {
   NgbDateParserFormatter,
   NgbDateStruct,
+  NgbModal,
+  NgbModalOptions,
   NgbTypeaheadSelectItemEvent,
 } from '@ng-bootstrap/ng-bootstrap';
 import { finalize } from '@librairies/rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
+import { CommonService } from '@geonature_common/service/common.service';
+import { DateStruc } from '@geonature_common/form/date/date.component';
 import { Taxon } from '@geonature_common/form/taxonomy/taxonomy.component';
 import { ModuleService } from '@geonature/services/module.service';
 import { ConfigService } from '@geonature/services/config.service';
@@ -40,7 +44,10 @@ import {
 import { ROUTE_PATHS } from '../../gnModule.module';
 import { AcknowledgementComponent } from './acknowledgement/acknowledgement.component';
 import { PERMISSION_REQUEST_SECTIONS } from '../permission-request-common/permission-request-sections';
-import { DateStruc } from '@geonature_common/form/date/date.component';
+import {
+  AccessRequestData,
+  ConventiondModalContent,
+} from './convention-modal/convention-modal.component';
 
 export type AreaMode = 'existing' | 'custom';
 
@@ -85,6 +92,14 @@ export class PermissionRequestFormComponent {
   readonly PermissionRequestScope = PermissionRequestScope;
   readonly sections = PERMISSION_REQUEST_SECTIONS;
 
+  readonly shouldDisplayConvention: boolean;
+  conventionRequestData: AccessRequestData = {
+    areas: [],
+    taxa: [],
+    sensitivity_filter: null,
+    expiration_date: null,
+  };
+
   selectedAreasDefaultItems: Array<{ id_area: number; area_name: string; displayName: string }> =
     [];
 
@@ -112,7 +127,9 @@ export class PermissionRequestFormComponent {
     private _router: Router,
     private _authService: AuthService,
     private _translateService: TranslateService,
-    private _i18nService: I18nService
+    private _i18nService: I18nService,
+    private _modalService: NgbModal,
+    private _commonService: CommonService
   ) {
     const moduleConfig = this._configService.PERMREQUESTS ?? {};
 
@@ -134,6 +151,8 @@ export class PermissionRequestFormComponent {
     this.maxExpirationDate = this.getMaxExpirationDate();
 
     this.dynamicFormCfg = moduleConfig.DYNAMIC_FORM ?? null;
+
+    this.shouldDisplayConvention = !!moduleConfig.ENABLE_CONVENTION;
 
     this.form = this._buildForm();
     this._setupAreasValidator();
@@ -352,10 +371,16 @@ export class PermissionRequestFormComponent {
 
     this.isSaving = true;
 
-    const rawValue = this.form.value as PermissionRequestFormValue & {
-      expiration_date: NgbDateStruct;
-    };
+    const payload: PermissionRequestPayload = this.buildPayload();
+    if (this.shouldDisplayConvention) {
+      this.showConvention(payload);
+    } else {
+      this.sendAccessRequest(payload);
+    }
+  }
 
+  private buildPayload(): PermissionRequestPayload {
+    const rawValue = this.getRegularFormValues();
     const payload: PermissionRequestPayload = {
       description: rawValue.description?.trim() || null,
       expiration_date: this._dateParser.format(rawValue.expiration_date) as unknown as string,
@@ -367,9 +392,59 @@ export class PermissionRequestFormComponent {
     };
 
     if (this.dynamicFormCfg !== null) {
-      payload['additional_data'] = this.dynamicFormGrp.value;
+      payload['additional_data'] = this.getDynamicFormValues();
     }
 
+    return payload;
+  }
+
+  private getRegularFormValues() {
+    const rawValue = this.form.value as PermissionRequestFormValue & {
+      expiration_date: NgbDateStruct;
+    };
+    return rawValue;
+  }
+
+  private getDynamicFormValues() {
+    return this.dynamicFormGrp.value;
+  }
+
+  private showConvention(payload: PermissionRequestPayload) {
+    const modalRef = this.openConventionModal();
+    modalRef.componentInstance.accessRequestData = this.buildConventionAccessRequestData();
+    modalRef.componentInstance.customData = this.getDynamicFormValues();
+    modalRef.result.then(
+      (result) => {
+        this.sendAccessRequest(payload);
+      },
+      (reason) => {
+        this.isSaving = false;
+        this._commonService.translateToaster('warning', 'Permrequests.Convention.Canceled');
+      }
+    );
+  }
+
+  private buildConventionAccessRequestData(): AccessRequestData {
+    const formValues = this.getRegularFormValues();
+    this.conventionRequestData = {
+      areas: this.conventionRequestData.areas,
+      taxa: this.conventionRequestData.taxa,
+      sensitivity_filter: formValues.sensitivity_filter,
+      expiration_date: formValues.expiration_date,
+    };
+    return this.conventionRequestData;
+  }
+
+  private openConventionModal() {
+    const options: NgbModalOptions = {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
+    };
+    return this._modalService.open(ConventiondModalContent, options);
+  }
+
+  private sendAccessRequest(payload: PermissionRequestPayload): void {
     const save$ = this.permissionRequest
       ? this._permissionRequestService.updatePermissionRequest(this.permissionRequest, payload)
       : this._permissionRequestService.createPermissionRequest(payload);
@@ -452,8 +527,7 @@ export class PermissionRequestFormComponent {
         return false;
     }
 
-    const additionalData = this.dynamicFormGrp.value;
-    if (additionalData !== this.permissionRequest.additional_data) return false;
+    if (this.getDynamicFormValues() !== this.permissionRequest.additional_data) return false;
 
     return true;
   }
@@ -617,7 +691,11 @@ export class PermissionRequestFormComponent {
       this._resetTaxonSearchControl();
       return;
     }
-    this.taxaControl?.setValue([...currentTaxa, item]);
+    const allSelectedTaxa = [...currentTaxa, item];
+
+    this.updateConventionTaxa(allSelectedTaxa);
+
+    this.taxaControl?.setValue(allSelectedTaxa);
     this.taxaControl?.markAsDirty();
     this.taxaControl?.markAsTouched();
     this.taxaControl?.updateValueAndValidity({ emitEvent: false });
@@ -625,17 +703,42 @@ export class PermissionRequestFormComponent {
   }
 
   removeTaxon(cd_nom: number): void {
-    const updated = ((this.taxaControl?.value as any[]) ?? []).filter((t) => t.cd_nom !== cd_nom);
-    this.taxaControl?.setValue(updated);
+    const allSelectedTaxa = ((this.taxaControl?.value as any[]) ?? []).filter(
+      (t) => t.cd_nom !== cd_nom
+    );
+
+    this.updateConventionTaxa(allSelectedTaxa);
+
+    this.taxaControl?.setValue(allSelectedTaxa);
     this.taxaControl?.markAsDirty();
     this.taxaControl?.markAsTouched();
     this.taxaControl?.updateValueAndValidity({ emitEvent: false });
   }
 
-  onAreasSelectionChange(selection: any[]): void {
-    this.selectedAreasDefaultItems = Array.isArray(selection) ? selection : [];
+  private updateConventionTaxa(allSelectedTaxa: any[]): void {
+    if (this.shouldDisplayConvention) {
+      this.conventionRequestData.taxa = [];
+      allSelectedTaxa.forEach((item) => {
+        this.conventionRequestData.taxa.push(item.lb_nom ?? '');
+      });
+    }
+  }
+
+  onAreasSelectionChange(allSelectedAreas: any[]): void {
+    this.updateConventionAreas(allSelectedAreas);
+    this.selectedAreasDefaultItems = Array.isArray(allSelectedAreas) ? allSelectedAreas : [];
+
     this.areasControl?.markAsDirty();
     this.areasControl?.markAsTouched();
+  }
+
+  private updateConventionAreas(allSelectedAreas: any[]): void {
+    if (this.shouldDisplayConvention) {
+      this.conventionRequestData.areas = [];
+      allSelectedAreas.forEach((item) => {
+        this.conventionRequestData.areas.push(item.area_name.trim() ?? '');
+      });
+    }
   }
 
   private _resetTaxonSearchControl(): void {

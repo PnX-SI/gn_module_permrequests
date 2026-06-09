@@ -10,6 +10,12 @@
                 "Details": "Permission request details"
             }
         },
+        "Convention": {
+            "Canceled": "The acceptance of the convention has just been canceled.",
+            "NoContent": "No data access convention is currently available. Please try again later.",
+            "Title": "Data Access Convention",
+            "Validate": "I accept the terms of this convention"
+        },
         "Enums": {
             "Scope" : {
                 "ORGANISM": "Organism",

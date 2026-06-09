@@ -1,0 +1,140 @@
+<p>
+    <i>{{customData.userOrganism}}</i> représenté par <i>{{user.firstname}} {{user.lastname}}</i>
+    désigné sous le terme « l’utilisateur identifié » s’engage à respecter les termes suivants
+</p>
+
+<h3>Préambule</h3>
+<p>
+    Le SINP est un programme national, porté par le Ministère chargé de
+    l’Environnement et conçu comme une organisation collaborative pour la
+    production, la gestion, le traitement, la valorisation et la diffusion
+    des données sur la nature et les paysages. Son organisation est décrite
+    dans le schéma métier du SINP (publié par décision du 30 août 2022).
+</p>
+<p>
+    En facilitant l’accès à l’information, {{website.name}} a pour objectif
+    la connaissance et la conservation du patrimoine naturel régional. C’est un
+    outil public et collectif au service de la prise en compte de la biodiversité,
+    financé et piloté de façon partenariale.
+</p>
+<p>
+    Les données de {{website.name}} sont librement consultables à la précision
+    maximale connue, sauf pour les données sensibles. Les données sensibles au
+    titre de l’article L.124-4 du code de l’environnement tiennent lieu
+    d’exception à la diffusion publique des données (publication en ligne et
+    téléchargement). Il s’agit des données de localisation ne devant pas être
+    largement diffusées pour éviter de porter atteinte aux éléments qu’elles
+    concernent.
+</p>
+<p>
+    L’accès à l’information plus détaillée s’agissant des données sensibles, est
+    autorisé en réponse à des demandes ponctuelles et motivées, selon les
+    principes validés par le comité de pilotage.
+</p>
+<p>
+    Les données et informations qui sont fournies dans le cadre de {{website.name}}
+    ne sont pas exhaustives et nécessitent la consultation d’autres sources,
+    une réactualisation et des inventaires complémentaires dans le cadre
+    de l’expertise.
+</p>
+
+<h3>Article 1. Objet de la Convention</h3>
+<p>
+    Cette convention établit les droits d’accès aux données sensibles précises de
+    {{website.name}} pour l’utilisateur identifié signataire de la présente
+    convention, et les engagements liés à cet accord. Elle traite des aspects
+    relatifs à la consultation, à l’exportation et à la réutilisation des données.
+</p>
+
+<h3>Article 2. Droits d’accès</h3>
+<p>
+    L’accès est accordé à <i>{{user.firstname}} {{user.lastname}}</i> - <i>{{customData.userOrganism}}</i>
+    sur une demande motivée pour l’objet suivant : <i>{{customData.projectType}}</i>
+</p>
+
+{{#customData.projectDescription}}
+    <pre> {{customData.projectDescription}} </pre>
+{{/customData.projectDescription}}
+
+<p>
+    <i>{{user.firstname}} {{user.lastname}}</i> a reçu lors de son inscription un identifiant
+    et un mot de passe personnel lui permettant l’accès à {{website.name}} et aux données des occurrences de taxons. Les droits
+    d’accès et les
+    identifiants fournis sont strictement nominatifs et leur utilisation reste
+    sous la responsabilité de « l’utilisateur identifié ».
+</p>
+<p>
+    {{website.name}} met à disposition l'ensemble des données validées
+    qu'il contient pour les droits de consultation suivants :
+</p>
+<ul>
+    <li>délimitation géographique : {{accessRequest.areas}}
+        {{^accessRequest.areas}}
+            <i>tout le territoire</i>
+        {{/accessRequest.areas}}
+    </li>
+    <li>
+        groupes systématiques :
+        {{accessRequest.taxa}}
+        {{^accessRequest.taxa}}
+            <i>tous</i>
+        {{/accessRequest.taxa}}
+    </li>
+    <li>
+        date de fin de mise à disposition :
+        {{accessRequest.endAccessDate}}
+        {{^accessRequest.endAccessDate}}
+             <i>illimitée</i>
+        {{/accessRequest.endAccessDate}}
+    </li>
+</ul>
+
+<h3>Article 3. Utilisation des données de {{website.name}}</h3>
+<p>
+    L’ouverture de droits d’accès aux données sensibles précises de {{website.name}}
+    est strictement subordonnée au respect des conditions suivantes :
+</p>
+<ul>
+    <li>
+        mentionner la paternité des données « Système d’Information de l’iNventaire
+        du Patrimoine naturel - {{website.name}} – date de l’extraction - sources
+        (fournisseurs de données) » ou dans la mesure du raisonnable mentionner les
+        cadres d'acquisition et/ou jeux de données mobilisés,
+    </li>
+    <li>
+        ne pas rediffuser les données qui lui ont été communiquées quel que soit
+        le support de diffusion (fichiers, web-service, site internet…)
+    </li>
+    <li>
+        ne pas diffuser les codes d’accès qui sont nominatifs et sous sa responsabilité,
+    </li>
+</ul>
+<p>
+    Si ces droits d’accès sont accordés dans le cadre d’une étude faisant l’objet
+    d’une commande spécifique d’un maître d’ouvrage, l’utilisateur identifié
+    certifie sur l’honneur être effectivement missionné par le commanditaire,
+    et :
+</p>
+<ul>
+    <li>
+        s’engage à n’utiliser les données de {{website.name}} que dans le cadre de la mission
+        ayant donné lieu à l’autorisation d’accès de la présente convention et à les
+        détruire une fois le délai d’usage mentionné dépassé
+    </li>
+    <li>
+        est invité à partager en retour les données qu’il aura acquises dans le
+        cadre de son projet pour leur mise à disposition sur {{website.name}}.
+    </li>
+</ul>
+<p>
+    L’usage des données par l’utilisateur n’engage pas la responsabilité des
+    animateurs ni des pilotes du SINP régional.
+</p>
+
+<h3>Résiliation de la convention</h3>
+<p>
+    La convention est établie pour la durée de mise à disposition précisée en
+    article 2. Elle pourra être reconduite sur la base d’une nouvelle demande
+    motivée. En cas de non-respect des engagements de la présente convention,
+    elle peut être résiliée de façon unilatérale sans préavis.
+</p>

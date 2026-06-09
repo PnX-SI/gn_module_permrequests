@@ -1,6 +1,8 @@
 # Module GeoNature
 config/permrequests_config.toml
 frontend/app/module.config.ts
+frontend/assets/custom/**/*
+!frontend/assets/custom/.gitkeep
 log/
 settings.ini
 tsconfig.json

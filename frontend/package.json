@@ -8,6 +8,10 @@
     "format:check": "prettier --config .prettierrc --ignore-path .prettierignore '**/*.{ts,html,scss}'"
   },
   "devDependencies": {
+    "@types/mustache": "^4.2.6",
     "prettier": "~3.3"
+  },
+  "dependencies": {
+    "mustache": "^4.2.0"
   }
 }

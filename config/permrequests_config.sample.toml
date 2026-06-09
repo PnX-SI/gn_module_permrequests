@@ -16,6 +16,9 @@ ALLOW_CUSTOM_AREA = false
 # geonature database in the table "ref_geo.bib_areas_types".
 ALLOWED_AREA_TYPE_CODES = ["COM", "DEP", "REG"]
 
+# Enable the display of convention text after the permission request form, and before the validation button.
+ENABLE_CONVENTION = true
+
 # Define the customizable section of the permission request form.
 # Use GeoNature Dynamic Form syntax to define the fields to display in the form,
 # and the expected values.
@@ -91,6 +94,7 @@ ALLOWED_AREA_TYPE_CODES = ["COM", "DEP", "REG"]
         étude d'incidence Eau, demande d'autorisation au titre de la
         loi sur l'eau, demande d'autorisation au titre des ICPE,
         demande d'autorisation de destruction d'espèces protégées)."""
+
 
 # Define permissions duration
 [PERMISSIONS_DURATION]

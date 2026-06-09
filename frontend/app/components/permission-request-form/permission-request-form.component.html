@@ -1,7 +1,6 @@
 <form
   class="PermissionRequestForm"
   [formGroup]="form"
-  (ngSubmit)="onSubmit()"
 >
   <div class="PermissionRequestForm__fields">
     <div class="Grid">
@@ -326,33 +325,34 @@
       />
     </mat-card-content>
   </div>
-
-  <div class="PermissionRequestForm__actions">
-    <div
-      class="PermissionRequestForm__validationWarning"
-      *ngIf="permissionRequest?.validated === true"
-    >
-      <mat-icon color="warn">warning</mat-icon>
-      {{ 'Permrequests.Form.Actions.Warning' | translate }}
-    </div>
-    <button
-      type="button"
-      mat-stroked-button
-      color="primary"
-      (click)="onReset()"
-      [disabled]="(dynamicFormGrp.pristine && form.pristine) || isSaving || isSameAsPermissionRequest"
-    >
-      {{ 'Permrequests.Form.Actions.Reset' | translate }}
-    </button>
-    <button
-      type="submit"
-      mat-flat-button
-      color="primary"
-      [disabled]="
-        dynamicFormGrp.invalid || form.invalid || !isAreaValid || (dynamicFormGrp.pristine && form.pristine) || isSaving || isSameAsPermissionRequest
-      "
-    >
-      {{ 'Permrequests.Form.Actions.Submit' | translate }}
-    </button>
-  </div>
 </form>
+
+<div class="PermissionRequestForm__actions">
+  <div
+    class="PermissionRequestForm__validationWarning"
+    *ngIf="permissionRequest?.validated === true"
+  >
+    <mat-icon color="warn">warning</mat-icon>
+    {{ 'Permrequests.Form.Actions.Warning' | translate }}
+  </div>
+  <button
+    type="button"
+    mat-stroked-button
+    color="primary"
+    (click)="onReset()"
+    [disabled]="(dynamicFormGrp.pristine && form.pristine) || isSaving || isSameAsPermissionRequest"
+  >
+    {{ 'Permrequests.Form.Actions.Reset' | translate }}
+  </button>
+  <button
+    type="button"
+    mat-flat-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="
+      dynamicFormGrp.invalid || form.invalid || !isAreaValid || (dynamicFormGrp.pristine && form.pristine) || isSaving || isSameAsPermissionRequest
+    "
+  >
+    {{ 'Permrequests.Form.Actions.Submit' | translate }}
+  </button>
+</div>

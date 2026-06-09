@@ -10,6 +10,12 @@
                 "Details": "Détails de la demande de permission"
             }
         },
+        "Convention": {
+            "Canceled": "L'acceptation de la convention vient d'être annulée.",
+            "NoContent": "Aucune convention d'accès aux données n'est disponible pour le moment. Veuillez réessayer ultérieurement.",
+            "Title": "Convention d'accès aux données",
+            "Validate": "J'accepte les termes de cette convention"
+        },
         "Enums": {
             "Scope" : {
                 "ORGANISM": "Organisme",
