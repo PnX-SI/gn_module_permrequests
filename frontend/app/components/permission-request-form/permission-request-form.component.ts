@@ -649,13 +649,14 @@ export class PermissionRequestFormComponent {
   // //////////////////////////////////////////////////////////////////////////
 
   private _extractTaxaIdentifiers(value: any): number[] {
+    // WARNING: Extract only the cd_ref identifiers to assign permissions only to valid names!
     if (!Array.isArray(value)) return [];
     return value
       .map((item) => {
         if (!item) return null;
         if (typeof item === 'number') return item;
         if (typeof item === 'string' && item.trim()) return Number(item) || null;
-        if (typeof item === 'object' && 'cd_nom' in item) return Number(item['cd_nom']);
+        if (typeof item === 'object' && 'cd_ref' in item) return Number(item['cd_ref']);
         return null;
       })
       .filter((id): id is number => id !== null && Number.isFinite(id));
@@ -687,7 +688,7 @@ export class PermissionRequestFormComponent {
       return;
     }
     const currentTaxa = (this.taxaControl?.value as any[]) ?? [];
-    if (currentTaxa.some((t) => t.cd_nom === cd_ref)) {
+    if (currentTaxa.some((t) => t.cd_ref === cd_ref)) {
       this._resetTaxonSearchControl();
       return;
     }
