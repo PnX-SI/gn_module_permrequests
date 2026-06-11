@@ -10,25 +10,25 @@
 
 ## Présentation
 
-Ce module permet d'ajouter des fonctionnalités de demandes de permission à des données au sein de
-l'application GeoNature.
-Pour l'instant, ces données concernent les observations **sensibles** du module Synthese et leur
-accès en consultation et export de manière précise.
+Ce module permet d'ajouter des fonctionnalités de demandes de permission à des données au sein de l'application GeoNature.  
+Actuellement, ces données concernent les observations **sensibles** du module Synthese et leur accès en consultation et export de manière précise.
 
 Ce module s'articule autour du concept de demande de permission.
 
-Un utilisateur avec des permissions de consultation pourra via ce module effectuer une demande de
-permission à des données. Sa demande sera caractérisée par 3 types d'informations:
+Un utilisateur avec des permissions de consultation pourra via ce module effectuer une demande de permission à des données. Sa demande sera caractérisée par 3 types d'informations :
 
 - un ou plusieurs groupe taxonomique auxquels il souhaite avoir la permission d'accéder
 - un périmètre géographique recouvrant les données auxquelles il souhaite avoir la permission d'accéder
 - une plage temporelle représentant la période de permission aux données
 
-Si la demande est acceptée par un validateur, l'utilisateur pourra accéder à toutes les données
-taxonomiques données dans le périmètre géographique fourni, durant la plage temporelle demandée.
+Si la demande est acceptée par un validateur, l'utilisateur pourra accéder à toutes les données dans le périmètre géographique et taxonomique fourni, durant la plage temporelle demandée.
 
-Un validateur et pourra accéder aux différentes demandes en cours, et traiter les différentes
-demandes de validation.
+Un validateur et pourra accéder aux différentes demandes en cours et les valider.
+
+> Le statut d'une demande visible dans l’interface est calculé automatiquement :
+>
+> - si la date d’expiration est strictement antérieure à la date du jour, la demande est affichée « active » ;
+> - sinon, elle apparaît comme « expirée ».
 
 ## Installation du module
 
@@ -71,6 +71,26 @@ les modules à un groupe ou utilisateur administrateur.
 
 Pour mettre à jour le modue Monitoring, suivre la documentation de [mise à jour d'un module GeoNature](https://docs.geonature.fr/installation.html#mise-a-jour-du-module)
 
+### Désinstallation du module
+
+> **⚠️ ATTENTION :** la désinstallation du module implique la suppression de toutes les données associées.  
+> Assurez vous d'avoir fait une sauvegarde de votre base de données au préalable.
+
+Suivez la procédure suivante :
+1. Rétrograder la base de données pour y enlever les données spécifiques au module :
+    ```bash
+    geonature db downgrade permrequests@base
+    ```
+1. Désinstaller le package du virtual env :
+    ```
+    pip uninstall gn_module_permrequests
+    ```
+    - Possibilité de voir le nom du module avec : `pip list| grep gn`
+1. Supprimer la ligne relative au module `PERMREQUESTS` (colone `module_code`) dans `gn_commons.t_modules`
+1. Supprimer le lien symbolique du module dans les dossiers :
+    - `geonature/external_modules`
+1. Recompiler et/ou mettre à jour le frontend de GeoNature
+
 ## Configuration
 
 > [!NOTE]
@@ -94,7 +114,8 @@ GeoNature.
 
 - `ALLOW_CUSTOM_AREA`: autorise (`true`) ou pas (`false`) le téléversement de fichier GeoJSON pour définir une zone géographique personnalisé sur laquelle demande de permission s'appliquera.
 - `ALLOWED_AREA_TYPE_CODES` : liste des types de zones autorisés (par défaut `["COM", "DEP", "REG"]`).
-- `DYNAMIC_FORM` : listes des champs de la section personnalisable du formulaire de demande d'accès. Par défaut, aucune section personnalisable n'est définie. Pour connaitre les attributs disponible pour chaque type de widget du formulaire dynamique vous pouvez [consulter le code source](https://github.com/PnX-SI/GeoNature/blob/master/frontend/src/app/GN2CommonModule/form/dynamic-form/dynamic-form.component.html) ou [chercher des exemples](./config/permrequests_config.sample.toml). Ce module ajoute 2 attributs spécifiques, `icon` et `icon_set`, permettant respectivement d'indiquer le nom d'une icône et son type de police.
+- `ENABLE_CONVENTION` : affiche (`true`) ou pas (`false`) une fenêtre modale contenant le texte d'une convention d'utilisation des données entre l'utilisateur et les adminisrateurs du site. Par défaut, une [convention standard](frontend/assets/templates/convention.default.tpl.html) est proposée. Il est possible de personnaliser entièrement ce texte en créant un fichier `frontend/assets/custom/templates/convention.tpl.html`. Ce template utilise [la syntaxe Mustache](https://github.com/janl/mustache.js#templates) pour insérer le contenu de variables prédéfinies. Le template par défaut contient l'ensemble des variables disponibles. Seule la variable `customData` peut ne pas exister ou avoir un contenu différent en fonction de l'utilisation ou pas du paramètre ci-dessous `DYNAMIC_FORM`. C'est le paramètre `attribut_name` de la configuration des champs du formulaire dynamique qui sert de clés au dictionnaire contenu dans la variable `customData`.
+- `DYNAMIC_FORM` : listes des champs de la section personnalisable du formulaire de demande d'accès. Par défaut, aucune section personnalisable n'est définie. Pour connaitre les attributs disponibles pour chaque type de widget du formulaire dynamique vous pouvez [consulter le code source](https://github.com/PnX-SI/GeoNature/blob/master/frontend/src/app/GN2CommonModule/form/dynamic-form/dynamic-form.component.html) ou [chercher des exemples](./config/permrequests_config.sample.toml). Ce module ajoute 2 attributs spécifiques, `icon` et `icon_set`, permettant respectivement d'indiquer le nom d'une icône et son type de police.
 Pour [les icônes FontAwsome](https://fontawesome.com/v4/icons/), utiliser `fa` dans l'attribut `icon_set`. Pour [les icônes Material](https://fonts.google.com/icons?hl=fr), il n'est pas nécessaire d'utiliser le paramètre `icon_set`.
 
 - `PERMISSIONS_DURATION` : section permettant de configurer la durée des permissions accordées lors d'une demande.
@@ -114,18 +135,14 @@ Pour [les icônes FontAwsome](https://fontawesome.com/v4/icons/), utiliser `fa` 
   - `TERMS_ACKNOWLEDGEMENT.CLASS_CSS` : permet de définir des classes CSS sur le lien des conditions d'utilisation. Ex.: `btn btn-primary`.
 
 
-> Le statut visible dans l’interface est calculé automatiquement :
->
-> - si la date d’expiration est strictement antérieure à la date du jour, la demande est affichée « active » ;
-> - sinon, elle apparaît comme « expirée ».
-
 ## Administration du module
 
 ### Zones géographiques personnalisées
 
 Ce module ajouter un nouveau type de zone géographique au référentiel géographique dont le code est `PERMREQUESTS`. Ce type permet de rassembler toutes les zones géographiques téléversées par les utilisateurs lorsque le paramètre `ALLOW_CUSTOM_AREA` est à `true`.
 
+Lors de la désinstallation du module ce nouveau type de zone géographique ainsi que toutes les zones géographiques téléversées sont supprimées.
+
 ## Développement du module
 
-Ce module utilise un fichier `pyproject.toml` pour centraliser toutes les informations d'installation
-et de développement. Privilégier toujours ce fichier à l'utilisation de fichiers supplémentaires.
+Ce module utilise un fichier `pyproject.toml` pour centraliser toutes les informations d'installation et de développement. Privilégier toujours ce fichier à l'utilisation de fichiers supplémentaires.
