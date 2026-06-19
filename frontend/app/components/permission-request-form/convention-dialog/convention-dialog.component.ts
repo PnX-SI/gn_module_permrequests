@@ -2,7 +2,7 @@ import { Component, Inject, Input, OnInit } from '@angular/core';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog'
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 
 import * as Mustache from 'mustache';
@@ -39,19 +39,18 @@ export interface WebsiteInfos {
 }
 
 export interface DialogData {
-  accessRequestData: AccessRequestData,
-  customData: Object,
+  accessRequestData: AccessRequestData;
+  customData: Object;
 }
 
 @Component({
   standalone: true,
   selector: 'permission-request-convention-dialog',
   templateUrl: './convention-dialog.component.html',
-  styleUrls : ['./convention-dialog.component.scss'],
+  styleUrls: ['./convention-dialog.component.scss'],
   imports: [AsyncPipe, NgIf, MatDialogModule, MatIconModule, MatButtonModule, TranslateModule],
 })
 export class ConventiondDialogContent implements OnInit {
-
   private defaultTplPath = 'modules/permrequests/assets/templates/convention.default.tpl.html';
   private customTplPath = 'modules/permrequests/assets/custom/templates/convention.tpl.html';
   private rawTemplate = '';
@@ -78,15 +77,13 @@ export class ConventiondDialogContent implements OnInit {
   ngOnInit(): void {
     this.accessRequestInfos = this.buildAccessRequestInfos();
 
-    this.conventionContent = this.http
-      .get(this.customTplPath, { responseType: 'text' })
-      .pipe(
-        catchError(() => this.http.get(this.defaultTplPath, { responseType: 'text' })),
-        map((template) => {
-          this.rawTemplate = template;
-          return this.renderTemplate();
-        })
-      );
+    this.conventionContent = this.http.get(this.customTplPath, { responseType: 'text' }).pipe(
+      catchError(() => this.http.get(this.defaultTplPath, { responseType: 'text' })),
+      map((template) => {
+        this.rawTemplate = template;
+        return this.renderTemplate();
+      })
+    );
   }
 
   private renderTemplate() {

@@ -413,16 +413,14 @@ export class PermissionRequestFormComponent {
 
   private showConvention(payload: PermissionRequestPayload) {
     const dialogRef = this.openConventionDialog();
-    dialogRef.afterClosed().subscribe(
-      (conventionAccepted) => {
-        if (conventionAccepted === true) {
-          this.sendAccessRequest(payload);
-        } else {
-          this.isSaving = false;
-          this._commonService.translateToaster('warning', 'Permrequests.Convention.Canceled');
-        }
+    dialogRef.afterClosed().subscribe((conventionAccepted) => {
+      if (conventionAccepted === true) {
+        this.sendAccessRequest(payload);
+      } else {
+        this.isSaving = false;
+        this._commonService.translateToaster('warning', 'Permrequests.Convention.Canceled');
       }
-    );
+    });
   }
 
   private buildConventionAccessRequestData(): AccessRequestData {

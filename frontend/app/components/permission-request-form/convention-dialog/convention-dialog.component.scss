@@ -1,5 +1,17 @@
-h2.mat-mdc-dialog-title {
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  margin: 5px;
+
   font-size: 1.75rem;
+
+  span {
+    text-overflow: ellipsis;
+  }
+
+  button[mat-dialog-close] {
+    margin-left: auto;
+  }
 }
 
 :host ::ng-deep mat-dialog-content {
@@ -14,8 +26,8 @@ h2.mat-mdc-dialog-title {
 
 mat-dialog-actions {
   display: flex;
-  width: 100%;
   align-items: center;
+  width: 100%;
 
   .dialog-actions-spacer {
     flex: 1 1 auto;
