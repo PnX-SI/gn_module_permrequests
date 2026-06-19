@@ -293,7 +293,10 @@
         </mat-card>
       </div>
 
-      <div *ngIf="shouldDisplayDynamicForm" class="Grid__row Grid__row--customFields">
+      <div
+        *ngIf="shouldDisplayDynamicForm"
+        class="Grid__row Grid__row--customFields"
+      >
         <mat-card class="Card Card--customFields">
           <mat-card-header>
             <mat-card-title>
@@ -310,8 +313,7 @@
               [myFormGroup]="dynamicFormGrp"
               [formsDefinition]="dynamicFormCfg"
               (myFormGroupChange)="onDynamicFormInit($event)"
-            >
-            </pnx-dynamic-form-generator>
+            ></pnx-dynamic-form-generator>
           </mat-card-content>
         </mat-card>
       </div>

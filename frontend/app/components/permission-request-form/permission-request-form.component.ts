@@ -117,7 +117,7 @@ export class PermissionRequestFormComponent {
 
   readonly shouldDisplayDynamicForm: boolean;
   dynamicFormGrp: FormGroup;
-  readonly dynamicFormCfg: object | null;
+  readonly dynamicFormCfg: any[];
 
   constructor(
     private _permissionRequestService: PermissionRequestService,
@@ -151,8 +151,8 @@ export class PermissionRequestFormComponent {
     this.minExpirationDate = this.getMinExpirationDate();
     this.maxExpirationDate = this.getMaxExpirationDate();
 
-    this.shouldDisplayDynamicForm = (moduleConfig.DYNAMIC_FORM.length > 0) ? true : false;
-    this.dynamicFormCfg = moduleConfig.DYNAMIC_FORM ?? null;
+    this.shouldDisplayDynamicForm = moduleConfig.DYNAMIC_FORM.length > 0 ? true : false;
+    this.dynamicFormCfg = moduleConfig.DYNAMIC_FORM ?? [];
 
     this.shouldDisplayConvention = !!moduleConfig.ENABLE_CONVENTION;
 
@@ -393,7 +393,7 @@ export class PermissionRequestFormComponent {
       custom_area: this._buildCustomAreaPayload(),
     };
 
-    if (this.dynamicFormCfg !== null) {
+    if (this.shouldDisplayDynamicForm) {
       payload['additional_data'] = this.getDynamicFormValues();
     }
 
