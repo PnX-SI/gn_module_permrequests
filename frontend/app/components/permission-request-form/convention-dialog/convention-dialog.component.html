@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>{{ 'Permrequests.Convention.Title' | translate }}</h2>
+
+<mat-dialog-content>
+  <ng-container *ngIf="conventionContent | async as content; else noConventionContent">
+    <div class="permrequests-convention-container" [innerHtml]="content"></div>
+  </ng-container>
+
+  <ng-template #noConventionContent>
+    <div class="permrequests-convention-container">
+      <p> {{ 'Permrequests.Convention.NoContent' | translate }}</p>
+    </div>
+  </ng-template>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close>
+    <mat-icon>cancel</mat-icon>
+    {{ 'Cancel' | translate }}
+  </button>
+
+  <span class="dialog-actions-spacer"></span>
+
+  <button mat-raised-button color="primary" [mat-dialog-close]="true" cdkFocusInitial>
+    <mat-icon>check</mat-icon>
+    {{ 'Permrequests.Convention.Validate' | translate }}
+  </button>
+</mat-dialog-actions>

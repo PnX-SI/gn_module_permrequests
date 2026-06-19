@@ -1,5 +1,8 @@
 <p>
-    <i>{{customData.userOrganism}}</i> représenté par <i>{{user.firstname}} {{user.lastname}}</i>
+    {{#customData.userOrganism}}
+      <i>{{customData.userOrganism}}</i> représenté par
+    {{/customData.userOrganism}}
+    <i>{{user.firstname}} {{user.lastname}}</i>
     désigné sous le terme « l’utilisateur identifié » s’engage à respecter les termes suivants
 </p>
 
@@ -48,8 +51,13 @@
 
 <h3>Article 2. Droits d’accès</h3>
 <p>
-    L’accès est accordé à <i>{{user.firstname}} {{user.lastname}}</i> - <i>{{customData.userOrganism}}</i>
+    L’accès est accordé à <i>{{user.firstname}} {{user.lastname}}</i>
+    {{#customData.userOrganism}} - <i>{{customData.userOrganism}}</i>{{/customData.userOrganism}}
+    {{^customData.projectType}}.{{/customData.projectType}}
+
+    {{#customData.projectType}}
     sur une demande motivée pour l’objet suivant : <i>{{customData.projectType}}</i>
+    {{/customData.projectType}}
 </p>
 
 {{#customData.projectDescription}}

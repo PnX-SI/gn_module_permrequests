@@ -1,10 +1,12 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Inject, Input, OnInit } from '@angular/core';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog'
 import { MatIconModule } from '@angular/material/icon';
 
 import * as Mustache from 'mustache';
-import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from '@librairies/rxjs/internal/Observable';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, map } from 'rxjs/operators';
@@ -36,20 +38,19 @@ export interface WebsiteInfos {
   name: string;
 }
 
+export interface DialogData {
+  accessRequestData: AccessRequestData,
+  customData: Object,
+}
+
 @Component({
   standalone: true,
-  selector: 'permission-request-convention-modal',
-  templateUrl: './convention-modal.component.html',
-  imports: [MatIconModule, TranslateModule, AsyncPipe, NgIf],
+  selector: 'permission-request-convention-dialog',
+  templateUrl: './convention-dialog.component.html',
+  styleUrls : ['./convention-dialog.component.scss'],
+  imports: [AsyncPipe, NgIf, MatDialogModule, MatIconModule, MatButtonModule, TranslateModule],
 })
-export class ConventiondModalContent implements OnInit {
-  @Input() accessRequestData: AccessRequestData = {
-    areas: [],
-    taxa: [],
-    sensitivity_filter: null,
-    expiration_date: null,
-  };
-  @Input() customData: Object = {};
+export class ConventiondDialogContent implements OnInit {
 
   private defaultTplPath = 'modules/permrequests/assets/templates/convention.default.tpl.html';
   private customTplPath = 'modules/permrequests/assets/custom/templates/convention.tpl.html';
@@ -61,7 +62,7 @@ export class ConventiondModalContent implements OnInit {
   userInfos: UserInfos;
 
   constructor(
-    public activeModal: NgbActiveModal,
+    @Inject(MAT_DIALOG_DATA) private data: DialogData,
     private authService: AuthService,
     private configService: ConfigService,
     private http: HttpClient,
@@ -92,7 +93,7 @@ export class ConventiondModalContent implements OnInit {
     const mustacheLib = (Mustache as any).default ?? Mustache;
     const rendered = mustacheLib.render(this.rawTemplate, {
       accessRequest: this.accessRequestInfos,
-      customData: this.customData,
+      customData: this.data.customData,
       user: this.userInfos,
       website: this.websiteInfos,
     });
@@ -110,10 +111,10 @@ export class ConventiondModalContent implements OnInit {
 
   private buildAccessRequestInfos(): AccessRequestInfos {
     const accessRequestInfos: AccessRequestInfos = {
-      areas: this.accessRequestData.areas.join(', '),
-      taxa: this.accessRequestData.taxa.join(', '),
-      sensitiveAccess: !!this.accessRequestData.sensitivity_filter,
-      endAccessDate: this.formatDate(this.accessRequestData.expiration_date),
+      areas: this.data.accessRequestData.areas.join(', '),
+      taxa: this.data.accessRequestData.taxa.join(', '),
+      sensitiveAccess: !!this.data.accessRequestData.sensitivity_filter,
+      endAccessDate: this.formatDate(this.data.accessRequestData.expiration_date),
     };
     return accessRequestInfos;
   }

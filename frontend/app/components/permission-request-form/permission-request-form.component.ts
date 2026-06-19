@@ -9,6 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -16,8 +17,6 @@ import { Router } from '@angular/router';
 import {
   NgbDateParserFormatter,
   NgbDateStruct,
-  NgbModal,
-  NgbModalOptions,
   NgbTypeaheadSelectItemEvent,
 } from '@ng-bootstrap/ng-bootstrap';
 import { finalize } from '@librairies/rxjs/operators';
@@ -46,8 +45,8 @@ import { AcknowledgementComponent } from './acknowledgement/acknowledgement.comp
 import { PERMISSION_REQUEST_SECTIONS } from '../permission-request-common/permission-request-sections';
 import {
   AccessRequestData,
-  ConventiondModalContent,
-} from './convention-modal/convention-modal.component';
+  ConventiondDialogContent,
+} from './convention-dialog/convention-dialog.component';
 
 export type AreaMode = 'existing' | 'custom';
 
@@ -74,6 +73,7 @@ type PermissionRequestFormValue = {
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
+    MatDialogModule,
     MatIconModule,
     AcknowledgementComponent,
   ],
@@ -128,7 +128,7 @@ export class PermissionRequestFormComponent {
     private _authService: AuthService,
     private _translateService: TranslateService,
     private _i18nService: I18nService,
-    private _modalService: NgbModal,
+    private _dialog: MatDialog,
     private _commonService: CommonService
   ) {
     const moduleConfig = this._configService.PERMREQUESTS ?? {};
@@ -410,16 +410,15 @@ export class PermissionRequestFormComponent {
   }
 
   private showConvention(payload: PermissionRequestPayload) {
-    const modalRef = this.openConventionModal();
-    modalRef.componentInstance.accessRequestData = this.buildConventionAccessRequestData();
-    modalRef.componentInstance.customData = this.getDynamicFormValues();
-    modalRef.result.then(
-      (result) => {
-        this.sendAccessRequest(payload);
-      },
-      (reason) => {
-        this.isSaving = false;
-        this._commonService.translateToaster('warning', 'Permrequests.Convention.Canceled');
+    const dialogRef = this.openConventionDialog();
+    dialogRef.afterClosed().subscribe(
+      (conventionAccepted) => {
+        if (conventionAccepted === true) {
+          this.sendAccessRequest(payload);
+        } else {
+          this.isSaving = false;
+          this._commonService.translateToaster('warning', 'Permrequests.Convention.Canceled');
+        }
       }
     );
   }
@@ -435,13 +434,19 @@ export class PermissionRequestFormComponent {
     return this.conventionRequestData;
   }
 
-  private openConventionModal() {
-    const options: NgbModalOptions = {
-      size: 'lg',
-      backdrop: 'static',
-      keyboard: false,
+  private openConventionDialog() {
+    const options = {
+      data: {
+        accessRequestData: this.buildConventionAccessRequestData(),
+        customData: this.getDynamicFormValues(),
+      },
+      width: '800px',
+      maxWidth: '95vw',
+      height: 'auto',
+      maxHeight: '90vh',
+      hasBackdrop: true,
     };
-    return this._modalService.open(ConventiondModalContent, options);
+    return this._dialog.open(ConventiondDialogContent, options);
   }
 
   private sendAccessRequest(payload: PermissionRequestPayload): void {
