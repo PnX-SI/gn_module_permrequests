@@ -38,9 +38,11 @@
         },
         "Form": {
             "Actions": {
-                "Submit": "Save",
+                "Submit": "Send",
+                "SubmitTooltip": "Send your permission request to the validators.",
                 "Reset": "Reset",
-                "Warning": "Saving the request will cancel the current validation and submit the request for a new validation."
+                "ResetTooltip": "Reset your permission request.",
+                "Warning": "Resending the request will cancel the current validation and submit the request for a new validation."
             },
             "Acknowledgment": {
                 "Terms": {

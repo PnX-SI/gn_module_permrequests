@@ -330,6 +330,20 @@
 </form>
 
 <div class="PermissionRequestForm__actions">
+  <button
+    type="button"
+    mat-stroked-button
+    class="mr-auto uppercase"
+    color="warn"
+    [matTooltip]="'Permrequests.Form.Actions.ResetTooltip' | translate"
+    matTooltipPosition="left"
+    (click)="onReset()"
+    [disabled]="(dynamicFormGrp.pristine && form.pristine) || isSaving || isSameAsPermissionRequest"
+  >
+    <mat-icon>cancel</mat-icon>
+    {{ 'Permrequests.Form.Actions.Reset' | translate }}
+  </button>
+
   <div
     class="PermissionRequestForm__validationWarning"
     *ngIf="permissionRequest?.validated === true"
@@ -337,24 +351,25 @@
     <mat-icon color="warn">warning</mat-icon>
     {{ 'Permrequests.Form.Actions.Warning' | translate }}
   </div>
+
   <button
     type="button"
-    mat-stroked-button
+    mat-raised-button
+    class="uppercase"
     color="primary"
-    (click)="onReset()"
-    [disabled]="(dynamicFormGrp.pristine && form.pristine) || isSaving || isSameAsPermissionRequest"
-  >
-    {{ 'Permrequests.Form.Actions.Reset' | translate }}
-  </button>
-  <button
-    type="button"
-    mat-flat-button
-    color="primary"
+    [matTooltip]="'Permrequests.Form.Actions.SubmitTooltip' | translate"
+    matTooltipPosition="left"
     (click)="onSubmit()"
     [disabled]="
-      dynamicFormGrp.invalid || form.invalid || !isAreaValid || (dynamicFormGrp.pristine && form.pristine) || isSaving || isSameAsPermissionRequest
+      dynamicFormGrp.invalid ||
+      form.invalid ||
+      !isAreaValid ||
+      (dynamicFormGrp.pristine && form.pristine) ||
+      isSaving ||
+      isSameAsPermissionRequest
     "
   >
+    <mat-icon>send</mat-icon>
     {{ 'Permrequests.Form.Actions.Submit' | translate }}
   </button>
 </div>

@@ -38,9 +38,11 @@
         },
         "Form": {
             "Actions": {
-                "Submit": "Enregistrer",
+                "Submit": "Envoyer",
+                "SubmitTooltip": "Envoyer votre demande de permissions aux validateurs.",
                 "Reset": "Réinitialiser",
-                "Warning": "Enregistrer la demande annulera la validation en cours et soumettra la demande à une nouvelle validation."
+                "ResetTooltip": "Réinitialiser votre demande de permissions.",
+                "Warning": "Envoyer à nouveau la demande annulera la validation en cours et soumettra la demande à une nouvelle validation."
             },
             "Acknowledgment": {
                 "Terms": {
