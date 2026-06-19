@@ -115,6 +115,7 @@ export class PermissionRequestFormComponent {
   readonly minExpirationDate: DateStruc;
   readonly maxExpirationDate: DateStruc;
 
+  readonly shouldDisplayDynamicForm: boolean;
   dynamicFormGrp: FormGroup;
   readonly dynamicFormCfg: object | null;
 
@@ -150,6 +151,7 @@ export class PermissionRequestFormComponent {
     this.minExpirationDate = this.getMinExpirationDate();
     this.maxExpirationDate = this.getMaxExpirationDate();
 
+    this.shouldDisplayDynamicForm = (moduleConfig.DYNAMIC_FORM.length > 0) ? true : false;
     this.dynamicFormCfg = moduleConfig.DYNAMIC_FORM ?? null;
 
     this.shouldDisplayConvention = !!moduleConfig.ENABLE_CONVENTION;
@@ -708,6 +710,10 @@ export class PermissionRequestFormComponent {
     this._resetTaxonSearchControl();
   }
 
+  private _resetTaxonSearchControl(): void {
+    this.taxonSearchControl?.reset();
+  }
+
   removeTaxon(cd_nom: number): void {
     const allSelectedTaxa = ((this.taxaControl?.value as any[]) ?? []).filter(
       (t) => t.cd_nom !== cd_nom
@@ -745,9 +751,5 @@ export class PermissionRequestFormComponent {
         this.conventionRequestData.areas.push(item.area_name.trim() ?? '');
       });
     }
-  }
-
-  private _resetTaxonSearchControl(): void {
-    this.taxonSearchControl?.reset();
   }
 }

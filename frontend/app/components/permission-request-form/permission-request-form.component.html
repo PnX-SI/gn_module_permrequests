@@ -293,7 +293,7 @@
         </mat-card>
       </div>
 
-      <div class="Grid__row Grid__row--customFields">
+      <div *ngIf="shouldDisplayDynamicForm" class="Grid__row Grid__row--customFields">
         <mat-card class="Card Card--customFields">
           <mat-card-header>
             <mat-card-title>
