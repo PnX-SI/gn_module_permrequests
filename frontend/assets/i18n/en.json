@@ -72,8 +72,7 @@
                 "Subtitle": "Concerned taxa and geographical areas.",
                 "TaxaField": {
                     "Label": "Taxa",
-                    "Required": "You must select at least one taxon.",
-                    "Remove": "Remove this taxon"
+                    "Tooltip": "Enter the first letters of a name of a taxonomic group higher than the species rank in the field. Select the item that suits you from the list offered with the directional keys and validate your selection with the “Enter” key.\nWhen a synonym is selected, the corresponding valid name will be recorded."
                 },
                 "AreaField": {
                     "Custom": {
@@ -85,7 +84,8 @@
                     "Existing": {
                         "Label": "Predefined geographical areas",
                         "Mode": "Select at least one predefined area",
-                        "Required": "You must select at least one geographical area."
+                        "Required": "You must select at least one geographical area.",
+                        "Tooltip": "Enter the first letters of a geographical area in the field. Select the item that suits you from the list offered with the directional keys and validate your selection with the “Enter” key."
                     },
                     "Label": "Geographical areas"
                 },

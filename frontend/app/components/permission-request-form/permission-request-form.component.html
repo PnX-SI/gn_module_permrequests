@@ -154,44 +154,17 @@
           <mat-card-content class="Card__content">
             <div class="Dataset">
               <div class="Field">
-                <label
-                  class="Field__label"
-                  for="taxa"
-                >
+                <label class="Field__label">
                   {{ 'Permrequests.Form.Data.TaxaField.Label' | translate }}
                 </label>
-                <pnx-taxonomy
-                  id="taxa"
-                  [parentFormControl]="taxonSearchControl"
-                  charNumber="3"
-                  listLength="20"
-                  (onChange)="onTaxonSelected($event)"
-                ></pnx-taxonomy>
-                <div
-                  class="Field__selectedTaxa"
-                  *ngIf="taxaControl?.value?.length"
-                >
-                  <span
-                    class="Chip"
-                    *ngFor="let taxon of taxaControl?.value"
-                  >
-                    {{ taxon.nom_valide || taxon.lb_nom }}
-                    <button
-                      type="button"
-                      (click)="removeTaxon(taxon.cd_nom)"
-                      matTooltip="{{ 'Permrequests.Form.Data.TaxaField.Remove' | translate }}"
-                      aria-label="{{ 'Permrequests.Form.Data.TaxaField.Remove' | translate }}"
-                    >
-                      ×
-                    </button>
-                  </span>
-                </div>
-                <div
-                  class="Field__error"
-                  *ngIf="taxaControl?.hasError('required') && taxaControl?.touched"
-                >
-                  {{ 'Permrequests.Form.Data.TaxaField.Required' | translate }}
-                </div>
+                <permrequest-taxa
+                  [parentFormControl]="taxaControl"
+                  rank="GN"
+                  valueFieldName="cd_ref"
+                  [matTooltip]="'Permrequests.Form.Data.TaxaField.Tooltip' | translate"
+                  matTooltipPosition="above"
+                  (onSelectionChange)="onTaxaSelectionChange($event)"
+                ></permrequest-taxa>
               </div>
 
               <div class="Field">
@@ -230,6 +203,8 @@
                     [typeCodes]="['COM', 'DEP', 'REG']"
                     [parentFormControl]="areasControl"
                     [defaultItems]="selectedAreasDefaultItems"
+                    [matTooltip]="'Permrequests.Form.Data.AreaField.Existing.Tooltip' | translate"
+                    matTooltipPosition="below"
                     (onSelectionChange)="onAreasSelectionChange($event)"
                   ></pnx-areas>
                   <div

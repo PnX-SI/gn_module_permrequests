@@ -4,6 +4,7 @@ import {
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
+  UntypedFormControl,
   ValidationErrors,
   ValidatorFn,
   Validators,
@@ -47,6 +48,7 @@ import {
   AccessRequestData,
   ConventiondDialogContent,
 } from './convention-dialog/convention-dialog.component';
+import { TaxaComponent } from '../shared/taxa/taxa.component';
 
 export type AreaMode = 'existing' | 'custom';
 
@@ -57,7 +59,6 @@ type PermissionRequestFormValue = {
   scope: PermissionRequestScope;
   acknowledgeTerms: boolean;
   taxa: any[];
-  taxon_search: string | null;
   areas: number[];
   area_mode: AreaMode;
 };
@@ -76,6 +77,7 @@ type PermissionRequestFormValue = {
     MatDialogModule,
     MatIconModule,
     AcknowledgementComponent,
+    TaxaComponent,
   ],
 })
 export class PermissionRequestFormComponent {
@@ -99,6 +101,8 @@ export class PermissionRequestFormComponent {
     sensitivity_filter: null,
     expiration_date: null,
   };
+
+  selectedTaxaDefaultItems: Array<any> = [];
 
   selectedAreasDefaultItems: Array<{ id_area: number; area_name: string; displayName: string }> =
     [];
@@ -203,7 +207,6 @@ export class PermissionRequestFormComponent {
       sensitivity_filter: [this.sensitivityFilterDefaultValue],
       acknowledgeTerms: [false, this.shouldDisplayAcknowledgement ? Validators.requiredTrue : []],
       taxa: [[]],
-      taxon_search: [''],
       areas: [[], Validators.required],
       area_mode: ['existing' as AreaMode],
     };
@@ -565,7 +568,6 @@ export class PermissionRequestFormComponent {
         sensitivity_filter: this.sensitivityFilterDefaultValue,
         acknowledgeTerms: this.shouldDisplayAcknowledgement ? false : true,
         taxa: [],
-        taxon_search: '',
         areas: [],
         area_mode: 'existing' as AreaMode,
       });
@@ -586,7 +588,6 @@ export class PermissionRequestFormComponent {
           nom_valide: taxon.nom_valide,
           displayName: taxon.nom_valide ?? taxon.lb_nom,
         })),
-        taxon_search: '',
         areas: (this.permissionRequest.areas ?? []).map((area) => area.id_area),
         area_mode: savedMode,
       });
@@ -621,8 +622,8 @@ export class PermissionRequestFormComponent {
   // Form control accessors
   // //////////////////////////////////////////////////////////////////////////
 
-  get expirationDateControl() {
-    return this.form.get('expiration_date');
+  get expirationDateControl(): UntypedFormControl {
+    return this.form.get('expiration_date') as UntypedFormControl;
   }
 
   get acknowledgeTermsControl() {
@@ -637,16 +638,12 @@ export class PermissionRequestFormComponent {
     return this.form.get('sensitivity_filter');
   }
 
-  get taxaControl() {
-    return this.form.get('taxa');
+  get taxaControl(): UntypedFormControl {
+    return this.form.get('taxa') as UntypedFormControl;
   }
 
-  get taxonSearchControl() {
-    return this.form.get('taxon_search');
-  }
-
-  get areasControl() {
-    return this.form.get('areas');
+  get areasControl(): UntypedFormControl {
+    return this.form.get('areas') as UntypedFormControl;
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -680,56 +677,20 @@ export class PermissionRequestFormComponent {
       .filter((id): id is number => id !== null && Number.isFinite(id));
   }
 
-  onTaxonSelected(event: NgbTypeaheadSelectItemEvent<Taxon>): void {
-    event.preventDefault();
-    const item = event.item;
-    if (!item || item.cd_nom == null) {
-      this._resetTaxonSearchControl();
-      return;
-    }
-    const cd_ref = Number(item.cd_ref);
-    if (!Number.isFinite(cd_ref)) {
-      this._resetTaxonSearchControl();
-      return;
-    }
-    const currentTaxa = (this.taxaControl?.value as any[]) ?? [];
-    if (currentTaxa.some((t) => t.cd_ref === cd_ref)) {
-      this._resetTaxonSearchControl();
-      return;
-    }
-    const allSelectedTaxa = [...currentTaxa, item];
-
+  onTaxaSelectionChange(allSelectedTaxa: any[]) {
     this.updateConventionTaxa(allSelectedTaxa);
 
-    this.taxaControl?.setValue(allSelectedTaxa);
+    this.selectedTaxaDefaultItems = Array.isArray(allSelectedTaxa) ? allSelectedTaxa : [];
+
     this.taxaControl?.markAsDirty();
     this.taxaControl?.markAsTouched();
-    this.taxaControl?.updateValueAndValidity({ emitEvent: false });
-    this._resetTaxonSearchControl();
-  }
-
-  private _resetTaxonSearchControl(): void {
-    this.taxonSearchControl?.reset();
-  }
-
-  removeTaxon(cd_nom: number): void {
-    const allSelectedTaxa = ((this.taxaControl?.value as any[]) ?? []).filter(
-      (t) => t.cd_nom !== cd_nom
-    );
-
-    this.updateConventionTaxa(allSelectedTaxa);
-
-    this.taxaControl?.setValue(allSelectedTaxa);
-    this.taxaControl?.markAsDirty();
-    this.taxaControl?.markAsTouched();
-    this.taxaControl?.updateValueAndValidity({ emitEvent: false });
   }
 
   private updateConventionTaxa(allSelectedTaxa: any[]): void {
     if (this.shouldDisplayConvention) {
       this.conventionRequestData.taxa = [];
       allSelectedTaxa.forEach((item) => {
-        this.conventionRequestData.taxa.push(item.lb_nom ?? '');
+        this.conventionRequestData.taxa.push(item.displayName ?? '');
       });
     }
   }

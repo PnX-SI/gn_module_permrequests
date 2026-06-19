@@ -72,8 +72,7 @@
                 "Subtitle": "Taxons et zones géographiques concernées.",
                 "TaxaField": {
                     "Label": "Taxons",
-                    "Required": "Vous devez sélectionner au moins un taxon.",
-                    "Remove": "Retirer ce taxon"
+                    "Tooltip": "Saisir dans le champ les premières lettres du nom d'un groupe taxonomique supérieur au rang d'espèce. Sélectionner l'élément qui vous convient dans la liste proposée avec les touches directionnelles et valider votre sélection avec la touche « Entrée ».\nLors de la sélection d'un synonyme, le nom valide correspondant sera enregistré."
                 },
                 "AreaField": {
                     "Custom": {
@@ -85,7 +84,8 @@
                     "Existing": {
                         "Label": "Zones géographiques prédéfinies",
                         "Mode": "Sélection de zone prédéfinie",
-                        "Required": "Vous devez sélectionner au moins une zone géographique."
+                        "Required": "Vous devez sélectionner au moins une zone géographique.",
+                        "Tooltip": "Saisir dans le champ les premières lettres d'une zone géographique. Sélectionner l'élément qui vous convient dans la liste proposée avec les touches directionnelles et valider votre sélection avec la touche « Entrée »."
                     },
                     "Label": "Zones géographiques"
                 },
