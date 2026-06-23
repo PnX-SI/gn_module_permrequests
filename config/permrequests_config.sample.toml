@@ -27,68 +27,65 @@ ENABLE_CONVENTION = true
 # Use `icon_set` only for FontAwesome icons, and set its value to "fa".
 # For Material icons, do not set `icon_set` parameter.
 [[DYNAMIC_FORM]]
-    type_widget = "html"
-    attribut_name = "motivationIntro"
-    html = """
+type_widget = "html"
+attribut_name = "motivationIntro"
+html = """
         <small class="form-text text-muted">
             Veuillez décrire ci-dessous les motivations à l'origine
             de votre demande.
         </small>"""
 [[DYNAMIC_FORM]]
-    type_widget = "select"
-    attribut_label = "Règne concerné"
-    attribut_name = "kingdom"
-    icon = "fa-sitemap"
-    icon_set = "fa"
-    values = [
-            "Végétal",
-            "Animal (Invertébrés)",
-            "Végétal et Animal (Invertébrés)",
-        ]
-    required = true
-    help = """Veuillez indiquer le règne des taxons
+type_widget = "select"
+attribut_label = "Règne concerné"
+attribut_name = "kingdom"
+icon = "fa-sitemap"
+icon_set = "fa"
+values = ["Végétal", "Animal (Invertébrés)", "Végétal et Animal (Invertébrés)"]
+required = true
+help = """Veuillez indiquer le règne des taxons
         concernés par votre étude et pour lesquels vous demandez
         un accès précis."""
 [[DYNAMIC_FORM]]
-    type_widget = "text"
-    attribut_label = "Organisme"
-    attribut_name = "userOrganism"
-    icon = "business"
-    required = true
-    help = """Veuillez indiquer le nom de l'organisme auquel vous
+type_widget = "text"
+attribut_label = "Organisme"
+attribut_name = "userOrganism"
+icon = "business"
+required = true
+help = """Veuillez indiquer le nom de l'organisme auquel vous
         appartenez."""
 [[DYNAMIC_FORM]]
-    type_widget = "select"
-    attribut_label = "Type d'étude ou de projet"
-    attribut_name = "projectType"
-    icon = "fa-tag"
-    icon_set = "fa"
-    values = [
-        "Plan de gestion",
-        "DOCOB Natura 2000",
-        "Inventaire scientifique",
-        "Expertise écologique réglementaire",
-        "Étude trame verte et bleue",
-        "PLU / SCOT",
-        "Autre (à préciser dans description)"]
-    required = true
+type_widget = "select"
+attribut_label = "Type d'étude ou de projet"
+attribut_name = "projectType"
+icon = "fa-tag"
+icon_set = "fa"
+values = [
+    "Plan de gestion",
+    "DOCOB Natura 2000",
+    "Inventaire scientifique",
+    "Expertise écologique réglementaire",
+    "Étude trame verte et bleue",
+    "PLU / SCOT",
+    "Autre (à préciser dans description)",
+]
+required = true
 [[DYNAMIC_FORM]]
-    type_widget = "textarea"
-    attribut_label = "Commanditaire"
-    attribut_name = "projectSponsor"
-    icon = "request_quote"
-    required = true
-    rows = 4
-    help = """Veuillez indiquer le nom du commanditaire de l'étude ou
+type_widget = "textarea"
+attribut_label = "Commanditaire"
+attribut_name = "projectSponsor"
+icon = "request_quote"
+required = true
+rows = 4
+help = """Veuillez indiquer le nom du commanditaire de l'étude ou
         l'organisme à l'origine du projet."""
 [[DYNAMIC_FORM]]
-    type_widget = "textarea"
-    attribut_label = "Description"
-    attribut_name = "projectDescription"
-    icon = "text_snippet"
-    required = false
-    rows = 10
-    help = """Précisez le calendrier, la finalité, l'objet de l'étude
+type_widget = "textarea"
+attribut_label = "Description"
+attribut_name = "projectDescription"
+icon = "text_snippet"
+required = false
+rows = 10
+help = """Précisez le calendrier, la finalité, l'objet de l'étude
         scientifique et le cadre réglementaire dans lequel s'inscrit
         la demande (Étude d'impact, étude d'incidence Natura 2000,
         étude d'incidence Eau, demande d'autorisation au titre de la
@@ -98,39 +95,47 @@ ENABLE_CONVENTION = true
 
 # Define permissions duration
 [PERMISSIONS_DURATION]
-    # Default duration in days for the permissions created when a permission request is validated.
-    DEFAULT_DAYS = 30
-    # Maximum duration in days for the permissions created when a permission request is validated.
-    MAX_DAYS = 365
+# Default duration in days for the permissions created when a permission request is validated.
+DEFAULT_DAYS = 30
+# Maximum duration in days for the permissions created when a permission request is validated.
+MAX_DAYS = 365
 
 # List of permissions to create when a permission request is validated.
 # Use module code for `module` and action code for `action` (R, E, C, U, D), as defined in the geonature database.
 [[PERMISSIONS_TO_CREATE]]
-    module = "SYNTHESE"
-    action = "R"
+module = "SYNTHESE"
+action = "R"
 [[PERMISSIONS_TO_CREATE]]
-    module = "SYNTHESE"
-    action = "E"
+module = "SYNTHESE"
+action = "E"
 
 [SCOPE_FILTER]
-    # Enable the display of the scope filter in the permission request form.
-    DISPLAY_ENABLED = true
-    # List of allowed scope values checked by web services. Possible values are "USER" and "ORGANISM".
-    # Do not modifiy the value unless you know what you are doing and have adapted the code to handle the new values.
-    # ALLOWED_VALUES = ["USER", "ORGANISM"]
-    # Default value of the scope filter. By default set to "USER".
-    DEFAULT_VALUE = "USER"
+# Enable the display of the scope filter in the permission request form.
+DISPLAY_ENABLED = true
+# List of allowed scope values checked by web services. Possible values are "USER" and "ORGANISM".
+# Do not modifiy the value unless you know what you are doing and have adapted the code to handle the new values.
+# ALLOWED_VALUES = ["USER", "ORGANISM"]
+# Default value of the scope filter. By default set to "USER".
+DEFAULT_VALUE = "USER"
 
 [SENSITIVITY_FILTER]
-    # Enable the display of the sensitive data filter in the permission request form.
-    # With OpenData permission requests are only for sensitive data access.
-    DISPLAY_ENABLED = false
-    # Default value of the sensitive filter. By default set to true.
-    DEFAULT_VALUE = true
+# Enable the display of the sensitive data filter in the permission request form.
+# With OpenData permission requests are only for sensitive data access.
+DISPLAY_ENABLED = false
+# Default value of the sensitive filter. By default set to true.
+DEFAULT_VALUE = true
+
+[TAXA_FILTER]
+# Enable the display of the taxa filter in the permission request form.
+DISPLAY_ENABLED = true
+# Minimum taxa rank to be displayed in the taxa filter.
+RANK_MIN = "GN"
+# Field name of the taxa data in charge of storing the value of the taxa filter.
+VALUE_FIELD_NAME = "cd_ref"
 
 # WARNING: by default you must define the URL parameter for the terms acknowledgement, otherwise
 # set an empty value.
 [TERMS_ACKNOWLEDGEMENT]
-    REQUIRED = true
-    URL = "https://exemple.org/conditions"
-    #CLASS_CSS = "btn btn-primary"
+REQUIRED = true
+URL = "https://exemple.org/conditions"
+#CLASS_CSS = "btn btn-primary"

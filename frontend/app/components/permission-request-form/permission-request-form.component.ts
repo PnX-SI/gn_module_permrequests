@@ -18,7 +18,6 @@ import { Router } from '@angular/router';
 import {
   NgbDateParserFormatter,
   NgbDateStruct,
-  NgbTypeaheadSelectItemEvent,
 } from '@ng-bootstrap/ng-bootstrap';
 import { finalize } from '@librairies/rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -26,7 +25,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';
 import { CommonService } from '@geonature_common/service/common.service';
 import { DateStruc } from '@geonature_common/form/date/date.component';
-import { Taxon } from '@geonature_common/form/taxonomy/taxonomy.component';
 import { ModuleService } from '@geonature/services/module.service';
 import { ConfigService } from '@geonature/services/config.service';
 import { AuthService } from '@geonature/components/auth/auth.service';
@@ -90,6 +88,10 @@ export class PermissionRequestFormComponent {
   readonly shouldDisplayScopeFilter: boolean;
   readonly scopeFilterDefaultValue: PermissionRequestScope;
 
+  readonly shouldDisplayTaxaFilter: boolean;
+  readonly taxaRankMin: string;
+  readonly taxaValueFieldName: string;
+
   readonly allowCustomArea: boolean;
   readonly PermissionRequestScope = PermissionRequestScope;
   readonly sections = PERMISSION_REQUEST_SECTIONS;
@@ -145,6 +147,10 @@ export class PermissionRequestFormComponent {
 
     this.shouldDisplayScopeFilter = !!moduleConfig.SCOPE_FILTER.DISPLAY_ENABLED;
     this.scopeFilterDefaultValue = moduleConfig.SCOPE_FILTER.DEFAULT_VALUE ?? DEFAULT_SCOPE;
+
+    this.shouldDisplayTaxaFilter = !!moduleConfig.TAXA_FILTER.DISPLAY_ENABLED;
+    this.taxaRankMin = moduleConfig.TAXA_FILTER.RANK_MIN;
+    this.taxaValueFieldName = moduleConfig.TAXA_FILTER.VALUE_FIELD_NAME;
 
     this.shouldDisplaySensitivityFilter = !!moduleConfig.SENSITIVITY_FILTER.DISPLAY_ENABLED;
     this.sensitivityFilterDefaultValue = !!moduleConfig.SENSITIVITY_FILTER.DEFAULT_VALUE;

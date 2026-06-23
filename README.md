@@ -129,6 +129,12 @@ Pour [les icônes FontAwsome](https://fontawesome.com/v4/icons/), utiliser `fa` 
 - `SENSITIVITY_FILTER` : section permettant de configurer l'affichage du filtre liés à la sensibilité au sein de la demande.
   - `SENSITIVITY_FILTER.DISPLAY_ENABLED` : affiche (`true`) ou pas (`false`) la coche permettant de définir le filtre de sensibilité de la demande.
   - `SENSITIVITY_FILTER.DEFAULT_VALUE` : permet de définir la valeur par défaut (`true`) du filtre de sensibilité de la demande.
+- `TAXA_FILTER` : section permettant de configurer l'affichage du filtre lié aux taxons au sein de la demande.
+  - `TAXA_FILTER.DISPLAY_ENABLED` : affiche (`true`) ou pas (`false`) le filtre lié aux taxons de la demande.Par défaut : `true`.
+  - `TAXA_FILTER.RANK_MIN` : rang taxinomique minimal à partir duquel les taxons peuvent être sélectionnés. Par défaut: `ES`.\\  
+  Utiliser une valeur du champ "`id_rang`" de la table "`taxonomie.bib_taxref_rangs`".
+  - `TAXA_FILTER.VALUE_FIELD_NAME` : nom du champ à utiliser (`cd_nom` ou `cd_ref`) pour déterminer la valeur à utiliser pour le contenu de l'attribut `value` du champ du formulaire. Par défaut: `cd_ref`.\\  
+  L'utilisation du `cd_ref` permet de s'assurer que les permissions seront accordées pour toutes les observations d'un taxon quelque soit le cd_nom (valide ou synonyme) utilisé pour l'observation dans la Synthese. 
 - `TERMS_ACKNOWLEDGEMENT` : section permetant de configurer la coche d'acceptation des termes et conditions des demandes d'accès. Le texte et le lien sont configurable via [la surcharge des fichiers de traductions](https://docs.geonature.fr/admin-manual.html#customiser-les-traductions).
   - `TERMS_ACKNOWLEDGEMENT.REQUIRED` : permet de faire apparaitre / dissimuler dans le formulaire une coche d'acceptation des termes et conditions. Par défaut, c'est affiché.
   - `TERMS_ACKNOWLEDGEMENT.URL` : URL vers les conditions d'utilisations (ouvre un nouvel onglet). Si non définit ou vide seul le texte sera affiché. Par défaut, aucun lien n'est défini.

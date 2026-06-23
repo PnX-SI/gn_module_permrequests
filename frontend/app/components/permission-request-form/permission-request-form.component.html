@@ -153,14 +153,17 @@
           </mat-card-header>
           <mat-card-content class="Card__content">
             <div class="Dataset">
-              <div class="Field">
+              <div
+                class="Field"
+                *ngIf="shouldDisplayTaxaFilter"
+              >
                 <label class="Field__label">
                   {{ 'Permrequests.Form.Data.TaxaField.Label' | translate }}
                 </label>
                 <permrequest-taxa
                   [parentFormControl]="taxaControl"
-                  rank="GN"
-                  valueFieldName="cd_ref"
+                  [rank]="taxaRankMin"
+                  [valueFieldName]="taxaValueFieldName"
                   [matTooltip]="'Permrequests.Form.Data.TaxaField.Tooltip' | translate"
                   matTooltipPosition="above"
                   (onSelectionChange)="onTaxaSelectionChange($event)"

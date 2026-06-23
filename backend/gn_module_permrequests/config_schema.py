@@ -4,9 +4,11 @@ TOML schema specifications for module configuration parameters
 
 from marshmallow import Schema, fields, validate
 
+
 class PermissionDurationConfigSchema(Schema):
     DEFAULT_DAYS = fields.Integer(load_default=30)
     MAX_DAYS = fields.Integer(load_default=365)
+
 
 class PermissionToCreateSchemaConf(Schema):
     module = fields.String(required=True)
@@ -27,6 +29,12 @@ class ScopeFilterConfigSchema(Schema):
         load_default=["USER", "ORGANISM"],
     )
     DEFAULT_VALUE = fields.String(load_default="USER")
+
+
+class TaxaFilterConfigSchema(Schema):
+    DISPLAY_ENABLED = fields.Boolean(load_default=True)
+    RANK_MIN = fields.String(load_default="ES")
+    VALUE_FIELD_NAME = fields.String(load_default="cd_ref")
 
 
 class TermsAcknowledgementSchemaConf(Schema):
@@ -61,6 +69,10 @@ class PermrequestsConfigSchema(Schema):
     SENSITIVITY_FILTER = fields.Nested(
         SensitivityFilterConfigSchema,
         load_default=SensitivityFilterConfigSchema().load({}),
+    )
+    TAXA_FILTER = fields.Nested(
+        TaxaFilterConfigSchema,
+        load_default=TaxaFilterConfigSchema().load({}),
     )
     TERMS_ACKNOWLEDGEMENT = fields.Nested(
         TermsAcknowledgementSchemaConf,
