@@ -578,6 +578,7 @@ export class PermissionRequestFormComponent {
         area_mode: 'existing' as AreaMode,
       });
       this.selectedAreasDefaultItems = [];
+      this.selectedTaxaDefaultItems = [];
     } else {
       const savedMode: AreaMode = this.permissionRequest.custom_area ? 'custom' : 'existing';
       this.form.patchValue({
@@ -588,12 +589,7 @@ export class PermissionRequestFormComponent {
         scope: this.permissionRequest.scope ?? this.scopeFilterDefaultValue,
         sensitivity_filter: !!this.permissionRequest.sensitivity_filter,
         acknowledgeTerms: true,
-        taxa: (this.permissionRequest.taxa ?? []).map((taxon) => ({
-          cd_nom: taxon.cd_nom,
-          lb_nom: taxon.lb_nom,
-          nom_valide: taxon.nom_valide,
-          displayName: taxon.nom_valide ?? taxon.lb_nom,
-        })),
+        taxa: (this.permissionRequest.taxa ?? []).map((taxon) => taxon[this.taxaValueFieldName]),
         areas: (this.permissionRequest.areas ?? []).map((area) => area.id_area),
         area_mode: savedMode,
       });
@@ -602,6 +598,11 @@ export class PermissionRequestFormComponent {
         area_name: area.area_name,
         displayName: area.area_name,
       }));
+      this.selectedTaxaDefaultItems = (this.permissionRequest.taxa ?? []).map((taxon) => {
+        const items: any = { displayName: taxon.display_name };
+        items[this.taxaValueFieldName] = taxon[this.taxaValueFieldName];
+        return items
+      });
     }
     this.form.markAsPristine();
     this.form.updateValueAndValidity({ emitEvent: false });
@@ -657,14 +658,13 @@ export class PermissionRequestFormComponent {
   // //////////////////////////////////////////////////////////////////////////
 
   private _extractTaxaIdentifiers(value: any): number[] {
-    // WARNING: Extract only the cd_ref identifiers to assign permissions only to valid names!
     if (!Array.isArray(value)) return [];
     return value
       .map((item) => {
         if (!item) return null;
         if (typeof item === 'number') return item;
         if (typeof item === 'string' && item.trim()) return Number(item) || null;
-        if (typeof item === 'object' && 'cd_ref' in item) return Number(item['cd_ref']);
+        if (typeof item === 'object' && this.taxaValueFieldName in item) return Number(item[this.taxaValueFieldName]);
         return null;
       })
       .filter((id): id is number => id !== null && Number.isFinite(id));

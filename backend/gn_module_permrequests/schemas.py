@@ -26,8 +26,30 @@ class PermissionRequestTaxonSchema(SQLAlchemySchema):
         load_instance = False
 
     cd_nom = auto_field()
+    cd_ref = auto_field()
     lb_nom = auto_field()
     nom_valide = auto_field()
+    display_name = fields.Method("get_display_name", dump_only=True)
+
+    def get_display_name(self, taxon):
+        display_name = None
+        if not taxon.nom_complet_html and taxon.lb_nom:
+            display_name = taxon.lb_nom
+            if taxon.lb_auteur:
+                display_name += f" {taxon.lb_auteur}"
+            return display_name
+
+        display_name = taxon.nom_complet_html
+        display_name = display_name.replace(
+            taxon.lb_auteur, f'<span class="text-muted">{taxon.lb_auteur}</span>'
+        )
+        if taxon.cd_nom == taxon.cd_ref:
+            if "<i>" in display_name:
+                display_name = display_name.replace("<i>", "<b><i>")
+                display_name = display_name.replace("</i>", "</i></b>")
+            else:
+                display_name = display_name.replace(taxon.lb_nom, f"<b>{taxon.lb_nom}</b>")
+        return display_name
 
 
 class PermissionRequestAreaSchema(SQLAlchemySchema):

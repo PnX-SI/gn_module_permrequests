@@ -38,8 +38,10 @@ export interface PermissionRequestRole {
 
 export interface PermissionRequestTaxon {
   cd_nom: number;
+  cd_ref: number;
   lb_nom: string;
   nom_valide: string | null;
+  display_name: string;
 }
 
 export interface PermissionRequestArea {
