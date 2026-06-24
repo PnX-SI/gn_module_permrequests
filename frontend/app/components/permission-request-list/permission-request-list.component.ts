@@ -28,7 +28,6 @@ import {
 } from '../../services/permissionRequest.service';
 import { PermissionRequestToolbarComponent } from '../permission-request-toolbar/permission-request-toolbar.component';
 import { ROUTE_PATHS } from '../../gnModule.module';
-import { canCreatePermission } from '../../guards/can-create.guard';
 import { STATUS } from '../../models/status';
 import { ConfigService } from '@geonature/services/config.service';
 
@@ -78,6 +77,7 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
 
   permissionRequests: PermissionRequest[] = [];
   canCreatePermissionRequest = false;
+  canValidatePermissionRequest = false;
 
   private _destroy$ = new Subject<void>();
 
@@ -135,9 +135,12 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.canCreatePermissionRequest = canCreatePermission(
+    this.canCreatePermissionRequest = this._ars.canCreate(
       this._cruvedStore.cruved?.[this._moduleService.currentModule.module_code]
     );
+    this.canValidatePermissionRequest = this._ars.canValidate(
+      this._cruvedStore.cruved?.[this._moduleService.currentModule.module_code]
+    )
 
     this.filtersForm.valueChanges.pipe(takeUntil(this._destroy$)).subscribe(() => {
       this.pagination.currentPage = 1;

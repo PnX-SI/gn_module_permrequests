@@ -110,7 +110,11 @@
             {{ 'Permrequests.Enums.Sensitivity.' + item.value | translate }}
           </ng-template>
         </ng-select>
-        <label class="FiltersForm__Filter FiltersForm__Filter--checkbox">
+
+        <label
+          *ngIf="canValidatePermissionRequest"
+          class="FiltersForm__Filter FiltersForm__Filter--checkbox"
+        >
           <input
             type="checkbox"
             formControlName="my_validations"
