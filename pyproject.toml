@@ -48,7 +48,8 @@ source = ["gn_module_permrequests"]
 omit = ["*/tests/*", "*/migrations/*"]
 
 [tool.black]
-line-length = 99
+target-version = ["py311", "py313"]
+line-length = 100
 exclude = '''
 (
   /(
@@ -68,3 +69,13 @@ exclude = '''
   )/
 )
 '''
+
+[tool.ruff]
+# Active les règles de linting pour le tri des imports (I) et d'autres comme Flake8 (E, F)
+select = ["E", "F", "I"]
+line-length = 100
+
+[tool.ruff.isort]
+# Optionnel: Vous pouvez spécifier des configurations propres à isort ici,
+# comme par exemple forcer un formatage spécifique
+known-first-party = ["gn_module_permrequests"]

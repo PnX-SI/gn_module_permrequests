@@ -1,14 +1,15 @@
 import pytest
+from geonature.core.gn_commons.models import TModules
+from geonature.core.gn_permissions.models import PermAction, Permission, PermObject
+from geonature.utils.env import db
 from sqlalchemy import select
 
-from geonature.tests.fixtures import *
-from geonature.tests.fixtures import _session, app, _app, users
-from geonature.tests.test_permissions import g_permissions
-from geonature.utils.env import db
-from geonature.core.gn_commons.models import TModules
-from geonature.core.gn_permissions.models import PermAction, PermObject, Permission
+from gn_module_permrequests import MODULE_CODE, MODULE_LABEL, MODULE_PICTO
 
-from gn_module_permission_request import MODULE_CODE, MODULE_LABEL, MODULE_PICTO
+pytest_plugins = [
+    "geonature.tests.fixtures",
+    "geonature.tests.test_permissions",
+]
 
 
 @pytest.fixture(scope="session", autouse=True)

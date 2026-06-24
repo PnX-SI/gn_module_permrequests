@@ -1,17 +1,15 @@
 from datetime import datetime
 
-from flask import g
 import sqlalchemy as sa
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.dialects.postgresql import JSONB
-
-from geonature.utils.env import DB
+from flask import g
 from geonature.core.gn_permissions.models import Permission
+from geonature.utils.env import DB
 from pypnusershub.db.models import User
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.hybrid import hybrid_property
 from utils_flask_sqla.models import qfilter
 
 from . import MODULE_CODE
-
 
 SCHEMA_NAME = f"pr_{MODULE_CODE.lower()}"
 SCOPE_USER = "USER"
@@ -131,9 +129,7 @@ class PermissionRequest(DB.Model):
         elif scope == 2:
             return sa.or_(
                 cls.permissions.any(Permission.role == user),
-                cls.permissions.any(
-                    Permission.role.has(User.id_organisme == user.id_organisme)
-                ),
+                cls.permissions.any(Permission.role.has(User.id_organisme == user.id_organisme)),
             )
         elif scope == 3:
             return sa.true()
@@ -148,9 +144,7 @@ class PermissionRequest(DB.Model):
             query = query.where(
                 sa.or_(
                     PermissionRequest.id_author == user.id_role,
-                    PermissionRequest.author.has(
-                        User.id_organisme == user.id_organisme
-                    ),
+                    PermissionRequest.author.has(User.id_organisme == user.id_organisme),
                 )
             )
         elif scope == 3:

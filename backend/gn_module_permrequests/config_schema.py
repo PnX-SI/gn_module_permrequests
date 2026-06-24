@@ -12,9 +12,7 @@ class PermissionDurationConfigSchema(Schema):
 
 class PermissionToCreateSchemaConf(Schema):
     module = fields.String(required=True)
-    action = fields.String(
-        required=True, validate=validate.OneOf(["R", "E", "C", "U", "D"])
-    )
+    action = fields.String(required=True, validate=validate.OneOf(["R", "E", "C", "U", "D"]))
 
 
 class SensitivityFilterConfigSchema(Schema):

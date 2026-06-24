@@ -2,31 +2,30 @@
 Définition des routes du module export
 """
 
-from datetime import datetime, date
+from datetime import date, datetime
 from enum import Enum
-from flask import Blueprint, request, g, current_app
-from sqlalchemy import desc, asc, select, case
-import sqlalchemy as sa
-from werkzeug.exceptions import BadRequest, NotFound, Forbidden, InternalServerError
 
+import sqlalchemy as sa
+from apptax.taxonomie.models import Taxref
+from flask import Blueprint, current_app, g, request
 from geonature.core.gn_commons.models.base import TModules
 from geonature.core.gn_permissions import decorators as permissions
 from geonature.core.gn_permissions.decorators import login_required
-from geonature.core.gn_permissions.models import Permission, PermAction, PermObject
+from geonature.core.gn_permissions.models import PermAction, Permission, PermObject
 from geonature.core.notifications.utils import dispatch_notifications
 from geonature.utils.env import db
+from pypnusershub.db.models import User
+from ref_geo.models import LAreas
+from sqlalchemy import asc, case, desc, select
+from sqlalchemy.orm import aliased
 from utils_flask_sqla.response import json_resp
+from werkzeug.exceptions import BadRequest, Forbidden, InternalServerError, NotFound
 
 from . import MODULE_CODE
-from .models import PermissionRequest, CustomArea, SCOPE_USER, SCOPE_ORGANISM
-from .schemas import PermissionRequestSchema
-from .status_utils import status_order_case, Status, status_filter_expression
+from .models import SCOPE_ORGANISM, SCOPE_USER, CustomArea, PermissionRequest
 from .notifications_utils import PermissionRequestCodes
-from pypnusershub.db.models import User
-from apptax.taxonomie.models import Taxref
-from ref_geo.models import LAreas
-from sqlalchemy.orm import aliased
-
+from .schemas import PermissionRequestSchema
+from .status_utils import Status, status_filter_expression, status_order_case
 
 blueprint = Blueprint("permission_request", __name__, cli_group="permission_request")
 permission_requests_schema = PermissionRequestSchema(many=True)
@@ -103,13 +102,9 @@ def _get_permission_request_module_id():
 
 
 def _get_validation_action_id():
-    action_id = db.session.scalar(
-        select(PermAction.id_action).where(PermAction.code_action == "V")
-    )
+    action_id = db.session.scalar(select(PermAction.id_action).where(PermAction.code_action == "V"))
     if action_id is None:
-        raise InternalServerError(
-            "Validation action (code 'V') not found in configuration."
-        )
+        raise InternalServerError("Validation action (code 'V') not found in configuration.")
     return action_id
 
 
@@ -194,16 +189,14 @@ def _geojson_to_multipolygon_sql(geojson: dict):
 
     geom_str = _json.dumps(geometry)
 
-    return sa.text(
-        """
+    return sa.text("""
         ST_Multi(
             ST_Transform(
                 ST_SetSRID(ST_GeomFromGeoJSON(:geojson), 4326),
                 Find_SRID('ref_geo', 'l_areas', 'geom')
             )
         )
-        """
-    ).bindparams(geojson=geom_str)
+        """).bindparams(geojson=geom_str)
 
 
 def _sync_custom_area_to_l_areas(permission_request):
@@ -214,20 +207,14 @@ def _sync_custom_area_to_l_areas(permission_request):
     """
     import json as _json
 
-    if (
-        permission_request.custom_area is None
-        and permission_request.validated is not True
-    ):
+    if permission_request.custom_area is None and permission_request.validated is not True:
         return
 
     id_pr = permission_request.id_permission_request
     area_code = _area_code_for(id_pr)
     id_type = _get_permission_request_area_type_id()
 
-    if (
-        permission_request.validated is True
-        and permission_request.custom_area is not None
-    ):
+    if permission_request.validated is True and permission_request.custom_area is not None:
         custom_area = permission_request.custom_area
         area_name = _area_name_for(custom_area)
 
@@ -246,33 +233,40 @@ def _sync_custom_area_to_l_areas(permission_request):
             )
 
         geom_str = _json.dumps(geometry)
-        local_srid = db.session.execute(
-            sa.func.Find_SRID("ref_geo", "l_areas", "geom")
-        ).scalar()
+        local_srid = db.session.execute(sa.func.Find_SRID("ref_geo", "l_areas", "geom")).scalar()
 
         existing = db.session.execute(
             sa.text(
-                "SELECT id_area FROM ref_geo.l_areas WHERE id_type = :id_type AND area_code = :area_code"
+                "SELECT id_area "
+                "FROM ref_geo.l_areas "
+                "WHERE id_type = :id_type AND area_code = :area_code"
             ),
             {"id_type": id_type, "area_code": area_code},
         ).scalar_one_or_none()
 
         if existing is None:
             id_area = db.session.execute(
-                sa.text(
-                    """
-                    INSERT INTO ref_geo.l_areas (id_type, area_code, area_name, geom, geom_4326, enable)
+                sa.text("""
+                    INSERT INTO ref_geo.l_areas
+                        (id_type, area_code, area_name, geom, geom_4326, enable)
                     VALUES (
                         :id_type,
                         :area_code,
                         :area_name,
-                        ST_Multi(ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(:geom), 4326), :local_srid)),
+                        ST_Multi(
+                            ST_Transform(
+                                ST_SetSRID(
+                                    ST_GeomFromGeoJSON(:geom),
+                                    4326
+                                ),
+                                :local_srid
+                            )
+                        ),
                         ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(:geom), 4326)),
                         true
                     )
                     RETURNING id_area
-                    """
-                ),
+                    """),
                 {
                     "id_type": id_type,
                     "area_code": area_code,
@@ -284,16 +278,22 @@ def _sync_custom_area_to_l_areas(permission_request):
         else:
             id_area = existing
             db.session.execute(
-                sa.text(
-                    """
+                sa.text("""
                     UPDATE ref_geo.l_areas
                     SET area_name = :area_name,
-                        geom = ST_Multi(ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(:geom), 4326), :local_srid)),
+                        geom = ST_Multi(
+                            ST_Transform(
+                                ST_SetSRID(
+                                    ST_GeomFromGeoJSON(:geom),
+                                    4326
+                                ),
+                                local_srid
+                            )
+                        ),
                         geom_4326 = ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(:geom), 4326)),
                         meta_update_date = now()
                     WHERE id_area = :id_area
-                    """
-                ),
+                    """),
                 {
                     "area_name": area_name,
                     "geom": geom_str,
@@ -357,8 +357,7 @@ def map_data(scope, id_permission_request):
 
     features = (
         db.session.execute(
-            sa.text(
-                """
+            sa.text("""
             SELECT json_build_object(
                 'type', 'Feature',
                 'geometry', ST_AsGeoJSON(geom_4326)::json,
@@ -366,8 +365,7 @@ def map_data(scope, id_permission_request):
             )
             FROM ref_geo.l_areas
             WHERE id_area = ANY(:ids)
-            """
-            ),
+            """),
             {"ids": [area.id_area for area in areas]},
         )
         .scalars()
@@ -382,14 +380,13 @@ def map_data(scope, id_permission_request):
 ## ########################################################################
 
 
-@blueprint.route(
-    "/<int(signed=True):id_permission_request>/custom-area/download", methods=["GET"]
-)
+@blueprint.route("/<int(signed=True):id_permission_request>/custom-area/download", methods=["GET"])
 @login_required
 @permissions.check_cruved_scope("R", get_scope=True, module_code=MODULE_CODE)
 def download_custom_area(scope, id_permission_request):
-    from flask import Response
     import json
+
+    from flask import Response
 
     query = PermissionRequest.filter_by_scope(scope)
     permission_request = (
@@ -525,9 +522,7 @@ def list_permission_requests(scope):
     if needs_scope_join:
         author_alias = aliased(User)
         permission_role_alias = aliased(User)
-        query = query.outerjoin(
-            author_alias, PermissionRequest.author.of_type(author_alias)
-        )
+        query = query.outerjoin(author_alias, PermissionRequest.author.of_type(author_alias))
         query = query.outerjoin(
             permission_role_alias, permission_alias.role.of_type(permission_role_alias)
         )
@@ -596,9 +591,7 @@ def list_permission_requests(scope):
         scope_clauses = []
         scope_set = set(scope_filters)
         if SCOPE_USER in scope_set:
-            scope_clauses.append(
-                permission_alias.id_role == PermissionRequest.id_author
-            )
+            scope_clauses.append(permission_alias.id_role == PermissionRequest.id_author)
         if SCOPE_ORGANISM in scope_set:
             scope_clauses.append(
                 sa.and_(
@@ -615,19 +608,12 @@ def list_permission_requests(scope):
     if sensitivity_filters:
         sensitivity_set = set(sensitivity_filters)
         if permission_alias is not None:
-            clauses = [
-                permission_alias.sensitivity_filter.is_(value)
-                for value in sensitivity_set
-            ]
+            clauses = [permission_alias.sensitivity_filter.is_(value) for value in sensitivity_set]
             query = query.where(sa.or_(*clauses))
         else:
-            clauses = [
-                Permission.sensitivity_filter.is_(value) for value in sensitivity_set
-            ]
+            clauses = [Permission.sensitivity_filter.is_(value) for value in sensitivity_set]
             query = query.where(
-                sa.or_(
-                    *[PermissionRequest.permissions.any(clause) for clause in clauses]
-                )
+                sa.or_(*[PermissionRequest.permissions.any(clause) for clause in clauses])
             )
 
     if validated_filters:
@@ -648,9 +634,7 @@ def list_permission_requests(scope):
                 else:
                     clauses.append(Permission.validated.is_(validated_value))
             query = query.where(
-                sa.or_(
-                    *[PermissionRequest.permissions.any(clause) for clause in clauses]
-                )
+                sa.or_(*[PermissionRequest.permissions.any(clause) for clause in clauses])
             )
 
     if my_validations:
@@ -732,14 +716,10 @@ def create_permission_request():
     }
     unexpected_fields = set(payload.keys()) - allowed_fields
     if unexpected_fields:
-        raise BadRequest(
-            f"Unsupported fields provided: {', '.join(sorted(unexpected_fields))}."
-        )
+        raise BadRequest(f"Unsupported fields provided: {', '.join(sorted(unexpected_fields))}.")
     expiration_value = payload.get("expiration_date")
     if not isinstance(expiration_value, str):
-        raise BadRequest(
-            "expiration_date is required and must be a string (YYYY-MM-DD)."
-        )
+        raise BadRequest("expiration_date is required and must be a string (YYYY-MM-DD).")
     try:
         expiration_date = datetime.strptime(expiration_value, "%Y-%m-%d").date()
     except ValueError as exc:
@@ -760,9 +740,7 @@ def create_permission_request():
     if scope_value is None:
         raise BadRequest("scope must be provided as a string.")
     allowed_scopes = (
-        current_app.config[MODULE_CODE]
-        .get("SCOPE_FILTER", {})
-        .get("ALLOWED_VALUES", [])
+        current_app.config[MODULE_CODE].get("SCOPE_FILTER", {}).get("ALLOWED_VALUES", [])
     )
     if scope_value not in allowed_scopes:
         raise BadRequest(f"Unsupported scope value '{scope_value}'.")
@@ -798,9 +776,7 @@ def create_permission_request():
     except (TypeError, ValueError) as exc:
         raise BadRequest("areas must contain only integer values.") from exc
     areas_items = (
-        db.session.scalars(
-            select(LAreas).where(LAreas.id_area.in_(normalized_area_ids))
-        ).all()
+        db.session.scalars(select(LAreas).where(LAreas.id_area.in_(normalized_area_ids))).all()
         if normalized_area_ids
         else []
     )
@@ -812,9 +788,7 @@ def create_permission_request():
         raise BadRequest(
             f"Some area identifiers are invalid or unknown: {', '.join(map(str, missing_areas))}."
         )
-    allowed_area_type_codes = current_app.config[MODULE_CODE].get(
-        "ALLOWED_AREA_TYPE_CODES"
-    )
+    allowed_area_type_codes = current_app.config[MODULE_CODE].get("ALLOWED_AREA_TYPE_CODES")
     invalid_area_types = sorted(
         {
             area_id
@@ -827,7 +801,8 @@ def create_permission_request():
     if invalid_area_types:
         allowed_codes = ", ".join(sorted(allowed_area_type_codes))
         raise BadRequest(
-            f"Areas must belong to one of the allowed types ({allowed_codes}). Invalid areas: {', '.join(map(str, invalid_area_types))}."
+            f"Areas must belong to one of the allowed types ({allowed_codes}). "
+            f"Invalid areas: {', '.join(map(str, invalid_area_types))}."
         )
     areas_list = [areas_by_id[area_id] for area_id in normalized_area_ids]
 
@@ -851,9 +826,7 @@ def create_permission_request():
         select(PermObject.id_object).where(PermObject.code_object == "ALL")
     ).one_or_none()
     if object_id is None:
-        raise InternalServerError(
-            "Permission object 'ALL' not found in permissions configuration."
-        )
+        raise InternalServerError("Permission object 'ALL' not found in permissions configuration.")
 
     created_on_value = datetime.combine(created_on, datetime.min.time())
     expire_on_value = datetime.combine(expiration_date, datetime.min.time())
@@ -868,27 +841,17 @@ def create_permission_request():
             raise BadRequest("custom_area must be an object with a 'geojson' field.")
         raw_geojson = custom_area_value.get("geojson")
         if not isinstance(raw_geojson, dict):
-            raise BadRequest(
-                "custom_area.geojson is required and must be a GeoJSON object."
-            )
+            raise BadRequest("custom_area.geojson is required and must be a GeoJSON object.")
         raw_file_name = custom_area_value.get("file_name")
-        file_name = (
-            str(raw_file_name).strip() or None
-            if isinstance(raw_file_name, str)
-            else None
-        )
+        file_name = str(raw_file_name).strip() or None if isinstance(raw_file_name, str) else None
         custom_area = _parse_custom_area(raw_geojson, file_name=file_name)
 
     if not areas_list and custom_area is None:
         raise BadRequest("At least one area or a custom GeoJSON area is required.")
 
-    permissions_to_create = current_app.config[MODULE_CODE].get(
-        "PERMISSIONS_TO_CREATE", []
-    )
+    permissions_to_create = current_app.config[MODULE_CODE].get("PERMISSIONS_TO_CREATE", [])
     if not permissions_to_create:
-        raise InternalServerError(
-            "PERMISSIONS_TO_CREATE is empty in module configuration."
-        )
+        raise InternalServerError("PERMISSIONS_TO_CREATE is empty in module configuration.")
 
     # Resolve module/action ids once per unique (module_code, action_code) pair
     _module_id_cache = {}
@@ -900,23 +863,17 @@ def create_permission_request():
                 select(TModules.id_module).where(TModules.module_code == module_code)
             ).one_or_none()
             if mid is None:
-                raise InternalServerError(
-                    f"Module '{module_code}' not found in configuration."
-                )
+                raise InternalServerError(f"Module '{module_code}' not found in configuration.")
             _module_id_cache[module_code] = mid
         return _module_id_cache[module_code]
 
     def _get_action_id(action_code):
         if action_code not in _action_id_cache:
             aid = db.session.scalars(
-                select(PermAction.id_action).where(
-                    PermAction.code_action == action_code
-                )
+                select(PermAction.id_action).where(PermAction.code_action == action_code)
             ).one_or_none()
             if aid is None:
-                raise InternalServerError(
-                    f"Action '{action_code}' not found in configuration."
-                )
+                raise InternalServerError(f"Action '{action_code}' not found in configuration.")
             _action_id_cache[action_code] = aid
         return _action_id_cache[action_code]
 
@@ -989,9 +946,7 @@ def update_permission_request(scope, id_permission_request):
 
     forbidden_fields = {"status", "validated", "id_validator", "created_on"}
     if forbidden_fields.intersection(payload.keys()):
-        raise BadRequest(
-            "Fields status, validated, id_validator and created_on cannot be updated."
-        )
+        raise BadRequest("Fields status, validated, id_validator and created_on cannot be updated.")
 
     allowed_fields = {
         "description",
@@ -1039,9 +994,7 @@ def update_permission_request(scope, id_permission_request):
                 expiration_value, "%Y-%m-%d"
             ).date()
         except ValueError as exc:
-            raise BadRequest(
-                "expiration_date must be a valid date in YYYY-MM-DD format."
-            ) from exc
+            raise BadRequest("expiration_date must be a valid date in YYYY-MM-DD format.") from exc
     if (
         ("created_on" in payload or "expiration_date" in payload)
         and permission_request.created_on is not None
@@ -1056,9 +1009,7 @@ def update_permission_request(scope, id_permission_request):
             raise BadRequest("scope must be provided as a string.")
         scope_value = _normalize_scope(raw_scope)
         allowed_scopes = (
-            current_app.config[MODULE_CODE]
-            .get("SCOPE_FILTER", {})
-            .get("ALLOWED_VALUES", [])
+            current_app.config[MODULE_CODE].get("SCOPE_FILTER", {}).get("ALLOWED_VALUES", [])
         )
         if scope_value is None or scope_value not in allowed_scopes:
             raise BadRequest(f"Unsupported scope value '{raw_scope}'.")
@@ -1076,9 +1027,7 @@ def update_permission_request(scope, id_permission_request):
         if not isinstance(sensitivity_value, bool):
             raise BadRequest("sensitivity_filter must be a boolean value.")
         if not permission_request.permissions:
-            raise InternalServerError(
-                "No permission is linked to this permission request."
-            )
+            raise InternalServerError("No permission is linked to this permission request.")
         permission_request.sensitivity_filter = sensitivity_value
 
     if "taxa" in payload:
@@ -1097,15 +1046,12 @@ def update_permission_request(scope, id_permission_request):
         )
         if missing_taxa:
             raise BadRequest(
-                f"Some taxa identifiers are invalid or unknown: {', '.join(map(str, missing_taxa))}."
+                "Some taxa identifiers are invalid or unknown: "
+                f"{', '.join(map(str, missing_taxa))}."
             )
         if not permission_request.permissions:
-            raise InternalServerError(
-                "No permission is linked to this permission request."
-            )
-        permission_request.taxa = [
-            taxa_by_id[taxon_id] for taxon_id in normalized_taxa_ids
-        ]
+            raise InternalServerError("No permission is linked to this permission request.")
+        permission_request.taxa = [taxa_by_id[taxon_id] for taxon_id in normalized_taxa_ids]
 
     if "areas" in payload:
         areas_value = payload.get("areas")
@@ -1119,9 +1065,7 @@ def update_permission_request(scope, id_permission_request):
             except (TypeError, ValueError) as exc:
                 raise BadRequest("areas must contain only integer values.") from exc
         areas_items = (
-            db.session.scalars(
-                select(LAreas).where(LAreas.id_area.in_(normalized_area_ids))
-            ).all()
+            db.session.scalars(select(LAreas).where(LAreas.id_area.in_(normalized_area_ids))).all()
             if normalized_area_ids
             else []
         )
@@ -1131,11 +1075,10 @@ def update_permission_request(scope, id_permission_request):
         )
         if missing_area_ids:
             raise BadRequest(
-                f"Some area identifiers are invalid or unknown: {', '.join(map(str, missing_area_ids))}."
+                "Some area identifiers are invalid or unknown: "
+                f"{', '.join(map(str, missing_area_ids))}."
             )
-        allowed_area_type_codes = current_app.config[MODULE_CODE].get(
-            "ALLOWED_AREA_TYPE_CODES"
-        )
+        allowed_area_type_codes = current_app.config[MODULE_CODE].get("ALLOWED_AREA_TYPE_CODES")
         invalid_area_types = sorted(
             {
                 area_id
@@ -1148,20 +1091,17 @@ def update_permission_request(scope, id_permission_request):
         if invalid_area_types:
             allowed_codes = ", ".join(sorted(allowed_area_type_codes))
             raise BadRequest(
-                f"Areas must belong to one of the allowed types ({allowed_codes}). Invalid areas: {', '.join(map(str, invalid_area_types))}."
+                f"Areas must belong to one of the allowed types ({allowed_codes}). "
+                f"Invalid areas: {', '.join(map(str, invalid_area_types))}."
             )
         if not permission_request.permissions:
-            raise InternalServerError(
-                "No permission is linked to this permission request."
-            )
+            raise InternalServerError("No permission is linked to this permission request.")
         new_areas = [areas_by_id[area_id] for area_id in normalized_area_ids]
         for p in permission_request.permissions:
             p.areas_filter = list(new_areas)
 
     if "custom_area" in payload:
-        allow_custom_area = current_app.config[MODULE_CODE].get(
-            "ALLOW_CUSTOM_AREA", False
-        )
+        allow_custom_area = current_app.config[MODULE_CODE].get("ALLOW_CUSTOM_AREA", False)
         custom_area_value = payload.get("custom_area")
         if custom_area_value is None:
             permission_request.custom_area = None
@@ -1169,25 +1109,17 @@ def update_permission_request(scope, id_permission_request):
             if not allow_custom_area:
                 raise BadRequest("Custom area is not allowed.")
             if not isinstance(custom_area_value, dict):
-                raise BadRequest(
-                    "custom_area must be an object with a 'geojson' field."
-                )
+                raise BadRequest("custom_area must be an object with a 'geojson' field.")
             raw_geojson = custom_area_value.get("geojson")
             if not isinstance(raw_geojson, dict):
-                raise BadRequest(
-                    "custom_area.geojson is required and must be a GeoJSON object."
-                )
+                raise BadRequest("custom_area.geojson is required and must be a GeoJSON object.")
             raw_file_name = custom_area_value.get("file_name")
             file_name = (
-                str(raw_file_name).strip() or None
-                if isinstance(raw_file_name, str)
-                else None
+                str(raw_file_name).strip() or None if isinstance(raw_file_name, str) else None
             )
             new_custom_area = _parse_custom_area(raw_geojson, file_name=file_name)
             if permission_request.custom_area is not None:
-                permission_request.custom_area.geojson_data = (
-                    new_custom_area.geojson_data
-                )
+                permission_request.custom_area.geojson_data = new_custom_area.geojson_data
                 permission_request.custom_area.file_name = new_custom_area.file_name
             else:
                 permission_request.custom_area = new_custom_area
@@ -1264,9 +1196,7 @@ def delete_permission_request(scope, id_permission_request):
 ## ########################################################################
 
 
-@blueprint.route(
-    "/<int(signed=True):id_permission_request>/validated", methods=["PATCH"]
-)
+@blueprint.route("/<int(signed=True):id_permission_request>/validated", methods=["PATCH"])
 @login_required
 @permissions.check_cruved_scope("V", get_scope=True, module_code=MODULE_CODE)
 @json_resp
@@ -1280,9 +1210,7 @@ def update_validated(scope, id_permission_request):
     allowed_fields = {"validated", "validation_description"}
     unexpected_fields = set(payload.keys()) - allowed_fields
     if unexpected_fields:
-        raise BadRequest(
-            f"Unsupported fields provided: {', '.join(sorted(unexpected_fields))}."
-        )
+        raise BadRequest(f"Unsupported fields provided: {', '.join(sorted(unexpected_fields))}.")
 
     query = PermissionRequest.filter_by_scope(scope)
     permission_request = (

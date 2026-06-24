@@ -1,10 +1,8 @@
 from datetime import date
-
 from enum import Enum
 
-from sqlalchemy import and_, or_, case, true
-
 from geonature.utils.env import db
+from sqlalchemy import and_, case, or_, true
 
 
 class Status(str, Enum):
@@ -27,9 +25,7 @@ STATUS_ORDER = [
 STATUS_ORDER_INDEX = {key: index + 1 for index, key in enumerate(STATUS_ORDER)}
 
 
-def compute_status(
-    validated, created_on, expiration_date, id_validator=None, today=None
-):
+def compute_status(validated, created_on, expiration_date, id_validator=None, today=None):
     today = today or date.today()
 
     if validated is False:

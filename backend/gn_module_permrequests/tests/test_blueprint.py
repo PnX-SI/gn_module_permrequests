@@ -4,15 +4,15 @@ from datetime import date, datetime, timedelta
 from functools import lru_cache
 
 import pytest
-from sqlalchemy import select
-
 from apptax.taxonomie.models import Taxref
 from geonature.core.gn_commons.models import TModules
-from geonature.core.gn_permissions.models import PermAction, PermObject, Permission
+from geonature.core.gn_permissions.models import PermAction, Permission, PermObject
 from geonature.utils.env import db
-from gn_module_permission_request.models import PermissionRequest
 from pypnusershub.tests.utils import logged_user
-from ref_geo.models import LAreas, BibAreasTypes
+from ref_geo.models import BibAreasTypes, LAreas
+from sqlalchemy import select
+
+from gn_module_permrequests.models import PermissionRequest
 
 
 @pytest.fixture
@@ -136,8 +136,18 @@ def test_list_permission_requests_returns_latest(client, users, taxon_ids):
     with logged_user(client, author):
         response = client.get(
             "/permission_request/",
-            query_string={"orderby": "id_permission_request", "sort": "desc", "per_page": 5},
+            query_string={
+                "orderby": "id_permission_request",
+                "sort": "desc",
+                "per_page": 5,
+            },
         )
+
+    # Afficher le corps de la réponse en texte brut
+    print("Données brutes :", response.data)
+
+    # Ou, s'il s'agit d'une réponse JSON (ce qui est souvent le cas pour une API)
+    print("JSON :", response.get_json())
 
     assert response.status_code == 200
     payload = response.get_json()
@@ -157,7 +167,11 @@ def test_list_permission_requests_respects_scope(client, users, taxon_ids):
     with logged_user(client, users["self_user"]):
         response = client.get(
             "/permission_request/",
-            query_string={"orderby": "id_permission_request", "sort": "desc", "per_page": 10},
+            query_string={
+                "orderby": "id_permission_request",
+                "sort": "desc",
+                "per_page": 10,
+            },
         )
 
     assert response.status_code == 200
@@ -215,7 +229,9 @@ def test_create_permission_request_success(client, users, taxon_ids, area_ids):
     assert created is not None
     assert created.permissions
     assert len(created._ref_permission.taxons_filter) == len(taxon_ids[:2])
-    assert sorted(area.id_area for area in created._ref_permission.areas_filter) == sorted(area_ids[:2])
+    assert sorted(area.id_area for area in created._ref_permission.areas_filter) == sorted(
+        area_ids[:2]
+    )
 
 
 def test_create_permission_request_rejects_invalid_taxa(client, users):
@@ -344,7 +360,10 @@ def test_update_validated_can_store_description(client, users, taxon_ids):
 
 def test_update_validated_can_mark_in_progress_and_reset(client, users, taxon_ids):
     created = create_permission_request(
-        users["admin_user"], description="Needs work", taxa_ids=taxon_ids[:2], id_validator=None
+        users["admin_user"],
+        description="Needs work",
+        taxa_ids=taxon_ids[:2],
+        id_validator=None,
     )
     assert created.id_validator is None
 
