@@ -30,7 +30,7 @@
   </ng-template>
   <button
     *ngIf="permissionRequest && withEdit"
-    [disabled]="!permissionRequest.cruved.U"
+    [disabled]="!permissionRequest?.cruved?.U"
     color="primary"
     mat-icon-button
     matTooltip="{{ 'Permrequests.List.Actions.Update' | translate }}"
@@ -40,7 +40,7 @@
   </button>
   <button
     *ngIf="permissionRequest && withInfo"
-    [disabled]="!permissionRequest.cruved.R"
+    [disabled]="!permissionRequest?.cruved?.R"
     color="primary"
     mat-icon-button
     matTooltip="{{ 'Permrequests.List.Actions.Read' | translate }}"
@@ -50,7 +50,7 @@
   </button>
   <button
     *ngIf="permissionRequest && withDelete"
-    [disabled]="!permissionRequest.cruved.D"
+    [disabled]="!permissionRequest?.cruved?.D"
     color="warn"
     mat-icon-button
     matTooltip="{{ 'Permrequests.List.Actions.Delete' | translate }}"

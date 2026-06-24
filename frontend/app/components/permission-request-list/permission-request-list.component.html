@@ -188,8 +188,8 @@
     columnMode="force"
     [draggable]="false"
     (page)="onChangePage($event)"
-    footerHeight="auto"
-    headerHeight="auto"
+    [footerHeight]="50"
+    [headerHeight]="50"
     [externalPaging]="true"
     [count]="pagination.totalItems"
     [limit]="pagination.perPage"
@@ -371,8 +371,8 @@
       >
         <permission-request-toolbar
           [permissionRequest]="permissionRequest"
-          (deleted)="onPermissionRequestDeleted($event)"
-          (updated)="onPermissionRequestUpdated($event)"
+          (deleted)="onPermissionRequestDeleted()"
+          (updated)="onPermissionRequestUpdated()"
         ></permission-request-toolbar>
       </ng-template>
     </ngx-datatable-column>
