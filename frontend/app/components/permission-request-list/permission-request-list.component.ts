@@ -6,9 +6,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 
 import { NgSelectModule } from '@ng-select/ng-select';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
-import { take, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 
 import { ModuleService } from '@geonature/services/module.service';
 import { GN2CommonModule } from '@geonature_common/GN2Common.module';

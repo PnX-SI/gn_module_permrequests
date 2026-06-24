@@ -121,4 +121,18 @@ export class PermissionRequestService {
   getCustomAreaDownloadUrl(id_permission_request: number): string {
     return `${this._config.API_ENDPOINT}/${this._moduleService.currentModule.module_url}/${id_permission_request}/custom-area/download`;
   }
+
+  canCreate(cruvedStoreForModule: any): boolean {
+    // Cruved is 0 (=none), 1 (=me), 2 (=my organism), 3 (=all)
+    // The creation is not really scoped: 0 forbidden, else is authorized
+    const canCreateScope = cruvedStoreForModule?.cruved?.C ?? 0;
+    return canCreateScope > 0;
+  }
+
+  canValidate(cruvedStoreForModule: any): boolean {
+    // Cruved is 0 (=none), 1 (=me), 2 (=my organism), 3 (=all)
+    // The validation is not really scoped: 0 forbidden, else is authorized
+    const canValidateScope = cruvedStoreForModule?.cruved?.V ?? 0;
+    return canValidateScope > 0;
+  }
 }

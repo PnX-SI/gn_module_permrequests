@@ -20,6 +20,13 @@
           [selectableGroupAsModel]="false"
         >
           <ng-template
+            ng-label-tmp
+            let-item="item"
+          >
+            {{ 'Permrequests.Enums.Status.' + item.value | translate }}
+          </ng-template>
+
+          <ng-template
             ng-optgroup-tmp
             let-item="item"
             let-item$="item$"
@@ -41,6 +48,7 @@
               </div>
             </div>
           </ng-template>
+
           <ng-template
             ng-option-tmp
             let-item="item"
@@ -61,6 +69,7 @@
             </div>
           </ng-template>
         </ng-select>
+
         <ng-select
           class="FiltersForm__Filter"
           id="filter-scope"
@@ -80,6 +89,7 @@
             {{ 'Permrequests.Enums.Scope.' + item.value | translate }}
           </ng-template>
         </ng-select>
+
         <ng-select
           class="FiltersForm__Filter"
           id="filter-sensitive"
@@ -109,7 +119,9 @@
         </label>
       </form>
     </div>
+
     <div class="Toolbar__spacer"></div>
+
     <div
       class="Toolbar__actions"
       *ngIf="canCreatePermissionRequest"
@@ -123,6 +135,7 @@
       </button>
     </div>
   </div>
+
   <ng-template
     #cellDateTemplate
     let-date="date"
