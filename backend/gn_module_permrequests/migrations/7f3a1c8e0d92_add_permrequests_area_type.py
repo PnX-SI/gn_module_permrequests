@@ -5,6 +5,7 @@ Revises: 743becffa102
 Create Date: 2026-04-27 00:00:00.000000
 
 """
+
 import time
 
 from alembic import op
@@ -18,9 +19,7 @@ depends_on = None
 
 AREA_TYPE_CODE = MODULE_CODE.upper()
 AREA_TYPE_NAME = "Zones des demandes de permission"
-AREA_TYPE_DESC = (
-    "Zones géographiques personnalisées associées aux demandes de permission."
-)
+AREA_TYPE_DESC = "Zones géographiques personnalisées associées aux demandes de permission."
 
 
 def upgrade():

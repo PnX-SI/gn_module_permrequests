@@ -231,9 +231,7 @@ def create_module_schema_tables():
             nullable=False,
             unique=True,
         ),
-        sa.PrimaryKeyConstraint(
-            "id_request", "id_permission", name=f"pk_{PERMISSION_LINKS_TABLE}"
-        ),
+        sa.PrimaryKeyConstraint("id_request", "id_permission", name=f"pk_{PERMISSION_LINKS_TABLE}"),
         schema=SCHEMA_NAME,
     )
 

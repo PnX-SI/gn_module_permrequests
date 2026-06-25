@@ -9,10 +9,10 @@ Create Date: 2024-06-07 12:00:00.000000
 import random
 from datetime import date, datetime, timedelta
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
-from gn_module_permrequests import MODULE_CODE, ALEMBIC_BRANCH
+from gn_module_permrequests import ALEMBIC_BRANCH, MODULE_CODE
 
 # revision identifiers, used by Alembic.
 revision = "7b9091d8a643"
@@ -674,6 +674,7 @@ def _delete_notifications(conn, role_ids):
             {"role_ids": sample_role_values},
         )
 
+
 def _delete_sample_roles(conn, role_ids):
     for role_id in role_ids.values():
         conn.execute(
@@ -702,6 +703,7 @@ def _delete_sample_organism(conn):
         ),
         {"name": ORGANISM_NAME},
     )
+
 
 def downgrade():
     conn = op.get_bind()
