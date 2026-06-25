@@ -120,6 +120,15 @@ def create_permission_request(
         permission_request.permissions.append(permission)
         db.session.add(permission_request)
         db.session.flush()
+
+        # WARNING: If `validated` is `None`, we must force the `validated` field of
+        # all permissions to `None` to prevent `server_default` from assigning the value
+        # `True` during creation.
+        for p in permission_request.permissions:
+            if p.validated != validated:
+                p.validated = validated
+        db.session.flush()
+
         db.session.refresh(permission_request)
         return permission_request
 
@@ -135,19 +144,13 @@ def test_list_permission_requests_returns_latest(client, users, taxon_ids):
     )
     with logged_user(client, author):
         response = client.get(
-            "/permission_request/",
+            "/permrequests/",
             query_string={
                 "orderby": "id_permission_request",
                 "sort": "desc",
                 "per_page": 5,
             },
         )
-
-    # Afficher le corps de la réponse en texte brut
-    print("Données brutes :", response.data)
-
-    # Ou, s'il s'agit d'une réponse JSON (ce qui est souvent le cas pour une API)
-    print("JSON :", response.get_json())
 
     assert response.status_code == 200
     payload = response.get_json()
@@ -166,7 +169,7 @@ def test_list_permission_requests_respects_scope(client, users, taxon_ids):
 
     with logged_user(client, users["self_user"]):
         response = client.get(
-            "/permission_request/",
+            "/permrequests/",
             query_string={
                 "orderby": "id_permission_request",
                 "sort": "desc",
@@ -189,7 +192,7 @@ def test_get_permission_request_returns_payload(client, users, taxon_ids, area_i
     )
 
     with logged_user(client, users["admin_user"]):
-        response = client.get(f"/permission_request/{created.id_permission_request}")
+        response = client.get(f"/permrequests/{created.id_permission_request}")
 
     assert response.status_code == 200
     data = response.get_json()
@@ -201,7 +204,7 @@ def test_get_permission_request_returns_payload(client, users, taxon_ids, area_i
 
 def test_get_permission_request_not_found(client, users):
     with logged_user(client, users["admin_user"]):
-        response = client.get("/permission_request/-1")
+        response = client.get("/permrequests/-1")
 
     assert response.status_code == 404
 
@@ -218,7 +221,7 @@ def test_create_permission_request_success(client, users, taxon_ids, area_ids):
     }
 
     with logged_user(client, users["admin_user"]):
-        response = client.post("/permission_request/", json=payload)
+        response = client.post("/permrequests/", json=payload)
 
     assert response.status_code == 201
     data = response.get_json()
@@ -243,7 +246,7 @@ def test_create_permission_request_rejects_invalid_taxa(client, users):
     }
 
     with logged_user(client, users["admin_user"]):
-        response = client.post("/permission_request/", json=payload)
+        response = client.post("/permrequests/", json=payload)
 
     assert response.status_code == 400
 
@@ -258,7 +261,7 @@ def test_create_permission_request_rejects_invalid_areas(client, users, taxon_id
     }
 
     with logged_user(client, users["admin_user"]):
-        response = client.post("/permission_request/", json=payload)
+        response = client.post("/permrequests/", json=payload)
 
     assert response.status_code == 400
 
@@ -281,7 +284,7 @@ def test_update_permission_request_updates_fields(client, users, taxon_ids, area
 
     with logged_user(client, users["admin_user"]):
         response = client.patch(
-            f"/permission_request/{created.id_permission_request}", json=update_payload
+            f"/permrequests/{created.id_permission_request}", json=update_payload
         )
 
     assert response.status_code == 200
@@ -301,7 +304,7 @@ def test_delete_permission_request_removes_entry(client, users, taxon_ids):
     )
 
     with logged_user(client, users["admin_user"]):
-        response = client.delete(f"/permission_request/{created.id_permission_request}")
+        response = client.delete(f"/permrequests/{created.id_permission_request}")
 
     assert response.status_code == 204
     assert db.session.get(PermissionRequest, created.id_permission_request) is None
@@ -309,17 +312,20 @@ def test_delete_permission_request_removes_entry(client, users, taxon_ids):
 
 def test_update_validated_sets_validator(client, users, taxon_ids):
     created = create_permission_request(
-        users["admin_user"], description="Needs validation", taxa_ids=taxon_ids[:2]
+        users["admin_user"],
+        description="Needs validation",
+        taxa_ids=taxon_ids[:2],
     )
 
     with logged_user(client, users["admin_user"]):
         response = client.patch(
-            f"/permission_request/{created.id_permission_request}/validated",
+            f"/permrequests/{created.id_permission_request}/validated",
             json={"validated": True},
         )
 
     assert response.status_code == 200
     reloaded = db.session.get(PermissionRequest, created.id_permission_request)
+
     assert reloaded.validated is True
     assert reloaded.id_validator == users["admin_user"].id_role
     assert reloaded.validation_description is None
@@ -333,7 +339,7 @@ def test_update_validated_can_store_description(client, users, taxon_ids):
 
     with logged_user(client, users["admin_user"]):
         response = client.patch(
-            f"/permission_request/{created.id_permission_request}/validated",
+            f"/permrequests/{created.id_permission_request}/validated",
             json={"validated": False, "validation_description": "Refus motivé"},
         )
 
@@ -346,7 +352,7 @@ def test_update_validated_can_store_description(client, users, taxon_ids):
 
     with logged_user(client, users["admin_user"]):
         response = client.patch(
-            f"/permission_request/{created.id_permission_request}/validated",
+            f"/permrequests/{created.id_permission_request}/validated",
             json={"validated": None},
         )
 
@@ -369,7 +375,7 @@ def test_update_validated_can_mark_in_progress_and_reset(client, users, taxon_id
 
     with logged_user(client, users["admin_user"]):
         response = client.patch(
-            f"/permission_request/{created.id_permission_request}/validated",
+            f"/permrequests/{created.id_permission_request}/validated",
             json={"validated": None},
         )
 
@@ -384,7 +390,7 @@ def test_update_validated_can_mark_in_progress_and_reset(client, users, taxon_id
 
     with logged_user(client, users["admin_user"]):
         response = client.patch(
-            f"/permission_request/{created.id_permission_request}/validated",
+            f"/permrequests/{created.id_permission_request}/validated",
             json=None,
         )
 
