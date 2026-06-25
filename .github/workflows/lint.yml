@@ -1,25 +1,51 @@
 name: Lint
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+# Annule les exécutions précédentes du même workflow sur la même branche
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   backend:
+    name: Backend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          fetch-depth: 0
-      - name: Backend code formatting check (Black)
-        uses: psf/black@stable
-        with:
-          src: "setup.py ./backend/gn_module_permrequests"
+          python-version: "3.11"
+      - name: Install Ruff
+        run: pip install ruff
+      - name: Backend formatting check (Ruff)
+        run: ruff format --check backend/
+      - name: Backend linting (Ruff)
+        run: ruff check backend/
+
   frontend:
+    name: Frontend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v3
-      - name: Frontend code formatting check (Prettier)
-        run: npm install prettier && npm run format:check
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./frontend
+      - name: Frontend formatting check (Prettier)
+        run: npm run format:check
         working-directory: ./frontend
