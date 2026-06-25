@@ -5,7 +5,7 @@
   "license": "GPLv3",
   "scripts": {
     "format": "prettier --config .prettierrc --ignore-path .prettierignore --write '**/*.{ts,html,scss}'",
-    "format:check": "prettier --config .prettierrc --ignore-path .prettierignore '**/*.{ts,html,scss}'"
+    "format:check": "prettier --check --config .prettierrc --ignore-path .prettierignore '**/*.{ts,html,scss}'"
   },
   "devDependencies": {
     "@types/mustache": "^4.2.6",
