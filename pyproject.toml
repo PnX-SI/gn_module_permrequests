@@ -15,7 +15,10 @@ maintainers = [
 license = { file = "LICENSE.txt" }
 dependencies = ["geonature >= 2.14"]
 urls = { Repository = "https://github.com/PnX-SI/gn_module_permrequests/" }
-requires-python = ">=3.9"
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+dev = ["ruff"]
 
 [project.entry-points.gn_module]
 code = "gn_module_permrequests:MODULE_CODE"
@@ -47,35 +50,35 @@ testpaths = ["backend"]
 source = ["gn_module_permrequests"]
 omit = ["*/tests/*", "*/migrations/*"]
 
-[tool.black]
-target-version = ["py311", "py313"]
-line-length = 100
-exclude = '''
-(
-  /(
-      \.eggs         # exclude a few common directories in the
-    | \.git          # root of the project
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | node_modules
-    | venv
-    | dependencies
-  )/
-)
-'''
-
 [tool.ruff]
-# Active les règles de linting pour le tri des imports (I) et d'autres comme Flake8 (E, F)
-select = ["E", "F", "I"]
 line-length = 100
+target-version = "py311"
+exclude = [
+  ".eggs",
+  ".git",
+  ".hg",
+  ".mypy_cache",
+  ".tox",
+  ".venv",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+  "dependencies",
+]
 
-[tool.ruff.isort]
-# Optionnel: Vous pouvez spécifier des configurations propres à isort ici,
-# comme par exemple forcer un formatage spécifique
+[tool.ruff.lint]
+# Linting rules : pycodestyle (E), Pyflakes (F), isort (I)
+select = ["E", "F", "I"]
+
+[tool.ruff.lint.isort]
 known-first-party = ["gn_module_permrequests"]
+
+[tool.ruff.format]
+# Compatibility with Black
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

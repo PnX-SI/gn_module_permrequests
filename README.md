@@ -153,6 +153,10 @@ Lors de la désinstallation du module ce nouveau type de zone géographique ains
 
 Ce module utilise un fichier `pyproject.toml` pour centraliser toutes les informations d'installation et de développement. Privilégier toujours ce fichier à l'utilisation de fichiers supplémentaires.
 
-Pour le formatage du code du backend, vous pouvez utiliser Black ou Ruff. Leurss règles de formatage sont définies dans le fichier `pyproject.toml`. Ruff réalise un tri automatique des imports. L'utilisation de Ruff permet donc de ne pas avoir besoin de faire de tri manuel des imports.
 Le dossier `.vscode/` contient des recommandations d'extensions et de configurations pour l'IDE Visual Studio Code. Ces recommandations sont destinées aux développeurs du module et ne sont pas obligatoires.
 
+Le formatage du code du backend est assuré par [Ruff](https://docs.astral.sh/ruff/). Ses règles de formatage sont définies dans le fichier `pyproject.toml` et sont calquées sur les règles Black définie dans GeoNature.\\  
+Pour l'installer dans votre `venv`, vous pouvez utiliser : `pip install -e ".[dev]"` .\\  
+Ruff réalise un tri automatique des imports. Son utilisation permet donc de ne pas avoir besoin de faire de tri manuel des imports.
+
+Le formatage du code du frontend est assuré par [Prettier](https://prettier.io/). Ses règles de formatage sont définies dans le fichier `frontend/.prettierrc` et sont calquées sur les règles définies dans GeoNature.

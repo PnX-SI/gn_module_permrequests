@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 # backend
-black .
+ruff format backend/
+ruff check --fix backend/
 
 # frontend
 cd frontend
