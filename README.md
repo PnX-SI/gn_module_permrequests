@@ -154,3 +154,5 @@ Lors de la désinstallation du module ce nouveau type de zone géographique ains
 Ce module utilise un fichier `pyproject.toml` pour centraliser toutes les informations d'installation et de développement. Privilégier toujours ce fichier à l'utilisation de fichiers supplémentaires.
 
 Pour le formatage du code du backend, vous pouvez utiliser Black ou Ruff. Leurss règles de formatage sont définies dans le fichier `pyproject.toml`. Ruff réalise un tri automatique des imports. L'utilisation de Ruff permet donc de ne pas avoir besoin de faire de tri manuel des imports.
+Le dossier `.vscode/` contient des recommandations d'extensions et de configurations pour l'IDE Visual Studio Code. Ces recommandations sont destinées aux développeurs du module et ne sont pas obligatoires.
+
