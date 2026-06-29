@@ -1,12 +1,12 @@
 # Module Request Permission
 
 - [Module Request Permission](#module-request-permission)
-  - [Présentation](#présentation)
-  - [Installation du module](#installation-du-module)
-    - [Mise à jour du module](#mise-à-jour-du-module)
-  - [Configuration](#configuration)
-    - [Paramètres](#paramètres)
-  - [Administration du module](#administration-du-module)
+    - [Présentation](#présentation)
+    - [Installation du module](#installation-du-module)
+        - [Mise à jour du module](#mise-à-jour-du-module)
+    - [Configuration](#configuration)
+        - [Paramètres](#paramètres)
+    - [Administration du module](#administration-du-module)
 
 ## Présentation
 
@@ -15,33 +15,32 @@ Actuellement, ces données concernent les observations **sensibles** du module S
 
 Ce module s'articule autour du concept de demande de permission.
 
-Un utilisateur avec des permissions de consultation pourra via ce module effectuer une demande de permission à des données. Sa demande sera caractérisée par 3 types d'informations :
+Un utilisateur avec des permissions de consultation sur ce module pourra effectuer une demande de permission à des données. Sa demande sera caractérisée par 3 types d'informations :
 
-- un ou plusieurs groupe taxonomique auxquels il souhaite avoir la permission d'accéder
+- un ou plusieurs groupes taxonomiques auxquels il souhaite avoir la permission d'accéder
 - un périmètre géographique recouvrant les données auxquelles il souhaite avoir la permission d'accéder
 - une plage temporelle représentant la période de permission aux données
 
 Si la demande est acceptée par un validateur, l'utilisateur pourra accéder à toutes les données dans le périmètre géographique et taxonomique fourni, durant la plage temporelle demandée.
 
-Un validateur et pourra accéder aux différentes demandes en cours et les valider.
+Un validateur doit posséder des permissions de validation sur ce module pour accéder aux différentes demandes en cours et les valider.
 
-> Le statut d'une demande visible dans l’interface est calculé automatiquement :
->
-> - si la date d’expiration est strictement antérieure à la date du jour, la demande est affichée « active » ;
-> - sinon, elle apparaît comme « expirée ».
+Le statut d'une demande visible dans l’interface est calculé automatiquement :
+
+- si la date d’expiration est strictement antérieure à la date du jour, la demande est affichée « active » ;
+- sinon, elle apparaît comme « expirée ».
 
 ## Installation du module
 
 > [!NOTE]
 >
 > Documentation de référence sur l'installation de module: <https://docs.geonature.fr/installation.html#installation-d-un-module-geonature>
->
 
-- Téléchargez le module dans ``/home/<myuser>/``, en remplacant ``X.Y.Z`` par la version souhaitée
+- Téléchargez le module dans `/home/<myuser>/`, en remplaçant `X.Y.Z` par la version souhaitée
 
 ```bash
 cd
-wget https://github.com/PnX-SI/gn_module_permission_request/archive/X.Y.Z.zip
+wget https://github.com/PnX-SI/gn_module_permrequests/archive/X.Y.Z.zip
 unzip X.Y.Z.zip
 rm X.Y.Z.zip
 ```
@@ -49,105 +48,111 @@ rm X.Y.Z.zip
 - Renommez le répertoire du module
 
 ```bash
-mv ~/gn_module_permission_request-X.Y.Z ~/gn_module_permission_request
+mv ~/gn_module_permrequests-X.Y.Z ~/gn_module_permrequests
 ```
 
 - Lancez l'installation du module
 
 ```bash
 source ~/geonature/backend/venv/bin/activate
-geonature install-gn-module ~/gn_module_permission_request PERMISSION_REQUEST
+geonature install-gn-module ~/gn_module_permrequests
 sudo systemctl restart geonature
 sudo systemctl restart geonature-worker
 deactivate
 ```
 
-Il vous faut désormais attribuer des permissions aux groupes ou utilisateurs que vous souhaitez,
-pour qu'ils puissent accéder et utiliser le module (voir <https://docs.geonature.fr/admin-manual.html#gestion-des-droits>).
-Si besoin une commande permet d'attribuer automatiquement toutes les permissions dans tous
-les modules à un groupe ou utilisateur administrateur.
+Il vous faut désormais attribuer des permissions aux groupes ou utilisateurs que vous souhaitez, pour qu'ils puissent accéder et utiliser le module (voir <https://docs.geonature.fr/admin-manual.html#gestion-des-droits>).  
+Si besoin une commande permet d'attribuer automatiquement toutes les permissions dans tous les modules à un groupe ou utilisateur administrateur :
+
+```bash
+# Changer "Grp_Admin" par le nom de votre groupe d'administrateur si vous l'avez changé
+geonature permissions supergrant --group --nom "Grp_admin"
+```
 
 ### Mise à jour du module
 
-Pour mettre à jour le modue Monitoring, suivre la documentation de [mise à jour d'un module GeoNature](https://docs.geonature.fr/installation.html#mise-a-jour-du-module)
+Pour mettre à jour le module Monitoring, suivre la documentation de [mise à jour d'un module GeoNature](https://docs.geonature.fr/installation.html#mise-a-jour-du-module)
 
 ### Désinstallation du module
 
 > **⚠️ ATTENTION :** la désinstallation du module implique la suppression de toutes les données associées.  
-> Assurez vous d'avoir fait une sauvegarde de votre base de données au préalable.
+> Assurez-vous d'avoir fait une sauvegarde de votre base de données au préalable.
 
 Suivez la procédure suivante :
+
 1. Rétrograder la base de données pour y enlever les données spécifiques au module :
     ```bash
     geonature db downgrade permrequests@base
     ```
 1. Désinstaller le package du virtual env :
+
     ```
     pip uninstall gn_module_permrequests
     ```
+
     - Possibilité de voir le nom du module avec : `pip list| grep gn`
-1. Supprimer la ligne relative au module `PERMREQUESTS` (colone `module_code`) dans `gn_commons.t_modules`
+
+1. Supprimer la ligne relative au module `PERMREQUESTS` (colonne `module_code`) dans `gn_commons.t_modules`
 1. Supprimer le lien symbolique du module dans les dossiers :
     - `geonature/external_modules`
 1. Recompiler et/ou mettre à jour le frontend de GeoNature
+1. Relancer les services de GeoNature
 
 ## Configuration
 
 > [!NOTE]
 >
 > Documentation de référence sur la configuration d'un module: <https://docs.geonature.fr/installation.html#module-config>
->
 
 Dans le cas de ce module, vous pouvez modifier la configuration du module en créant un fichier
 `permrequests_config.toml` dans le dossier `config/` de GeoNature, en vous inspirant
-du fichier [`permrequests_config.sample.toml`](config/permrequests_config.sample.toml) présent dans ce module et en surcouchant
+du fichier [`permrequests_config.sample.toml`](config/permrequests_config.sample.toml) présent dans ce module et en surchargeant
 les paramètres que vous souhaitez.
 
-Vous pouvez laisser seulement les paramètres que vous avez modifié dans ce fichier et supprimer
+Vous pouvez laisser seulement les paramètres que vous avez modifiés dans ce fichier et supprimer
 les autres.
 
-Il est également envisageable de laisser votre fichier `permresquests_config.toml` dans le
+Il est également envisageable de laisser votre fichier `permrequests_config.toml` dans le
 dossier `config/` de ce module puis de créer un lien symbolique vers celui-ci depuis le dossier `config/` de
 GeoNature.
 
 ### Paramètres
 
-- `ALLOW_CUSTOM_AREA`: autorise (`true`) ou pas (`false`) le téléversement de fichier GeoJSON pour définir une zone géographique personnalisé sur laquelle demande de permission s'appliquera.
+- `ALLOW_CUSTOM_AREA`: autorise (`true`) ou pas (`false`) le téléversement de fichier GeoJSON pour définir une zone géographique personnalisée sur laquelle la demande de permission s'appliquera.
 - `ALLOWED_AREA_TYPE_CODES` : liste des types de zones autorisés (par défaut `["COM", "DEP", "REG"]`).
-- `ENABLE_CONVENTION` : affiche (`true`) ou pas (`false`) une fenêtre modale contenant le texte d'une convention d'utilisation des données entre l'utilisateur et les adminisrateurs du site. Par défaut, une [convention standard](frontend/assets/templates/convention.default.tpl.html) est proposée. Il est possible de personnaliser entièrement ce texte en créant un fichier `frontend/assets/custom/templates/convention.tpl.html`. Ce template utilise [la syntaxe Mustache](https://github.com/janl/mustache.js#templates) pour insérer le contenu de variables prédéfinies. Le template par défaut contient l'ensemble des variables disponibles. Seule la variable `customData` peut ne pas exister ou avoir un contenu différent en fonction de l'utilisation ou pas du paramètre ci-dessous `DYNAMIC_FORM`. C'est le paramètre `attribut_name` de la configuration des champs du formulaire dynamique qui sert de clés au dictionnaire contenu dans la variable `customData`.
-- `DYNAMIC_FORM` : listes des champs de la section personnalisable du formulaire de demande d'accès. Par défaut, aucune section personnalisable n'est définie. Pour connaitre les attributs disponibles pour chaque type de widget du formulaire dynamique vous pouvez [consulter le code source](https://github.com/PnX-SI/GeoNature/blob/master/frontend/src/app/GN2CommonModule/form/dynamic-form/dynamic-form.component.html) ou [chercher des exemples](./config/permrequests_config.sample.toml). Ce module ajoute 2 attributs spécifiques, `icon` et `icon_set`, permettant respectivement d'indiquer le nom d'une icône et son type de police.
-Pour [les icônes FontAwsome](https://fontawesome.com/v4/icons/), utiliser `fa` dans l'attribut `icon_set`. Pour [les icônes Material](https://fonts.google.com/icons?hl=fr), il n'est pas nécessaire d'utiliser le paramètre `icon_set`.
+- `ENABLE_CONVENTION` : affiche (`true`) ou pas (`false`) une fenêtre modale contenant le texte d'une convention d'utilisation des données entre l'utilisateur et les administrateurs du site. Par défaut, une [convention standard](frontend/assets/templates/convention.default.tpl.html) est proposée. Il est possible de personnaliser entièrement ce texte en créant un fichier `frontend/assets/custom/templates/convention.tpl.html`. Ce template utilise [la syntaxe Mustache](https://github.com/janl/mustache.js#templates) pour insérer le contenu de variables prédéfinies. Le template par défaut contient l'ensemble des variables disponibles. Seule la variable `customData` peut ne pas exister ou avoir un contenu différent en fonction de l'utilisation ou pas du paramètre ci-dessous `DYNAMIC_FORM`. C'est le paramètre `attribut_name` de la configuration des champs du formulaire dynamique qui sert de clés au dictionnaire contenu dans la variable `customData`.
+- `DYNAMIC_FORM` : liste des champs de la section personnalisable du formulaire de demande d'accès. Par défaut, aucune section personnalisable n'est définie. Pour connaitre les attributs disponibles pour chaque type de widget du formulaire dynamique vous pouvez [consulter le code source](https://github.com/PnX-SI/GeoNature/blob/master/frontend/src/app/GN2CommonModule/form/dynamic-form/dynamic-form.component.html) ou [chercher des exemples](./config/permrequests_config.sample.toml). Ce module ajoute 2 attributs spécifiques, `icon` et `icon_set`, permettant respectivement d'indiquer le nom d'une icône et son type de police.
+  Pour [les icônes FontAwesome](https://fontawesome.com/v4/icons/), utiliser `fa` dans l'attribut `icon_set`. Pour [les icônes Material](https://fonts.google.com/icons?hl=fr), il n'est pas nécessaire d'utiliser le paramètre `icon_set`.
 
 - `PERMISSIONS_DURATION` : section permettant de configurer la durée des permissions accordées lors d'une demande.
-  - `DEFAULT_DAYS` : durée par défaut en jours des permissions accordées lors d'une demande. La date d'expiration des permissions dans le formulaire d'une demande sera automatiquement calculée en prenant en compte le nombre de jours défini ici. Par défaut : *30 jours*.
-  - `MAX_DAYS` : durée maximale par défaut en jours des permissions accordées lors d'une demande. La date d'expiration maximale sélectionnable dans le formulaire d'une demande sera automatiquement calculée en prenant en compte le nombre de jours défini ici. Par défaut : *365 jours*.
-- `PERMISSIONS_TO_CREATE` : contient une liste d'objets permettant de définir les permissions créés par une demande de permission. Le format de chaque objet est le suivant `{"module": "<code-du-module>", "action": "<code-de-l'action>"}`.
-- `SCOPE_FILTER` : section permettant de configurer l'affichage du filtre liés à la sensibilité au sein de la demande.
-  - `SCOPE_FILTER.DISPLAY_ENABLED` : affiche (`true`) ou pas (`false`) la possibilité de sélectionner la portée d'une demande.
-  - `SCOPE_FILTER.ALLOWED_VALUES` : liste des valeurs autorisées pour le filtre de portée vérifiées côté serveur. Par défaut : utilisateur (`USER`) et organisme (`ORGANISM`). Ne devrait pas être modifié.
-  - `SCOPE_FILTER.DEFAULT_VALUE` : permet de définir la valeur par défaut (`USER`) pour le filtre de portée de la demande.
-- `SENSITIVITY_FILTER` : section permettant de configurer l'affichage du filtre liés à la sensibilité au sein de la demande.
-  - `SENSITIVITY_FILTER.DISPLAY_ENABLED` : affiche (`true`) ou pas (`false`) la coche permettant de définir le filtre de sensibilité de la demande.
-  - `SENSITIVITY_FILTER.DEFAULT_VALUE` : permet de définir la valeur par défaut (`true`) du filtre de sensibilité de la demande.
+    - `DEFAULT_DAYS` : durée par défaut en jours des permissions accordées lors d'une demande. La date d'expiration des permissions dans le formulaire d'une demande sera automatiquement calculée en prenant en compte le nombre de jours défini ici. Par défaut : _30 jours_.
+    - `MAX_DAYS` : durée maximale par défaut en jours des permissions accordées lors d'une demande. La date d'expiration maximale sélectionnable dans le formulaire d'une demande sera automatiquement calculée en prenant en compte le nombre de jours défini ici. Par défaut : _365 jours_.
+- `PERMISSIONS_TO_CREATE` : contient une liste d'objets permettant de définir les permissions créées par une demande de permission. Le format de chaque objet est le suivant `{"module": "<code-du-module>", "action": "<code-de-l'action>"}`.
+- `SCOPE_FILTER` : section permettant de configurer l'affichage du filtre lié à la sensibilité au sein de la demande.
+    - `SCOPE_FILTER.DISPLAY_ENABLED` : affiche (`true`) ou pas (`false`) la possibilité de sélectionner la portée d'une demande.
+    - `SCOPE_FILTER.ALLOWED_VALUES` : liste des valeurs autorisées pour le filtre de portée vérifiées côté serveur. Par défaut : utilisateur (`USER`) et organisme (`ORGANISM`). Ne devrait pas être modifié.
+    - `SCOPE_FILTER.DEFAULT_VALUE` : permet de définir la valeur par défaut (`USER`) pour le filtre de portée de la demande.
+- `SENSITIVITY_FILTER` : section permettant de configurer l'affichage du filtre lié à la sensibilité au sein de la demande.
+    - `SENSITIVITY_FILTER.DISPLAY_ENABLED` : affiche (`true`) ou pas (`false`) la coche permettant de définir le filtre de sensibilité de la demande.
+    - `SENSITIVITY_FILTER.DEFAULT_VALUE` : permet de définir la valeur par défaut (`true`) du filtre de sensibilité de la demande.
 - `TAXA_FILTER` : section permettant de configurer l'affichage du filtre lié aux taxons au sein de la demande.
-  - `TAXA_FILTER.DISPLAY_ENABLED` : affiche (`true`) ou pas (`false`) le filtre lié aux taxons de la demande.Par défaut : `true`.
-  - `TAXA_FILTER.RANK_MIN` : rang taxinomique minimal à partir duquel les taxons peuvent être sélectionnés. Par défaut: `ES`.\\  
-  Utiliser une valeur du champ "`id_rang`" de la table "`taxonomie.bib_taxref_rangs`".
-  - `TAXA_FILTER.VALUE_FIELD_NAME` : nom du champ à utiliser (`cd_nom` ou `cd_ref`) pour déterminer la valeur à utiliser pour le contenu de l'attribut `value` du champ du formulaire. Par défaut: `cd_ref`.\\  
-  L'utilisation du `cd_ref` permet de s'assurer que les permissions seront accordées pour toutes les observations d'un taxon quelque soit le cd_nom (valide ou synonyme) utilisé pour l'observation dans la Synthese. 
-- `TERMS_ACKNOWLEDGEMENT` : section permetant de configurer la coche d'acceptation des termes et conditions des demandes d'accès. Le texte et le lien sont configurable via [la surcharge des fichiers de traductions](https://docs.geonature.fr/admin-manual.html#customiser-les-traductions).
-  - `TERMS_ACKNOWLEDGEMENT.REQUIRED` : permet de faire apparaitre / dissimuler dans le formulaire une coche d'acceptation des termes et conditions. Par défaut, c'est affiché.
-  - `TERMS_ACKNOWLEDGEMENT.URL` : URL vers les conditions d'utilisations (ouvre un nouvel onglet). Si non définit ou vide seul le texte sera affiché. Par défaut, aucun lien n'est défini.
-  - `TERMS_ACKNOWLEDGEMENT.CLASS_CSS` : permet de définir des classes CSS sur le lien des conditions d'utilisation. Ex.: `btn btn-primary`.
-
+    - `TAXA_FILTER.DISPLAY_ENABLED` : affiche (`true`) ou pas (`false`) le filtre lié aux taxons de la demande. Par défaut : `true`.
+    - `TAXA_FILTER.RANK_MIN` : rang taxinomique minimal à partir duquel les taxons peuvent être sélectionnés. Par défaut: `ES`.  
+      Utiliser une valeur du champ "`id_rang`" de la table "`taxonomie.bib_taxref_rangs`".
+    - `TAXA_FILTER.VALUE_FIELD_NAME` : nom du champ à utiliser (`cd_nom` ou `cd_ref`) pour déterminer la valeur à utiliser pour le contenu de l'attribut `value` du champ du formulaire. Par défaut: `cd_ref`.  
+      L'utilisation du `cd_ref` permet de s'assurer que les permissions seront accordées pour toutes les observations d'un taxon quel que soit le cd_nom (valide ou synonyme) utilisé pour l'observation dans la Synthese.
+- `TERMS_ACKNOWLEDGEMENT` : section permettant de configurer la coche d'acceptation des termes et conditions des demandes d'accès. Le texte et le lien sont configurables via [la surcharge des fichiers de traductions](https://docs.geonature.fr/admin-manual.html#customiser-les-traductions).
+    - `TERMS_ACKNOWLEDGEMENT.REQUIRED` : permet de faire apparaitre / dissimuler dans le formulaire une coche d'acceptation des termes et conditions. Par défaut, c'est affiché.
+    - `TERMS_ACKNOWLEDGEMENT.URL` : URL vers les conditions d'utilisations (ouvre un nouvel onglet). Si non défini ou vide seul le texte sera affiché. Par défaut, aucun lien n'est défini.
+    - `TERMS_ACKNOWLEDGEMENT.CLASS_CSS` : permet de définir des classes CSS sur le lien des conditions d'utilisation. Ex.: `btn btn-primary`.
 
 ## Administration du module
 
 ### Zones géographiques personnalisées
 
-Ce module ajouter un nouveau type de zone géographique au référentiel géographique dont le code est `PERMREQUESTS`. Ce type permet de rassembler toutes les zones géographiques téléversées par les utilisateurs lorsque le paramètre `ALLOW_CUSTOM_AREA` est à `true`.
+Ce module ajoute un nouveau type de zone géographique au référentiel géographique dont le code est `PERMREQUESTS`. Ce type permet de rassembler toutes les zones géographiques téléversées par les utilisateurs lorsque le paramètre `ALLOW_CUSTOM_AREA` est à `true`.
 
-Lors de la désinstallation du module ce nouveau type de zone géographique ainsi que toutes les zones géographiques téléversées sont supprimées.
+Lors de la désinstallation du module, ce nouveau type de zone géographique ainsi que toutes les zones géographiques téléversées sont supprimées.
 
 ## Développement du module
 
@@ -155,8 +160,8 @@ Ce module utilise un fichier `pyproject.toml` pour centraliser toutes les inform
 
 Le dossier `.vscode/` contient des recommandations d'extensions et de configurations pour l'IDE Visual Studio Code. Ces recommandations sont destinées aux développeurs du module et ne sont pas obligatoires.
 
-Le formatage du code du backend est assuré par [Ruff](https://docs.astral.sh/ruff/). Ses règles de formatage sont définies dans le fichier `pyproject.toml` et sont calquées sur les règles Black définie dans GeoNature.\\  
-Pour l'installer dans votre `venv`, vous pouvez utiliser : `pip install -e ".[dev]"` .\\  
+Le formatage du code du backend est assuré par [Ruff](https://docs.astral.sh/ruff/). Ses règles de formatage sont définies dans le fichier `pyproject.toml` et sont calquées sur les règles Black définies dans GeoNature.  
+Pour l'installer dans votre `venv`, vous pouvez utiliser : `pip install -e ".[dev]"` .  
 Ruff réalise un tri automatique des imports. Son utilisation permet donc de ne pas avoir besoin de faire de tri manuel des imports.
 
 Le formatage du code du frontend est assuré par [Prettier](https://prettier.io/). Ses règles de formatage sont définies dans le fichier `frontend/.prettierrc` et sont calquées sur les règles définies dans GeoNature.
