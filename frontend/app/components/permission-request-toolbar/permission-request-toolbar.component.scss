@@ -13,33 +13,33 @@
     ACTIVE: #8bc34a,
   );
 
-.Edit {
-  --edit-color: #333333; // Default value
-  text-transform: uppercase;
-  border-width: 2px;
-  font-size: 0.8em;
-  font-weight: 700;
+  .Edit {
+    --edit-color: #333333; // Default value
+    text-transform: uppercase;
+    border-width: 2px;
+    font-size: 0.8em;
+    font-weight: 700;
 
-  color: color-mix(in srgb, var(--edit-color) 50%, black);
-  background-color: color-mix(in srgb, var(--edit-color) 50%, white);
-  border: 2px solid color-mix(in srgb, var(--edit-color) 80%, black);
+    color: color-mix(in srgb, var(--edit-color) 50%, black);
+    background-color: color-mix(in srgb, var(--edit-color) 50%, white);
+    border: 2px solid color-mix(in srgb, var(--edit-color) 80%, black);
 
-  &--disabled {
-    cursor: default;
-  }
+    &--disabled {
+      cursor: default;
+    }
 
-  @each $status, $color in $edit-status-colors {
-    &--#{$status} {
-      --edit-color: #{$color};
+    @each $status, $color in $edit-status-colors {
+      &--#{$status} {
+        --edit-color: #{$color};
+      }
     }
   }
-}
-.BadgeContainer {
-  width: 100px;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: space-around;
-  column-gap: 0;
-  align-items: center;
-}
+  .BadgeContainer {
+    width: 100px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-around;
+    column-gap: 0;
+    align-items: center;
+  }
 }

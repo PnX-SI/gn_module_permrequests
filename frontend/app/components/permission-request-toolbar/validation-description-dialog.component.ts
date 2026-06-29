@@ -80,7 +80,7 @@ type ValidationChoice = 'approve' | 'reject' | 'in_progress' | null;
                 'Permrequests.ValidationDialog.Status.ApprovedHint'
                   | translate
                     : {
-                        date_status_label: ('Permrequests.Enums.Status.' + dateStatus | translate)
+                        date_status_label: ('Permrequests.Enums.Status.' + dateStatus | translate),
                       }
               }}
             </p>

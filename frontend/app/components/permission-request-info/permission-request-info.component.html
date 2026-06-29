@@ -243,7 +243,6 @@
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content class="Card__content">
-
         <ng-container *ngIf="permissionRequest.custom_fields?.length > 0; else noCustomFields">
           <div
             class="row"
@@ -278,7 +277,10 @@
         </ng-container>
 
         <ng-template #noCustomFields>
-          <p class="alert alert-info" role="alert">
+          <p
+            class="alert alert-info"
+            role="alert"
+          >
             <mat-icon aria-hidden="true">info</mat-icon>
             {{ 'Permrequests.Form.CustomFields.Empty' | translate }}
           </p>

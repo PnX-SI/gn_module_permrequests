@@ -11,7 +11,9 @@ export const canCreateGuard: CanActivateFn = () => {
   const permissionRequestService = inject(PermissionRequestService);
 
   const currentModule = moduleService.currentModule;
-  const canCreate = permissionRequestService.canCreate(cruvedStore.cruved?.[currentModule.module_code]);
+  const canCreate = permissionRequestService.canCreate(
+    cruvedStore.cruved?.[currentModule.module_code]
+  );
   if (canCreate) {
     return true;
   }

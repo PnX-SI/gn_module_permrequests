@@ -20,5 +20,5 @@ export const PERMISSION_REQUEST_SECTIONS: Record<
   },
   customFields: {
     icon: 'edit',
-  }
+  },
 };

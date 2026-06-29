@@ -59,8 +59,7 @@ export class PermissionRequestInfoComponent implements OnChanges {
     private _permissionRequestService: PermissionRequestService
   ) {
     const moduleConfig = this._configService.PERMREQUESTS ?? {};
-    this.scopeFilterDefaultValue =
-      moduleConfig.SCOPE_FILTER.DEFAULT_VALUE ?? DEFAULT_SCOPE;
+    this.scopeFilterDefaultValue = moduleConfig.SCOPE_FILTER.DEFAULT_VALUE ?? DEFAULT_SCOPE;
 
     this._i18nService.initializeModuleTranslateService(this._translateService);
   }

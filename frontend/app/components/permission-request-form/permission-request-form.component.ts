@@ -15,10 +15,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 
-import {
-  NgbDateParserFormatter,
-  NgbDateStruct,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { finalize } from '@librairies/rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -601,7 +598,7 @@ export class PermissionRequestFormComponent {
       this.selectedTaxaDefaultItems = (this.permissionRequest.taxa ?? []).map((taxon) => {
         const items: any = { displayName: taxon.display_name };
         items[this.taxaValueFieldName] = taxon[this.taxaValueFieldName];
-        return items
+        return items;
       });
     }
     this.form.markAsPristine();
@@ -664,7 +661,8 @@ export class PermissionRequestFormComponent {
         if (!item) return null;
         if (typeof item === 'number') return item;
         if (typeof item === 'string' && item.trim()) return Number(item) || null;
-        if (typeof item === 'object' && this.taxaValueFieldName in item) return Number(item[this.taxaValueFieldName]);
+        if (typeof item === 'object' && this.taxaValueFieldName in item)
+          return Number(item[this.taxaValueFieldName]);
         return null;
       })
       .filter((id): id is number => id !== null && Number.isFinite(id));

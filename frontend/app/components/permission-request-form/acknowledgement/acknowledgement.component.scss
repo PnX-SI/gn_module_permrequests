@@ -4,12 +4,12 @@
   justify-content: flex-start;
   gap: 0.35rem;
 
-  input[type=checkbox].ng-invalid {
+  input[type='checkbox'].ng-invalid {
     appearance: none;
     width: 1.2rem;
     height: 1.2rem;
     border: 2px solid red;
-    border-radius: .25rem;
+    border-radius: 0.25rem;
     background-color: white;
     cursor: pointer;
     position: relative;

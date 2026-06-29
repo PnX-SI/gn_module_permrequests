@@ -59,8 +59,8 @@
       }
 
       &--customFields {
-        padding: .3rem;
-        margin: .3rem;
+        padding: 0.3rem;
+        margin: 0.3rem;
       }
 
       .Field {
@@ -131,16 +131,16 @@
 
   // Mat-Expansion-Panel
   mat-expansion-panel {
-    padding: .3rem;
-    margin: .3rem;
+    padding: 0.3rem;
+    margin: 0.3rem;
   }
 
   mat-expansion-panel mat-expansion-panel-header {
-    padding: .5rem .6rem 0 0;
+    padding: 0.5rem 0.6rem 0 0;
   }
 
   mat-expansion-panel.mat-expanded mat-expansion-panel-header {
-    padding: 0 .6rem 0 0;
+    padding: 0 0.6rem 0 0;
   }
 
   ::ng-deep mat-expansion-panel-header {
@@ -148,7 +148,7 @@
   }
 
   mat-expansion-panel mat-icon {
-    color: rgba(0,0,0,.54);
+    color: rgba(0, 0, 0, 0.54);
     font-size: 2.4rem;
     height: 45px;
     width: 45px;
@@ -165,13 +165,13 @@
   }
 
   mat-expansion-panel .header-group mat-panel-title {
-    color: rgba(0,0,0,.54);
+    color: rgba(0, 0, 0, 0.54);
     font-size: 14px;
     margin: 0 0 6px 0;
   }
 
   mat-expansion-panel .header-group mat-panel-description {
-    color: rgba(0,0,0,1);
+    color: rgba(0, 0, 0, 1);
     font-size: 18px;
     margin: 0 0 10px 0;
   }
@@ -196,6 +196,6 @@
   // Mat-Icon Fontawesome
   mat-icon.fa {
     font-size: 1.9rem !important;
-    padding-left: .4rem;
+    padding-left: 0.4rem;
   }
 }

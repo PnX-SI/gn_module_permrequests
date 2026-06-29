@@ -125,11 +125,10 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
     private _cruvedStore: CruvedStoreService,
     private _i18nService: I18nService,
     private _translateService: TranslateService,
-    private _configService: ConfigService,
+    private _configService: ConfigService
   ) {
     const moduleConfig = this._configService.PERMREQUESTS ?? {};
-    this.scopeFilterDefaultValue =
-      moduleConfig.SCOPE_FILTER.DEFAULT_VALUE ?? DEFAULT_SCOPE;
+    this.scopeFilterDefaultValue = moduleConfig.SCOPE_FILTER.DEFAULT_VALUE ?? DEFAULT_SCOPE;
 
     this._i18nService.initializeModuleTranslateService(this._translateService);
   }
@@ -140,7 +139,7 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
     );
     this.canValidatePermissionRequest = this._ars.canValidate(
       this._cruvedStore.cruved?.[this._moduleService.currentModule.module_code]
-    )
+    );
 
     this.filtersForm.valueChanges.pipe(takeUntil(this._destroy$)).subscribe(() => {
       this.pagination.currentPage = 1;
