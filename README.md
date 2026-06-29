@@ -165,3 +165,16 @@ Pour l'installer dans votre `venv`, vous pouvez utiliser : `pip install -e ".[de
 Ruff réalise un tri automatique des imports. Son utilisation permet donc de ne pas avoir besoin de faire de tri manuel des imports.
 
 Le formatage du code du frontend est assuré par [Prettier](https://prettier.io/). Ses règles de formatage sont définies dans le fichier `frontend/.prettierrc` et sont calquées sur les règles définies dans GeoNature.
+
+### Instructions pour les assistants IA
+
+Ce dépôt contient un fichier [AGENTS.md](AGENTS.md) à la racine du module destiné aux assistants IA et outils de génération de code. Il fournit des indications utiles sur :
+
+- la structure générale du module (`backend/`, `frontend/`, `config/`, `migrations/`),
+- les conventions de développement attendues,
+- les commandes de vérification et de formatage,
+- les points à traiter avec prudence, notamment les migrations, la configuration et la logique métier liée aux permissions.
+
+L’objectif de ce fichier est d’aider les outils d’IA à produire des changements cohérents avec l’architecture existante et à éviter les modifications risquées ou non pertinentes.
+
+Si vous ajoutez ou modifiez des fonctionnalités, gardez en tête que ce module s’intègre dans GeoNature et qu’un changement peut impacter à la fois le backend, le frontend et la configuration.
