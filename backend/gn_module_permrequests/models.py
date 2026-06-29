@@ -118,22 +118,6 @@ class PermissionRequest(DB.Model):
     def _ref_permission(self):
         return self.permissions[0] if self.permissions else None
 
-    @classmethod
-    def filter_by_scope(cls, scope, *, user=None):
-        if user is None:
-            user = g.current_user
-        if scope == 0:
-            return sa.false()
-        elif scope == 1:
-            return cls.permissions.any(Permission.role == user)
-        elif scope == 2:
-            return sa.or_(
-                cls.permissions.any(Permission.role == user),
-                cls.permissions.any(Permission.role.has(User.id_organisme == user.id_organisme)),
-            )
-        elif scope == 3:
-            return sa.true()
-
     @qfilter(query=True)
     def filter_by_scope(cls, scope, *, query, user=None):
         if user is None:

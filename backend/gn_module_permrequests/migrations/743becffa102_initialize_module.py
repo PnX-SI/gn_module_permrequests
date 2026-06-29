@@ -6,12 +6,11 @@ Create Date: 2023-03-27 11:54:34.602380
 
 """
 
-from alembic import op
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as psql
+from alembic import op
 
-from gn_module_permrequests import MODULE_CODE, ALEMBIC_BRANCH
-
+from gn_module_permrequests import ALEMBIC_BRANCH, MODULE_CODE
 
 # revision identifiers, used by Alembic.
 revision = "743becffa102"
@@ -38,11 +37,17 @@ NOTIFICATION_CATEGORY_DEFINITIONS = [
             "{% if permission_request.description %}"
             "<p><strong>Description :</strong> {{ permission_request.description }}</p>"
             "{% endif %}"
-            "<p>Vous recevez cet email automatiquement via le service de notification de GeoNature.</p>"
+            "<p>"
+            "Vous recevez cet email automatiquement via le service de "
+            "notification de GeoNature."
+            "</p>"
         ),
         "db_content": (
-            "{{ user.nom_complet }} a supprimé la demande de permission n°{{ permission_request.id_permission_request }}"
-            "{% if permission_request.description %} — {{ permission_request.description }}{% endif %}"
+            "{{ user.nom_complet }} a supprimé la demande de permission "
+            "n°{{ permission_request.id_permission_request }}"
+            "{% if permission_request.description %}"
+            " — {{ permission_request.description }}"
+            "{% endif %}"
         ),
     },
     {
@@ -57,11 +62,17 @@ NOTIFICATION_CATEGORY_DEFINITIONS = [
             "{% if permission_request.description %}"
             "<p><strong>Description :</strong> {{ permission_request.description }}</p>"
             "{% endif %}"
-            "<p>Vous recevez cet email automatiquement via le service de notification de GeoNature.</p>"
+            "<p>"
+            "Vous recevez cet email automatiquement via le service de "
+            "notification de GeoNature."
+            "</p>"
         ),
         "db_content": (
-            "{{ user.nom_complet }} a créé la demande de permission n°{{ permission_request.id_permission_request }}"
-            "{% if permission_request.description %} — {{ permission_request.description }}{% endif %}"
+            "{{ user.nom_complet }} a créé la demande de permission "
+            "n°{{ permission_request.id_permission_request }}"
+            "{% if permission_request.description %}"
+            " — {{ permission_request.description }}"
+            "{% endif %}"
         ),
     },
     {
@@ -76,12 +87,17 @@ NOTIFICATION_CATEGORY_DEFINITIONS = [
             "{% if permission_request.description %}"
             "<p><strong>Description :</strong> {{ permission_request.description }}</p>"
             "{% endif %}"
-            "<p>Vous recevez cet email automatiquement via le service de notification de GeoNature.</p>"
+            "<p>"
+            "Vous recevez cet email automatiquement via le service de "
+            "notification de GeoNature."
+            "</p>"
         ),
         "db_content": (
             "{{ user.nom_complet }} a modifié la demande de permission "
             "n°{{ permission_request.id_permission_request }}"
-            "{% if permission_request.description %} — {{ permission_request.description }}{% endif %}"
+            "{% if permission_request.description %}"
+            " — {{ permission_request.description }}"
+            "{% endif %}"
         ),
     },
     {
@@ -96,10 +112,14 @@ NOTIFICATION_CATEGORY_DEFINITIONS = [
             "{% if permission_request.validation_description is defined %}"
             "{{ permission_request.validation_description }}"
             "{% endif %}"
-            "<p>Vous recevez cet email automatiquement via le service de notification de GeoNature.</p>"
+            "<p>"
+            "Vous recevez cet email automatiquement via le service de "
+            "notification de GeoNature."
+            "</p>"
         ),
         "db_content": (
-            "{{ user.nom_complet }} a mis à jour pour la demande de permission n°{{ permission_request.id_permission_request }}"
+            "{{ user.nom_complet }} a mis à jour pour la demande de permission "
+            "n°{{ permission_request.id_permission_request }}"
             "{% if permission_request.validation_description is defined %}"
             " — {{ permission_request.validation_description }}"
             "{% endif %}"

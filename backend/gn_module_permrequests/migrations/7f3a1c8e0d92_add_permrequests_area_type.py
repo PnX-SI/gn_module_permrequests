@@ -6,10 +6,8 @@ Create Date: 2026-04-27 00:00:00.000000
 
 """
 
-import time
-
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 from gn_module_permrequests import MODULE_CODE
 

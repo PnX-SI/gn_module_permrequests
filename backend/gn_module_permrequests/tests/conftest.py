@@ -9,7 +9,7 @@ from gn_module_permrequests import MODULE_CODE, MODULE_LABEL, MODULE_PICTO
 
 
 @pytest.fixture(scope="session", autouse=True)
-def ensure_permission_request_module(app, users):
+def ensure_permission_request_module(users):  # noqa: F811
     """Ensure the module record and baseline permissions exist for tests."""
     module = db.session.scalar(select(TModules).filter_by(module_code=MODULE_CODE))
     if module is None:
