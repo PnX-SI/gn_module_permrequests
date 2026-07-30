@@ -8,6 +8,13 @@ and this project respects [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [unreleased]
 
+## [1.0.1] - 2026-07-30
+
+### Fixed
+
+- Maintain compatibility with Python 3.9, as GeoNature 2.17 is compatible.
+- Fixed the Angular template syntax which was incompatible with the Angular analyzer and caused an error during installation, but which was imposed by Prettier.
+
 ## [1.0.0] - 2026-06-29
 
 ### Added
