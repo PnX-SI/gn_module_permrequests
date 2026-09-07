@@ -402,3 +402,17 @@ def test_update_validated_can_mark_in_progress_and_reset(client, users, taxon_id
 
     reloaded = db.session.get(PermissionRequest, created.id_permission_request)
     assert reloaded.id_validator is None
+
+
+def test_geometries_from_geojson_keeps_all_features():
+    from gn_module_permrequests.blueprint import _geometries_from_geojson
+
+    polygon = {"type": "Polygon", "coordinates": [[[0, 0], [0, 1], [1, 1], [0, 0]]]}
+    collection = {
+        "type": "FeatureCollection",
+        "features": [{"type": "Feature", "geometry": polygon} for _ in range(3)],
+    }
+
+    assert len(_geometries_from_geojson(collection)) == 3
+    assert _geometries_from_geojson({"type": "Feature", "geometry": polygon}) == [polygon]
+    assert _geometries_from_geojson({"type": "FeatureCollection", "features": []}) == []

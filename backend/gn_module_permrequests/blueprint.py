@@ -167,36 +167,21 @@ def _area_name_for(custom_area):
     return f"Zone personnalisée PR-{custom_area.id_permission_request}"
 
 
-def _geojson_to_multipolygon_sql(geojson: dict):
+def _geometries_from_geojson(geojson: dict) -> list:
     """
-    Retourne une expression SQL qui convertit le GeoJSON en MULTIPOLYGON
-    dans le SRID local de ref_geo.l_areas.
-    Gère Feature, FeatureCollection et géométries directes.
+    Retourne toutes les géométries d'un GeoJSON, qu'il soit une FeatureCollection,
+    une Feature ou une géométrie nue.
     """
-    geojson_type = geojson.get("type")
-    if geojson_type == "FeatureCollection":
-        features = geojson.get("features", [])
-        geometry = features[0].get("geometry") if features else None
-    elif geojson_type == "Feature":
+    if geojson.get("type") == "FeatureCollection":
+        return [
+            feature["geometry"]
+            for feature in geojson.get("features", [])
+            if feature.get("geometry") is not None
+        ]
+    if geojson.get("type") == "Feature":
         geometry = geojson.get("geometry")
-    else:
-        geometry = geojson
-
-    if geometry is None:
-        raise BadRequest("Impossible d'extraire une géométrie du GeoJSON.")
-
-    import json as _json
-
-    geom_str = _json.dumps(geometry)
-
-    return sa.text("""
-        ST_Multi(
-            ST_Transform(
-                ST_SetSRID(ST_GeomFromGeoJSON(:geojson), 4326),
-                Find_SRID('ref_geo', 'l_areas', 'geom')
-            )
-        )
-        """).bindparams(geojson=geom_str)
+        return [geometry] if geometry is not None else []
+    return [geojson]
 
 
 def _sync_custom_area_to_l_areas(permission_request):
@@ -218,21 +203,14 @@ def _sync_custom_area_to_l_areas(permission_request):
         custom_area = permission_request.custom_area
         area_name = _area_name_for(custom_area)
 
-        geojson = custom_area.geojson_data
-        geojson_type = geojson.get("type")
-        if geojson_type == "FeatureCollection":
-            features = geojson.get("features", [])
-            geometry = features[0].get("geometry") if features else None
-        elif geojson_type == "Feature":
-            geometry = geojson.get("geometry")
-        else:
-            geometry = geojson
-        if geometry is None:
+        geometries = _geometries_from_geojson(custom_area.geojson_data)
+        if not geometries:
             raise InternalServerError(
                 "Impossible d'extraire une géométrie du GeoJSON de la custom_area."
             )
 
-        geom_str = _json.dumps(geometry)
+        # une seule géométrie en base, agrégeant toutes les features de la couche déposée
+        geom_str = _json.dumps({"type": "GeometryCollection", "geometries": geometries})
         local_srid = db.session.execute(sa.func.Find_SRID("ref_geo", "l_areas", "geom")).scalar()
 
         existing = db.session.execute(
@@ -256,13 +234,15 @@ def _sync_custom_area_to_l_areas(permission_request):
                         ST_Multi(
                             ST_Transform(
                                 ST_SetSRID(
-                                    ST_GeomFromGeoJSON(:geom),
+                                    ST_CollectionExtract(ST_GeomFromGeoJSON(:geom), 3),
                                     4326
                                 ),
                                 :local_srid
                             )
                         ),
-                        ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(:geom), 4326)),
+                        ST_Multi(
+                            ST_SetSRID(ST_CollectionExtract(ST_GeomFromGeoJSON(:geom), 3), 4326)
+                        ),
                         true
                     )
                     RETURNING id_area
@@ -284,13 +264,15 @@ def _sync_custom_area_to_l_areas(permission_request):
                         geom = ST_Multi(
                             ST_Transform(
                                 ST_SetSRID(
-                                    ST_GeomFromGeoJSON(:geom),
+                                    ST_CollectionExtract(ST_GeomFromGeoJSON(:geom), 3),
                                     4326
                                 ),
-                                local_srid
+                                :local_srid
                             )
                         ),
-                        geom_4326 = ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(:geom), 4326)),
+                        geom_4326 = ST_Multi(
+                            ST_SetSRID(ST_CollectionExtract(ST_GeomFromGeoJSON(:geom), 3), 4326)
+                        ),
                         meta_update_date = now()
                     WHERE id_area = :id_area
                     """),
@@ -416,16 +398,16 @@ _INVALID_GEOJSON_MSG = "Le GeoJSON fourni n'est pas valide."
 
 
 def _parse_custom_area(geojson: dict, file_name: str | None = None) -> CustomArea:
-    geojson_type = geojson.get("type")
-    if geojson_type == "FeatureCollection":
-        features = geojson.get("features", [])
-        if not features or features[0].get("geometry") is None:
-            raise BadRequest(_INVALID_GEOJSON_MSG)
-    elif geojson_type == "Feature":
-        if geojson.get("geometry") is None:
-            raise BadRequest(_INVALID_GEOJSON_MSG)
-    else:
+    if geojson.get("type") not in ("FeatureCollection", "Feature"):
         raise BadRequest(_INVALID_GEOJSON_MSG)
+
+    geometries = _geometries_from_geojson(geojson)
+    if not geometries:
+        raise BadRequest(_INVALID_GEOJSON_MSG)
+
+    # seuls les polygones survivent au ST_CollectionExtract de la mise en base
+    if not any(geom.get("type") in ("Polygon", "MultiPolygon") for geom in geometries):
+        raise BadRequest("Le GeoJSON fourni ne contient aucun polygone.")
 
     return CustomArea(geojson_data=geojson, file_name=file_name)
 
