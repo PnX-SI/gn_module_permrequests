@@ -1,7 +1,3 @@
-"""
-Définition des routes du module export
-"""
-
 from datetime import date, datetime
 from enum import Enum
 
@@ -169,8 +165,8 @@ def _area_name_for(custom_area):
 
 def _geometries_from_geojson(geojson: dict) -> list:
     """
-    Retourne toutes les géométries d'un GeoJSON, qu'il soit une FeatureCollection,
-    une Feature ou une géométrie nue.
+    Return all geometries from a GeoJson object, whether it is a
+    FeatureCollection, a Feature or a raw geometry.
     """
     if geojson.get("type") == "FeatureCollection":
         return [
@@ -186,9 +182,9 @@ def _geometries_from_geojson(geojson: dict) -> list:
 
 def _sync_custom_area_to_l_areas(permission_request):
     """
-    Si la demande est validée et a une custom_area : crée ou met à jour l'entrée dans l_areas
-    et l'associe à permission.areas_filter.
-    Sinon : supprime l'entrée l_areas associée (si elle existe).
+    If the request is validated and has a custom_area: creates or updates the entry in l_areas
+    and associates it with permission.areas_filter.
+    Otherwise: removes the associated l_areas entry (if it exists).
     """
     import json as _json
 
@@ -209,7 +205,7 @@ def _sync_custom_area_to_l_areas(permission_request):
                 "Impossible d'extraire une géométrie du GeoJSON de la custom_area."
             )
 
-        # une seule géométrie en base, agrégeant toutes les features de la couche déposée
+        # A single geometry stored in the database, aggregating all features from the uploaded layer
         geom_str = _json.dumps({"type": "GeometryCollection", "geometries": geometries})
         local_srid = db.session.execute(sa.func.Find_SRID("ref_geo", "l_areas", "geom")).scalar()
 
@@ -284,7 +280,7 @@ def _sync_custom_area_to_l_areas(permission_request):
                 },
             )
 
-        # Associer l'area à toutes les permissions de la demande
+        # Associate the area with all permissions of the request
         area = db.session.get(LAreas, id_area)
         if area is not None:
             for perm in permission_request.permissions:
@@ -293,8 +289,8 @@ def _sync_custom_area_to_l_areas(permission_request):
                     perm.areas_filter.append(area)
 
     else:
-        # Retirer de areas_filter en premier (supprime cor_permission_area),
-        # puis flusher avant de supprimer l_areas (contrainte FK).
+        # Remove from areas_filter first (deletes cor_permission_area),
+        # then flush before deleting from l_areas (FK constraint).
         for perm in permission_request.permissions:
             perm.areas_filter = [
                 a
@@ -405,7 +401,7 @@ def _parse_custom_area(geojson: dict, file_name: str | None = None) -> CustomAre
     if not geometries:
         raise BadRequest(_INVALID_GEOJSON_MSG)
 
-    # seuls les polygones survivent au ST_CollectionExtract de la mise en base
+    # Only polygons survive the ST_CollectionExtract when stored in the database
     if not any(geom.get("type") in ("Polygon", "MultiPolygon") for geom in geometries):
         raise BadRequest("Le GeoJSON fourni ne contient aucun polygone.")
 
