@@ -13,6 +13,8 @@ and this project respects [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 ### Fixed
 
 - Retain all features of uploaded GeoJSON (see [#3](https://github.com/PnX-SI/gn_module_permrequests/issues/3)). Add unit test for this case.
+- Use the real local SRID for the GeoJSON uploaded.
+- A GeoJSON file uploaded without a polygon is now immediately rejected, with an explicit message.
 - Translate to english all comments in backend source code.
 
 ## [1.0.1] - 2026-07-30
