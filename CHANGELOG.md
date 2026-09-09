@@ -8,14 +8,14 @@ and this project respects [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [unreleased]
 
-## [1.0.2] - 2026-09-09
+## [1.0.2] - 2026-09-09
 
 ### Fixed
 
 - Retain all features of uploaded GeoJSON (see [#3](https://github.com/PnX-SI/gn_module_permrequests/issues/3)). Add unit test for this case.
 - Translate to english all comments in backend source code.
 
-## [1.0.1] - 2026-07-30
+## [1.0.1] - 2026-07-30
 
 ### Fixed
 
