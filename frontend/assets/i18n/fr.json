@@ -90,7 +90,7 @@
                     "Label": "Zones géographiques"
                 },
                 "Sensitivity": {
-                    "Label": "Inclure les données sensibles",
+                    "Label": "Flouter les données sensibles",
                     "Yes": "Oui",
                     "No": "Non"
                 },

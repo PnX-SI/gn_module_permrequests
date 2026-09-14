@@ -90,7 +90,7 @@
                     "Label": "Geographical areas"
                 },
                 "Sensitivity": {
-                    "Label": "Include sensitive data",
+                    "Label": "Blur sensitive data",
                     "Yes": "Yes",
                     "No": "No"
                 },
