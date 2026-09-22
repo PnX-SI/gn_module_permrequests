@@ -17,7 +17,7 @@ class PermissionToCreateSchemaConf(Schema):
 
 class SensitivityFilterConfigSchema(Schema):
     DISPLAY_ENABLED = fields.Boolean(load_default=False)
-    DEFAULT_VALUE = fields.Boolean(load_default=True)
+    DEFAULT_VALUE = fields.Boolean(load_default=False)
 
 
 class ScopeFilterConfigSchema(Schema):

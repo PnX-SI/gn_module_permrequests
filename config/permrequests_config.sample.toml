@@ -122,8 +122,9 @@ DEFAULT_VALUE = "USER"
 # Enable the display of the sensitive data filter in the permission request form.
 # With OpenData permission requests are only for sensitive data access.
 DISPLAY_ENABLED = false
-# Default value of the sensitive filter. By default set to true.
-DEFAULT_VALUE = true
+# Default value of the sensitive filter. By default set to false, so that sensitive data
+# are granted without blurring.
+DEFAULT_VALUE = false
 
 [TAXA_FILTER]
 # Enable the display of the taxa filter in the permission request form.
