@@ -134,7 +134,7 @@ GeoNature.
     - `SCOPE_FILTER.DEFAULT_VALUE` : permet de définir la valeur par défaut (`USER`) pour le filtre de portée de la demande.
 - `SENSITIVITY_FILTER` : section permettant de configurer l'affichage du filtre lié à la sensibilité au sein de la demande.
     - `SENSITIVITY_FILTER.DISPLAY_ENABLED` : affiche (`true`) ou pas (`false`) la coche permettant de définir le filtre de sensibilité de la demande.
-    - `SENSITIVITY_FILTER.DEFAULT_VALUE` : permet de définir la valeur par défaut (`true`) du filtre de sensibilité de la demande.
+    - `SENSITIVITY_FILTER.DEFAULT_VALUE` : valeur par défaut du filtre de sensibilité de la demande, définir à `true` pour flouter les données sensibles. Par défaut : `false`.
 - `TAXA_FILTER` : section permettant de configurer l'affichage du filtre lié aux taxons au sein de la demande.
     - `TAXA_FILTER.DISPLAY_ENABLED` : affiche (`true`) ou pas (`false`) le filtre lié aux taxons de la demande. Par défaut : `true`.
     - `TAXA_FILTER.RANK_MIN` : rang taxinomique minimal à partir duquel les taxons peuvent être sélectionnés. Par défaut: `ES`.  
