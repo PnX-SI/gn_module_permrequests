@@ -8,6 +8,12 @@ and this project respects [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [unreleased]
 
+## [1.1.0] - 2026-09-25
+
+### Changed
+- [BREAKING CHANGES] the default value for the sensitivity filter is now set to "false". Therefore, sensitive data will be displayed once the request is accepted.
+- Modify the title of the sensitivity filter in request form so that it corresponds to the meaning of the associated GeoNature authorization.
+
 ## [1.0.2] - 2026-09-09
 
 ### Fixed

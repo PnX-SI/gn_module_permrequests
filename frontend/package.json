@@ -1,6 +1,6 @@
 {
   "name": "permission_request",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "GeoNature permission request module",
   "license": "GPLv3",
   "scripts": {
