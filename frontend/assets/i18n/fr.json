@@ -129,7 +129,7 @@
                 "ExpirationDate": "Expire le",
                 "Id": "ID",
                 "Scope": "Portée",
-                "Sensitivity": "Sensibilité",
+                "Sensitivity": "Floutage",
                 "Status": "Statut",
                 "Taxa": "Groupe(s) Taxonomique(s)",
                 "Validator": "Validateur"
@@ -141,7 +141,7 @@
                 "Labels": {
                     "MyValidations": "Mes validations",
                     "Scope": "Portée",
-                    "Sensitivity": "Sensibilité",
+                    "Sensitivity": "Floutage",
                     "Status": "Statut"
                 }
             }

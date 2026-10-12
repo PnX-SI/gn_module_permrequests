@@ -91,6 +91,7 @@
         </ng-select>
 
         <ng-select
+          *ngIf="shouldDisplaySensitivityFilter"
           class="FiltersForm__Filter"
           id="filter-sensitive"
           [items]="sensitivityOptions"
@@ -282,6 +283,7 @@
       </ng-template>
     </ngx-datatable-column>
     <ngx-datatable-column
+      *ngIf="shouldDisplaySensitivityFilter"
       name="{{ 'Permrequests.List.Columns.Sensitivity' | translate }}"
       [prop]="PROP_SENSITIVITY_FILTER"
       [maxWidth]="100"

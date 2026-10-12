@@ -68,6 +68,7 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
   readonly PROP_STATUS = 'status';
   readonly PermissionRequestScope = PermissionRequestScope;
   readonly scopeFilterDefaultValue: PermissionRequestScope;
+  readonly shouldDisplaySensitivityFilter: boolean;
 
   pagination: PaginationItem = DEFAULT_PAGINATION;
   sort: SortItem = {
@@ -129,6 +130,7 @@ export class PermissionRequestListComponent implements OnInit, OnDestroy {
   ) {
     const moduleConfig = this._configService.PERMREQUESTS ?? {};
     this.scopeFilterDefaultValue = moduleConfig.SCOPE_FILTER.DEFAULT_VALUE ?? DEFAULT_SCOPE;
+    this.shouldDisplaySensitivityFilter = !!moduleConfig.SENSITIVITY_FILTER.DISPLAY_ENABLED;
 
     this._i18nService.initializeModuleTranslateService(this._translateService);
   }

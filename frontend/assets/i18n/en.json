@@ -129,7 +129,7 @@
                 "ExpirationDate": "Expires on",
                 "Id": "ID",
                 "Scope": "Scope",
-                "Sensitivity": "Sensitivity",
+                "Sensitivity": "Blurring",
                 "Status": "Status",
                 "Taxa": "Taxonomic group(s)",
                 "Validator": "Validator"
@@ -141,7 +141,7 @@
                 "Labels": {
                     "MyValidations": "My validations",
                     "Scope": "Scope",
-                    "Sensitivity": "Sensitivity",
+                    "Sensitivity": "Blurring",
                     "Status": "Status"
                 }
             }
