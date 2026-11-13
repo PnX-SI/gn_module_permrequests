@@ -40,9 +40,10 @@ class PermissionRequestTaxonSchema(SQLAlchemySchema):
             return display_name
 
         display_name = taxon.nom_complet_html
-        display_name = display_name.replace(
-            taxon.lb_auteur, f'<span class="text-muted">{taxon.lb_auteur}</span>'
-        )
+        if taxon.lb_auteur:
+            display_name = display_name.replace(
+                taxon.lb_auteur, f'<span class="text-muted">{taxon.lb_auteur}</span>'
+            )
         if taxon.cd_nom == taxon.cd_ref:
             if "<i>" in display_name:
                 display_name = display_name.replace("<i>", "<b><i>")
