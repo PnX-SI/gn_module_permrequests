@@ -8,6 +8,13 @@ and this project respects [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [unreleased]
 
+## [1.1.1] - 2026-11-13
+
+### Fixed
+-  Rename the column "sensitivity" to "blurring" and hide the column blurring based on the configuration `SENSITIVITY_FILTER.DISPLAY_ENABLED`.
+- Handle to display the taxon name without author in permissions list. 
+
+
 ## [1.1.0] - 2026-09-25
 
 ### Changed
